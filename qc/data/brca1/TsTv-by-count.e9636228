@@ -1,0 +1,59 @@
+
+VCFtools - v0.1.12
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--gzvcf brca1.merged.sample_set.vcf.gz
+	--out TsTv-by-count
+	--TsTv-by-count
+
+Using zlib version: 1.2.7
+After filtering, kept 5 out of 5 Individuals
+Outputting Ts/Tv by Alternative Allele Count
+After filtering, kept 81239 out of a possible 81239 Sites
+Run Time = 0.00 seconds
+*** glibc detected *** vcftools: munmap_chunk(): invalid pointer: 0x0000000001061160 ***
+======= Backtrace: =========
+/lib64/libc.so.6[0x3127e75e66]
+vcftools[0x40a03e]
+vcftools[0x40adac]
+vcftools[0x40f604]
+vcftools[0x40b159]
+vcftools[0x4051a6]
+/lib64/libc.so.6(__libc_start_main+0xfd)[0x3127e1ed5d]
+vcftools[0x404789]
+======= Memory map: ========
+00400000-004b0000 r-xp 00000000 00:15 114225717                          /srv/gs1/software/vcftools/0.1.12/bin/vcftools
+006af000-006b0000 rw-p 000af000 00:15 114225717                          /srv/gs1/software/vcftools/0.1.12/bin/vcftools
+006b0000-006b2000 rw-p 00000000 00:00 0 
+01026000-0108c000 rw-p 00000000 00:00 0                                  [heap]
+3127a00000-3127a20000 r-xp 00000000 08:01 392545                         /lib64/ld-2.12.so
+3127c1f000-3127c20000 r--p 0001f000 08:01 392545                         /lib64/ld-2.12.so
+3127c20000-3127c21000 rw-p 00020000 08:01 392545                         /lib64/ld-2.12.so
+3127c21000-3127c22000 rw-p 00000000 00:00 0 
+3127e00000-3127f8a000 r-xp 00000000 08:01 420683                         /lib64/libc-2.12.so
+3127f8a000-312818a000 ---p 0018a000 08:01 420683                         /lib64/libc-2.12.so
+312818a000-312818e000 r--p 0018a000 08:01 420683                         /lib64/libc-2.12.so
+312818e000-312818f000 rw-p 0018e000 08:01 420683                         /lib64/libc-2.12.so
+312818f000-3128194000 rw-p 00000000 00:00 0 
+3128a00000-3128a83000 r-xp 00000000 08:01 393815                         /lib64/libm-2.12.so
+3128a83000-3128c82000 ---p 00083000 08:01 393815                         /lib64/libm-2.12.so
+3128c82000-3128c83000 r--p 00082000 08:01 393815                         /lib64/libm-2.12.so
+3128c83000-3128c84000 rw-p 00083000 08:01 393815                         /lib64/libm-2.12.so
+312a200000-312a216000 r-xp 00000000 08:01 420687                         /lib64/libgcc_s-4.4.6-20120305.so.1
+312a216000-312a415000 ---p 00016000 08:01 420687                         /lib64/libgcc_s-4.4.6-20120305.so.1
+312a415000-312a416000 rw-p 00015000 08:01 420687                         /lib64/libgcc_s-4.4.6-20120305.so.1
+312c200000-312c2e8000 r-xp 00000000 08:01 420688                         /usr/lib64/libstdc++.so.6.0.13
+312c2e8000-312c4e8000 ---p 000e8000 08:01 420688                         /usr/lib64/libstdc++.so.6.0.13
+312c4e8000-312c4ef000 r--p 000e8000 08:01 420688                         /usr/lib64/libstdc++.so.6.0.13
+312c4ef000-312c4f1000 rw-p 000ef000 08:01 420688                         /usr/lib64/libstdc++.so.6.0.13
+312c4f1000-312c506000 rw-p 00000000 00:00 0 
+2b843f3db000-2b843f3dc000 rw-p 00000000 00:00 0 
+2b843f3dc000-2b843f3f2000 r-xp 00000000 00:15 81919940                   /srv/gs1/software/zlib/1.2.7/lib/libz.so.1.2.7
+2b843f3f2000-2b843f5f1000 ---p 00016000 00:15 81919940                   /srv/gs1/software/zlib/1.2.7/lib/libz.so.1.2.7
+2b843f5f1000-2b843f5f2000 rw-p 00015000 00:15 81919940                   /srv/gs1/software/zlib/1.2.7/lib/libz.so.1.2.7
+2b843f601000-2b843f607000 rw-p 00000000 00:00 0 
+7fff5c8e9000-7fff5c8ff000 rw-p 00000000 00:00 0                          [stack]
+7fff5c9ff000-7fff5ca00000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+-bash: line 1: 10459 Aborted                 vcftools --gzvcf brca1.merged.sample_set.vcf.gz --TsTv-by-count --out TsTv-by-count
