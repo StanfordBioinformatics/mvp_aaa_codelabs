@@ -1,13 +1,9 @@
  SELECT
-  vars.call_set_name,
-  ref.chromosome,
-  ref.start,
-  ref.end,
-  ref.reference_bases,
-  vars.var_start,
-  vars.var_end,
-  
-  #vars.variant_called_count,
+  vars.call_set_name AS sample_name,
+  ref.chromosome AS chromosome,
+  ref.start AS start,
+  vars.var_end AS end,
+  ref.reference_bases AS reference_bases,
 FROM (
   SELECT  
     CONCAT('chr', Chr) AS chromosome,
@@ -20,7 +16,6 @@ FROM (
     Chr = '17'
     AND Start BETWEEN 41196311
       AND 41277499 ) AS ref 
-
 JOIN (
 SELECT
         call.call_set_name AS call_set_name,
@@ -29,9 +24,7 @@ SELECT
         end AS var_end,
         INTEGER(FLOOR(start / 5000)) AS bin,
         reference_bases,
-        #SUM(called_count) AS variant_called_count,
       FROM ( FLATTEN((
-        # _LIMIT the query to SNPs
         SELECT
           call.call_set_name,
           reference_name as chromosome,
@@ -43,7 +36,6 @@ SELECT
           IF(alternate_bases IS NULL,
             FALSE,
             TRUE) AS is_variant_call,
-          #SUM(call.genotype >= 0) WITHIN RECORD AS called_count,
         FROM
           [va_aaa_pilot_data.5_genome_test_gvcfs]
         WHERE
@@ -63,9 +55,7 @@ SELECT
         reference_bases ) AS vars
 ON 
   ref.chromosome = vars.chromosome
-  AND ref.start = vars.var_start #) AS
-  
+  AND ref.start = vars.var_start
 ORDER BY 
   start,
-  end,
-LIMIT 1000        
+  end       
