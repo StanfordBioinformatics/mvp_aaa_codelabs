@@ -108,8 +108,14 @@ ON
   refs.chromosome = calls.chromosome
   AND refs.sample_name = calls.sample_name
   AND refs.start = calls.start
+GROUP BY 
+  sample_name,
+  chromosome,
+  start,
+  end,
+  reference_bases,
+  is_ref,
 ORDER BY 
-  refs.start,
-  refs.end,
-  refs.sample_name,
-     
+  start,
+  end,
+  sample_name,
