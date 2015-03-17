@@ -25,10 +25,7 @@ FROM (
       [_THE_EXPANDED_TABLE_]
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
-    WHERE 
-                    reference_name = 'chr17'
-                    AND start BETWEEN 41196311
-                    AND 41277499
+    #_WHERE_
   ) as calls
 CROSS JOIN (
   SELECT 
