@@ -14,6 +14,9 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*This code is used with permission by Google Genomics*
+*https://github.com/googlegenomics*
+
 # Part 4: Variant-Level QC
 
 ```{r echo=FALSE, eval=FALSE}
@@ -43,7 +46,7 @@ By default this codelab runs upon the Illumina Platinum Genomes Variants. Update
 ```{r}
 tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
                           "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
-sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
+sampleData <- read.csv("data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 ```
 

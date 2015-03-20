@@ -14,6 +14,9 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*This code is used with permission by Google Genomics*
+*https://github.com/googlegenomics*
+
 # Part 4: Variant-Level QC
 
 
@@ -33,7 +36,7 @@ By default this codelab runs upon the Illumina Platinum Genomes Variants. Update
 ```r
 tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
                           "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
-sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
+sampleData <- read.csv("data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 ```
 
@@ -93,7 +96,7 @@ Number of rows returned by this query: 2278.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 09:09:34 2015 -->
+<!-- Fri Mar 20 02:02:23 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> window_start </th> <th> transitions </th> <th> transversions </th> <th> titv </th> <th> num_variants_in_window </th>  </tr>
   <tr> <td> chr1 </td> <td align="right">   0 </td> <td align="right">  85 </td> <td align="right">  66 </td> <td align="right"> 1.29 </td> <td align="right"> 151 </td> </tr>
@@ -164,7 +167,7 @@ Number of rows returned by this query: 11.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 09:09:38 2015 -->
+<!-- Fri Mar 20 02:02:26 2015 -->
 <table border=1>
 <tr> <th> transitions </th> <th> transversions </th> <th> titv </th> <th> alternate_allele_count </th>  </tr>
   <tr> <td align="right"> 306560 </td> <td align="right"> 148701 </td> <td align="right"> 2.06 </td> <td align="right">  10 </td> </tr>
@@ -233,7 +236,7 @@ Number of rows returned by this query: 1000.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 09:09:43 2015 -->
+<!-- Fri Mar 20 02:02:28 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missingness_rate </th>  </tr>
   <tr> <td> chr1 </td> <td align="right"> 62202 </td> <td align="right"> 62204 </td> <td> T </td> <td> C </td> <td align="right">   4 </td> <td align="right">   4 </td> <td align="right"> 1.00 </td> </tr>
@@ -353,18 +356,12 @@ FROM (
         )))
 # Optionally add a clause here to sort and limit the results.
 ORDER BY ChiSq DESC, reference_name, start, alternate_bases LIMIT 1000
-
-Running query:   RUNNING  2.2s
-Running query:   RUNNING  2.9s
-Running query:   RUNNING  3.6s
-Running query:   RUNNING  4.2s
-Running query:   RUNNING  4.8s
 ```
 Number of rows returned by this query: 1000.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 09:09:53 2015 -->
+<!-- Fri Mar 20 02:02:32 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
   <tr> <td> chr1 </td> <td align="right"> 1647300 </td> <td> G </td> <td> A </td> <td align="right">   5 </td> <td align="right">   0 </td> <td align="right">   5 </td> <td align="right"> 2.50 </td> <td align="right"> 5.00 </td> <td align="right"> 2.50 </td> <td align="right"> 10.00 </td> <td> TRUE </td> </tr>
@@ -412,17 +409,28 @@ OMIT
   call if (2 > COUNT(call.genotype))
   OR EVERY(call.genotype <= 0)
   OR EVERY(call.genotype = 1)
-HAVING call.call_set_name IN ('NA12877','NA12882','NA12883','NA12884','NA12886','NA12888','NA12889','NA12891','NA12893')
+HAVING call.call_set_name IN ('LP6005038-DNA_A01','LP6005038-DNA_A02','LP6005038-DNA_B01','LP6005038-DNA_B02')
 # Optionally add a clause here to sort and limit the results.
 ORDER BY reference_name, start, alternate_bases, call.call_set_name LIMIT 1000
+
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
+Running query:   RUNNING  3.3s
 ```
-Number of rows returned by this query: .
+Number of rows returned by this query: 1000.
 
 Displaying the first few results:
-
-```
-Error in UseMethod("xtable"): no applicable method for 'xtable' applied to an object of class "NULL"
-```
+<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
+<!-- Fri Mar 20 02:02:40 2015 -->
+<table border=1>
+<tr> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> call_call_set_name </th> <th> genotype </th>  </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705236 </td> <td align="right"> 2705237 </td> <td> C </td> <td> T </td> <td> LP6005038-DNA_B01 </td> <td> 0,1 </td> </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705236 </td> <td align="right"> 2705237 </td> <td> C </td> <td> T </td> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705247 </td> <td align="right"> 2705248 </td> <td> T </td> <td> A </td> <td> LP6005038-DNA_B01 </td> <td> 0,1 </td> </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705247 </td> <td align="right"> 2705248 </td> <td> T </td> <td> A </td> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705266 </td> <td align="right"> 2705267 </td> <td> G </td> <td> A </td> <td> LP6005038-DNA_B01 </td> <td> 0,1 </td> </tr>
+  <tr> <td> chrX </td> <td align="right"> 2705266 </td> <td align="right"> 2705267 </td> <td> G </td> <td> A </td> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> </tr>
+   </table>
 
 # Removing variants from the Cohort
 

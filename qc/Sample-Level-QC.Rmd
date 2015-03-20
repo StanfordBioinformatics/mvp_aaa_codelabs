@@ -14,6 +14,9 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*This code is used with permission by Google Genomics*
+*https://github.com/googlegenomics*
+
 # Part 3: Sample-Level QC
 
 ```{r echo=FALSE, eval=FALSE}
@@ -32,6 +35,24 @@ source("./rHelpers/setup.R")
 ```
 
 In Part 3 of the codelab, we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+
+By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+```{r}
+tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
+sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+queryReplacements <- list("_THE_TABLE_"="genomics-public-data:platinum_genomes.variants",
+                          "_THE_EXPANDED_TABLE_"="google.com:biggene:platinum_genomes.expanded_variants")
+
+#ibs <- read.table("./data/platinum-genomes-ibs.tsv",
+#                  col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
+
+# To run this against other public data, source in one of the dataset helpers.  For example:
+# source("./rHelpers/pgpCGIOnlyDataset.R")
+```
+
 
 * [Missingness Rate](#missingness-rate)
 * [Singleton Rate](#singleton-rate)
@@ -159,66 +180,11 @@ ggplot(joinedResult) +
 
 ## Ethnicity Inference
 
-For each genome, compare the ethncity from the sample information to the clustering in this analysis.
-
-For this check, we:
-* use the intersection of common variants found in both 1,000 Genomes phase 1 variants and Platinum Genomes
-* compute PCA on those variants in common between the two data
-* examine whether the individuals in Platinum Genomes cluster with other samples of the same ethnicity
-
-Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
-
-This is a work-in-progress.  See https://github.com/elmer-garduno/spark-examples/tree/multiple_dataset_pca for the current state.
+TODO
 
 ## Genome Similarity
 
-Perform a simplistic similarity check on each pair of genomes to identify any mislabled or cross-contaminated samples.
-
-Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
-
-### Results
-
-This is hard-coded to Identity-By-State results for Platinum Genomes.
-```{r ibs, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ibs <- read.table("./data/platinum-genomes-ibs.tsv",
-                  col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
-ggplot(ibs) +
-  geom_tile(aes(x=sample1, y=sample2, fill=ibsScore), colour="white") +
-  scale_fill_gradient(low="white", high="steelblue",
-                      na.value="black", trans="log",
-                      guide=guide_colourbar(title= "IBS Score")) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  xlab("Sample 1") +
-  ylab("Sample 2") +
-  ggtitle("Identity By State (IBS) Heat Map")
-```
-
-### To Run the Cluster Compute Job
-
-If you wish to run the Dataflow job, see the [dataflow-java README](https://github.com/googlegenomics/dataflow-java) for instructions to compile and run the job.
-```
-java -cp target/google-genomics-dataflow-v1beta2-0.2-SNAPSHOT.jar \
-com.google.cloud.genomics.dataflow.pipelines.IdentityByState \
---project=YOUR-PROJECT \
---stagingLocation=gs://YOUR-BUCKET/staging \
---output=gs://YOUR-BUCKET/output/platinum-genomes-ibs.tsv \
---genomicsSecretsFile=/PATH/TO/YOUR/client_secrets.json \
---runner=DataflowPipelineRunner \
---numWorkers=40 \
---basesPerShard=1000000 \
---datasetId=3049512673186936334 \
---nonVariantSegments \
---allReferences
-```
-
-Note that there are several IBS calculators from which to choose.  Use the `--callSimilarityCalculatorFactory` to switch between them.
-
-To run the job on a different dataset, change the variant set id for the `--datasetId` id parameter.  (Also, remove the `--nonVariantSegments` parameter if the data does not contain them.)
-
-To gather the results into a single file:
-```
-gsutil cat gs://YOUR-BUCKET/output/platinum-genomes-ibs.tsv* | sort > platinum-genomes-ibs.tsv
-```
+TODO
 
 # Removing Genomes from the Cohort
 

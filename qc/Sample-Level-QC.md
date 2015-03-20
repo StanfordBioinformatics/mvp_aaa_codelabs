@@ -14,6 +14,9 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*This code is used with permission by Google Genomics*
+*https://github.com/googlegenomics*
+
 # Part 3: Sample-Level QC
 
 
@@ -21,6 +24,25 @@
 
 
 In Part 3 of the codelab, we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+
+By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+
+```r
+tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
+sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+queryReplacements <- list("_THE_TABLE_"="genomics-public-data:platinum_genomes.variants",
+                          "_THE_EXPANDED_TABLE_"="google.com:biggene:platinum_genomes.expanded_variants")
+
+#ibs <- read.table("./data/platinum-genomes-ibs.tsv",
+#                  col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
+
+# To run this against other public data, source in one of the dataset helpers.  For example:
+# source("./rHelpers/pgpCGIOnlyDataset.R")
+```
+
 
 * [Missingness Rate](#missingness-rate)
 * [Singleton Rate](#singleton-rate)
@@ -66,7 +88,7 @@ FROM (
       call.call_set_name,
       SOME(call.genotype == -1) WITHIN call AS has_no_calls,
     FROM
-      [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_no_calls]
+      [va_aaa_pilot_data.5_genome_test_gvcfs_no_calls]
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
     #_WHERE_
@@ -75,12 +97,15 @@ FROM (
     call.call_set_name)
 ORDER BY
   call.call_set_name
+
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
 ```
 Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 10:43:08 2015 -->
+<!-- Fri Mar 20 01:56:46 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> no_calls </th> <th> all_calls </th> <th> missingness_rate </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 81237179 </td> <td align="right"> 2147483647 </td> <td align="right"> 0.03 </td> </tr>
@@ -154,7 +179,7 @@ FROM (
             call.call_set_name,
             call.genotype,
           FROM
-            [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_no_calls]
+            [va_aaa_pilot_data.5_genome_test_gvcfs_no_calls]
           # Optionally add a clause here to limit the query to a particular
           # region of the genome.
           #_WHERE_
@@ -178,19 +203,20 @@ GROUP BY
 ORDER BY
   private_variant_count DESC
 
-Running query:   RUNNING  2.1s
-Running query:   RUNNING  2.8s
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
 Running query:   RUNNING  3.4s
+Running query:   RUNNING  4.0s
 Running query:   RUNNING  4.7s
-Running query:   RUNNING  5.3s
-Running query:   RUNNING  5.9s
+Running query:   RUNNING  5.4s
+Running query:   RUNNING  6.0s
 Running query:   RUNNING  6.6s
 ```
 Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 10:43:20 2015 -->
+<!-- Fri Mar 20 01:56:56 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> private_variant_count </th>  </tr>
   <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 554759 </td> </tr>
@@ -254,7 +280,7 @@ FROM (
         SUM(call.genotype = 1)/SUM(call.genotype >= 0),
         -1)  WITHIN RECORD AS freq
     FROM
-      [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_no_calls]
+      [va_aaa_pilot_data.5_genome_test_vcfs_no_calls]
     # Optionally add a clause here to limit the query to a particular
     # region of the genome.
     #_WHERE_
@@ -272,14 +298,16 @@ FROM (
 ORDER BY
   call.call_set_name
 
+Running query:   RUNNING  2.0s
 Running query:   RUNNING  2.7s
 Running query:   RUNNING  3.4s
+Running query:   RUNNING  4.1s
 ```
 Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 10:43:28 2015 -->
+<!-- Fri Mar 20 01:57:04 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 4412463 </td> <td align="right"> 5069576.52 </td> <td align="right"> 6580000 </td> <td align="right"> -0.44 </td> </tr>
@@ -342,7 +370,7 @@ FROM
       NTH(1, call.genotype) WITHIN call AS first_allele,
       NTH(2, call.genotype) WITHIN call AS second_allele,
     FROM
-      [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_no_calls]
+      [va_aaa_pilot_data.5_genome_test_vcfs_no_calls]
     WHERE
       reference_name = 'chrX'
       AND start NOT BETWEEN 59999 AND 2699519
@@ -362,7 +390,7 @@ Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 13 10:43:33 2015 -->
+<!-- Fri Mar 20 01:57:07 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> all_callable_sites </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th> <th> all_snvs </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 166048 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 92239 </td> <td align="right"> 73809 </td> </tr>
@@ -394,83 +422,11 @@ ggplot(joinedResult) +
 
 ## Ethnicity Inference
 
-For each genome, compare the ethncity from the sample information to the clustering in this analysis.
-
-For this check, we:
-* use the intersection of common variants found in both 1,000 Genomes phase 1 variants and Platinum Genomes
-* compute PCA on those variants in common between the two data
-* examine whether the individuals in Platinum Genomes cluster with other samples of the same ethnicity
-
-Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
-
-This is a work-in-progress.  See https://github.com/elmer-garduno/spark-examples/tree/multiple_dataset_pca for the current state.
+TODO
 
 ## Genome Similarity
 
-Perform a simplistic similarity check on each pair of genomes to identify any mislabled or cross-contaminated samples.
-
-Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
-
-### Results
-
-This is hard-coded to Identity-By-State results for Platinum Genomes.
-
-```r
-ibs <- read.table("./data/platinum-genomes-ibs.tsv",
-                  col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
-```
-
-```
-Warning in file(file, "rt"): cannot open file
-'./data/platinum-genomes-ibs.tsv': No such file or directory
-```
-
-```
-Error in file(file, "rt"): cannot open the connection
-```
-
-```r
-ggplot(ibs) +
-  geom_tile(aes(x=sample1, y=sample2, fill=ibsScore), colour="white") +
-  scale_fill_gradient(low="white", high="steelblue",
-                      na.value="black", trans="log",
-                      guide=guide_colourbar(title= "IBS Score")) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  xlab("Sample 1") +
-  ylab("Sample 2") +
-  ggtitle("Identity By State (IBS) Heat Map")
-```
-
-```
-Error in ggplot(ibs): object 'ibs' not found
-```
-
-### To Run the Cluster Compute Job
-
-If you wish to run the Dataflow job, see the [dataflow-java README](https://github.com/googlegenomics/dataflow-java) for instructions to compile and run the job.
-```
-java -cp target/google-genomics-dataflow-v1beta2-0.2-SNAPSHOT.jar \
-com.google.cloud.genomics.dataflow.pipelines.IdentityByState \
---project=YOUR-PROJECT \
---stagingLocation=gs://YOUR-BUCKET/staging \
---output=gs://YOUR-BUCKET/output/platinum-genomes-ibs.tsv \
---genomicsSecretsFile=/PATH/TO/YOUR/client_secrets.json \
---runner=DataflowPipelineRunner \
---numWorkers=40 \
---basesPerShard=1000000 \
---datasetId=3049512673186936334 \
---nonVariantSegments \
---allReferences
-```
-
-Note that there are several IBS calculators from which to choose.  Use the `--callSimilarityCalculatorFactory` to switch between them.
-
-To run the job on a different dataset, change the variant set id for the `--datasetId` id parameter.  (Also, remove the `--nonVariantSegments` parameter if the data does not contain them.)
-
-To gather the results into a single file:
-```
-gsutil cat gs://YOUR-BUCKET/output/platinum-genomes-ibs.tsv* | sort > platinum-genomes-ibs.tsv
-```
+TODO
 
 # Removing Genomes from the Cohort
 
