@@ -1,5 +1,6 @@
 SELECT 
   bc.sample_name AS sample_name,
+  nc.no_call_count as no_call_count,
   nc.no_call_count/bc.base_count AS missingness,
 FROM (
   SELECT 
@@ -17,12 +18,12 @@ FROM (
       (SELECT 
         *
        FROM
-        [qc_tables.5_genomes_ref_calls_brca1] ) AS ref
+        [_REF_TABLE_] ) AS ref
     LEFT OUTER JOIN (
       SELECT
         *
       FROM
-        [qc_tables.5_genomes_variants_brca1] ) AS var
+        [_VARIANT_TABLE_] ) AS var
     ON
       ref.sample_name = var.sample_name
       AND ref.chromosome = var.chromosome
@@ -37,7 +38,7 @@ JOIN (
     sample_name,
     COUNT(start) AS base_count
   FROM 
-    [qc_tables.5_genomes_ref_calls_brca1]
+    [_REF_TABLE_]
   GROUP BY
   sample_name ) as bc
 ON

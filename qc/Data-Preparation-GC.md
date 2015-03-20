@@ -66,7 +66,17 @@ cd /home/hadoop/hadoop-install
 
 screen
 
-./bin/hadoop jar contrib/streaming/hadoop-streaming-1.2.1.jar -D mapred.max.map.failures.percent=25 -D mapred.max.reduce.failures.percent=25 -D mapred.map.max.attempts=6 -libjars /home/gmcinnes/custom.jar -outputformat com.custom.CustomMultiOutputFormat -input  gs://gbsc-gcp-project-mvp-va_aaa/data/LP6005038-DNA_{A01,A02,A03,B01,B02}/*/vcfs/* -mapper /home/gmcinnes/gvcf-mapper.py -file /home/gmcinnes/gvcf-mapper.py  -reducer org.apache.hadoop.mapred.lib.IdentityReducer -output gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/5-genome-test/reduced-gvcf-filtered
+./bin/hadoop jar contrib/streaming/hadoop-streaming-1.2.1.jar \
+  -D mapred.max.map.failures.percent=25 \
+  -D mapred.max.reduce.failures.percent=25 \
+  -D mapred.map.max.attempts=6 \
+  -libjars /home/gmcinnes/custom.jar \
+  -outputformat com.custom.CustomMultiOutputFormat \
+  -input  gs://gbsc-gcp-project-mvp-va_aaa/data/LP6005038-DNA_{A01,A02,A03,B01,B02}/*/vcfs/* \
+  -mapper /home/gmcinnes/gvcf-mapper.py \
+  -file /home/gmcinnes/gvcf-mapper.py  \
+  -reducer org.apache.hadoop.mapred.lib.IdentityReducer \
+  -output gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/5-genome-test/reduced-gvcf-filtered-no-calls-1-based
 ```
 
 Job information can be found [here](./jobs/gvcf-mapper_5-genomes.html).

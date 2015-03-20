@@ -13,10 +13,28 @@
   <!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
   <!-- See the License for the specific language governing permissions and -->
   <!-- limitations under the License. -->
-  
+
+<a id="top"></a>
+
 # Comparison of Google Genomics tools vs Academic Tools
-  
-  ```{r echo=FALSE, eval=FALSE}
+
+The purpose of this codelab is to compare BigQuery queries to academic command line tools for genomic analysis. 
+
+* [Setup](#setup)  
+* [Singleton Rate](#singleton-rate)
+* [Homozygosity Rate and Inbreeding Coefficient](#homozygosity-rate-and-inbreeding-coefficient)
+* [Hardy-Weinberg Equilibrium](#hardy-weingberg-equilibrium)
+* [Ti/Tv by Alternate Allele Counts](#titv-by-alternate-allele-counts)
+* [Ti/Tv by Depth](#titv-by-depth)
+* [Sample-Level Missingness](#sample-level-missingness)
+* [Variant-Level Missingness](#variant-level-missingness)
+* [Sex Inference](#sex-inference)
+* [Heterozygous Haplotype](#heterozygous-haplotype)
+* [Ethnicity Inference](#ethnicity-inference)
+* [Genome Similarity](#genome-similarity)
+* [Genotype Concordance](#genotype-concordance)
+
+```{r echo=FALSE, eval=FALSE}
 ######################[ CHANGE ME ]##################################
 # This codelab assumes that the current working directory is where the Rmd file resides.
 setwd("/Users/gmcinnes/GitHub/mvp_aaa_codelabs/qc")
@@ -26,6 +44,7 @@ project <- "gbsc-gcp-project-mvp"
 #####################################################################
 ```
 
+## Setup
 ```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 # Set up for BigQuery access.
 source("./rHelpers/setup.R")
@@ -33,8 +52,10 @@ source("./rHelpers/setup.R")
 
 
 ```{r}
-tableReplacement <- list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
-                          "_THE_EXPANDED_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
+tableReplacement <- list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2",
+                          "_THE_EXPANDED_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2",
+                         "_REF_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_ref_calls_brca1",
+                         "_VARIANT_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_variants_brca1")
 sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 
@@ -43,15 +64,18 @@ constraints <- list("#_WHERE_"="WHERE
                     AND start BETWEEN 41196311
                     AND 41277499")
 
-googleRepository = "https://raw.githubusercontent.com/deflaux/codelabs/qc-codelab/R/PlatinumGenomes-QC/sql/"
+googleRepository = "https://raw.githubusercontent.com/googlegenomics/codelabs/master/R/PlatinumGenomes-QC/sql/"
 ```
-The purpose of this codelab is to compare BigQuery queries to standard command line tools for genomic analysis.  
+ 
 
-* [Singleton Rate](#singleton-rate)
+[Top](#top)
 
 ## Singleton Rate
+[Singletone Rate in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#singleton-rate)
 
 For each genome, count the number of variants shared by no other member of the cohort.  Too many private calls for a particular individual may indicate a problem.
+
+*For our 5 genome sample set the singleton rate will be very high due to the small number of genomes.*
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 query <- paste(googleRepository, "private-variants-brca1.sql", sep = "")
@@ -77,18 +101,24 @@ colnames(expectedResult) <- gsub('\\.+', '_', colnames(expectedResult))
 ```
 
 How many singletons do the two results have in common?
-```{r}
+```{r, warning=FALSE}
 nrow(inner_join(result, expectedResult))
 ```
 
-Which singletons were only identified by BigQuery?
-```{r results="asis"}
+How many singletons were only identified by BigQuery?
+```{r, warning=FALSE}
 onlyBQ <- anti_join(result, expectedResult)
-print(xtable(onlyBQ), type="html", include.rownames=F)
+nrow(onlyBQ)
+```
+
+```{r results='asis', echo=FALSE, warning=FALSE}
+if(nrow(onlyBQ > 0)) {
+  print(xtable(onlyBQ), type="html", include.rownames=F)
+}
 ```
 
 Which singletons were only identified by vcftools?
-```{r results="asis"}
+```{r results="asis", warning=FALSE}
 onlyVcftools <- anti_join(expectedResult, result)
 print(xtable(onlyVcftools), type="html", include.rownames=F)
 ```
@@ -108,39 +138,40 @@ result <- DisplayAndDispatchQuery(query,
 print(xtable(result), type="html", include.rownames=F)
 ```
 
-Most of these positions correspond to sites where 4 of the 5 genomes had a no-call, this is not neccessarily a singleton.
-
 It appears that they correspond either to:
-* a reference-matching block, so not actually a singleton and just perhaps violating an assumption in the vcftools code
-* or a non-singleon variant, perhaps due to a problem in converting the gVCF data to all-positions VCF via gvcftools?
 
+* A reference-matching block, so not actually a singleton and just perhaps violating an assumption in the vcftools code.  Most of the start sites queried return nothing because they are withing reference matching blocks.
+* Or a non-singleon variant, perhaps due to a problem in converting the gVCF data to all-positions VCF via gvcftools?
+
+[Top](#top)
 
 ## Homozygosity Rate and Inbreeding Coefficient
+[Homozygosity Rate and Inbreeding Coefficient in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#homozygosity-rate-and-inbreeding-coefficient)
 
 For each genome, compare the expected and observed rates of homozygosity.
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 query <- paste(googleRepository, "homozygous-variants.sql", sep="") 
-result <- DisplayAndDispatchQuery("./sql/homozygous-variants.sql",
+result <- DisplayAndDispatchQuery(query,
                                   project=project,
                                   replacements=c(tableReplacement, constraints))
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
 Displaying the first few results:
-  ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
 print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
-
+Let's compare to what was found using vcftools.
 ```{r}
 expectedResult <- read.table("./data/brca1/het_calls.het", header=TRUE)
+```
+
+```{r results="asis", echo=FALSE}
 # Clean colnames to match
 colnames(expectedResult) <- gsub('\\.+$', '', colnames(expectedResult))
 colnames(expectedResult) <- gsub('\\.+', '_', colnames(expectedResult))
-```
-
-```{r results="asis"}
 n = names(result)
 n[1] = "INDV"
 names(result) = n
@@ -148,16 +179,21 @@ joinedResult <- inner_join(expectedResult, result, by=c("INDV"))
 print(xtable(joinedResult[,order(colnames(joinedResult))]), type="html", include.rownames=F)
 ```
 
-The logic in the query looks similar to vcftools [output_het method](http://sourceforge.net/p/vcftools/code/HEAD/tree/trunk/cpp/variant_file_output.cpp#l165) but there is clearly a difference.  TODO: investigate the difference further.
+The logic in the query looks similar to vcftools [output_het method](http://sourceforge.net/p/vcftools/code/HEAD/tree/trunk/cpp/variant_file_output.cpp#l165) but there is clearly a difference.  
 
+TODO: investigate the difference further.
 
-Check Hardy-Weinberg Equilibrium
+[Top](#top)
+
+Hardy-Weinberg Equilibrium
 -----------------------------------
+[Hardy-Weinberg Equiibrium in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Variant-Level-QC.md#hardy-weinberg-equilibrium)
+
 ```{r message=FALSE, warning=FALSE, comment=NA}
-query <- paste(googleRepository, "hardy-weinberg-brca1.sql", sep="")
+query <- paste(googleRepository, "hardy-weinberg.sql", sep="")
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
-                                  replacements=tableReplacement)
+                                  replacements=c(tableReplacement, constraints))
 ```
 Number of rows returned by this query: `r nrow(result)`.
 
@@ -180,54 +216,63 @@ names(eTemp) <- c("E_HOM1", "E_HET", "E_HOM2")
 expectedResult <- cbind(cbind(df[setdiff(names(df), c(obsSplitCol,eSplitCol))], obsTemp), eTemp)
 # Convert to zero-based coordinates
 expectedResult <- mutate(expectedResult, POS = POS - 1)
+names(expectedResult)[1] = 'reference_name'
+names(expectedResult)[2] = 'start'
 ```
 
 How many results do the two results have in common?
 ```{r}
-nrow(inner_join(result, expectedResult, by=c("CHR", "POS", "OBS_HOM1", "OBS_HET", "OBS_HOM2")))
+nrow(inner_join(result, expectedResult, by=c("reference_name", "start", "OBS_HOM1", "OBS_HET", "OBS_HOM2")))
 ```
 
-Which results were only identified by BigQuery?
-```{r results="asis"}
-onlyBQ <- anti_join(result, expectedResult, , by=c("CHR", "POS", "OBS_HOM1", "OBS_HET", "OBS_HOM2"))
-print(xtable(arrange(onlyBQ, CHR, POS)), type="html", include.rownames=F)
+How many result were only identified by BigQuery?
+```{r}
+onlyBQ <- anti_join(result, expectedResult, , by=c("reference_name", "start", "OBS_HOM1", "OBS_HET", "OBS_HOM2"))
+nrow(onlyBQ)
 ```
 
-Note vcftools appears to skip variants with single allele genotypes:
-```
-zgrep 41242078 platinum_genomes_brca1_expanded_merged.vcf.gz 
-chr17  41242078  .  G  A  143	LowGQX;TruthSensitivityTranche99.90to100.00;LowQD;SiteConflict	BLOCKAVG_min30p3a;MQ=57;MQ0=0;BaseQRankSum=0.781;Dels=0.3;FS=1.561;HRun=11;HaplotypeScore=77.7361;MQRankSum=0.093;QD=2.01;ReadPosRankSum=-2.871;SB=-45.67;VQSLOD=-1.8762;culprit=QD;set=FilteredInAll;DP=425;AF=0.5;AN=25;AC=1	GT:DP:GQX:MQ:AD:GQ:PL:VF	0/0:57:99:59:.:.:.:.	0:27:25:57:26:25.38:.:.	0/0:51:99:57:.:.:.:.	0/1:50:99:59:42,8:99:173,0,1238:0.16	0/0:46:99:59:.:.:.:.	0/0:44:99:60:.:.:.:.	.:46:.:59:40,6:.:.:.	0/0:40:85:59:.:.:.:.	0/0:40:85:59:.:.:.:.	0/0:63:99:58:.:.:.:.	0:42:2:58:37:1.58:.:.	0:33:0:57:29:0.03:.:.	.:44:.:58:31,12:.:.:.	0/0:44:90:58:.:.:.:.	0/0:40:87:58:.:.:.:.	.:44:.:57:39,5:.:.:.	0/0:55:99:59:.:.:.:.
+Let's take a look at the first few.
+```{r results="asis", echo=FALSE}
+if(nrow(onlyBQ) > 0) {
+  print(xtable(head(arrange(onlyBQ, reference_name, start))), type="html", include.rownames=F)
+}
 ```
 
-Which results were only identified by vcftools?
-```{r results="asis"}
-onlyVcftools <- anti_join(expectedResult, result, , by=c("CHR", "POS", "OBS_HOM1", "OBS_HET", "OBS_HOM2"))
-print(xtable(arrange(onlyVcftools, CHR, POS)), type="html", include.rownames=F)
+How many results were only identified by vcftools?
+```{r, warning=FALSE}
+onlyVcftools <- anti_join(expectedResult, result, , by=c("reference_name", "start", "OBS_HOM1", "OBS_HET", "OBS_HOM2"))
+nrow(onlyVcftools)
+```
+
+Let's take a look at the first few.
+```{r results='asis', echo=FALSE}
+print(xtable(head(arrange(onlyVcftools, reference_name, start))), type="html", include.rownames=F)
 ```
 
 Retrieving the gVCF data for the results identified only by vcftools:
 ```{r message=FALSE, warning=FALSE, comment=NA}
-having <- paste("start <= ", onlyVcftools$POS,
+having <- list("_HAVING_" = paste("start <= ", onlyVcftools$start,
                 "AND",
-                "end >= ", onlyVcftools$POS+1)
+                "end >= ", onlyVcftools$start+1,
+                collapse=" OR "))
 query <- paste(googleRepository, "examine-data.sql", sep="")
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
                                   replacements=c(tableReplacement,
-                                                 "_HAVING_"=having))
+                                                 having))
 ```
 
+The first few:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
-print(xtable(result), type="html", include.rownames=F)
+print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
-It appears that with BigQuery we are computing HWE for all the same variants as vcftools and the expected and Chi-Squared values are only slightly different.
-
-See also: the [gVCF version of this query](./sql/hardy-weinberg-brca1.sql), which is close but only works for SNPs and needs a RIGHT OUTER JOIN to compute values for variants for which all the samples have the variant.
+[Top](#top)
 
 Ti/Tv by Alternate Allele Counts
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Variant-Level-QC.md#titv-by-alternate-allele-counts
+[Ti/Tv by Alternate Allele Counts in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Variant-Level-QC.md#titv-by-alternate-allele-counts)
+
 ```{r message=FALSE, warning=FALSE, comment=NA}
 query <- paste(googleRepository, "ti-tv-by-alternate-allele-count.sql", sep="")
 result <- DisplayAndDispatchQuery(query,
@@ -249,14 +294,55 @@ expectedResult <- read.table("./data/brca1/TsTv-by-count.TsTv.count", header=TRU
 print(xtable(expectedResult), type="html", include.rownames=F)
 ```
 
+The results for BigQuery and vcftools are identical except for the case where there are 10 alternate alleles.  With only 5 genomes, 10 sites with an alternate is the maximum.  vcftools may ignore sites where all calls are the alternate allele.
 
+[Top](#top)
 
-
-Missingness sample level
+Ti/Tv by Depth
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Sample-Level-QC.md#missingness-rate
 ```{r message=FALSE, warning=FALSE, comment=NA}
-query <- paste(googleRepository, "sample-level-missingness.sql", sep="")
+query <- "./sql/ti-tv-by-depth.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(tableReplacement, constraints))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+```{r transitions, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
+ggplot(result, aes(x=call_DP, y=transitions, color=call_call_set_name)) + 
+  geom_point() +
+  geom_smooth(se=FALSE,    # Don't add shaded confidence region
+                fullrange=T) +
+  ggtitle("Transistions By Depth") +
+  xlab("Coverage Depth") + 
+  ylab("Transitions")
+```
+
+```{r transversions, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
+ggplot(result, aes(x=call_DP, y=transversions, color=call_call_set_name)) + 
+  geom_point() +
+  geom_smooth(se=FALSE,    # Don't add shaded confidence region
+                fullrange=T) +
+  ggtitle("Transversions By Depth") +
+  xlab("Coverage Depth") + 
+  ylab("Transversions")
+```
+
+TODO: Find academic tool to compare against.
+
+[Top](#top)
+
+Sample-Level Missingness
+-----------------------------------
+[Sample-Level Missingness in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#missingness-rate)
+
+See [this document](./Sample_Missingness_Preparation.md) for details on how tables were created for this section.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/sample-missingness-missing-calls.sql"
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
                                   replacements=c(tableReplacement, constraints))
@@ -276,11 +362,15 @@ expectedResult <- read.table("./data/brca1/missingness.imiss", header=TRUE)
 print(xtable(expectedResult), type="html", include.rownames=F)
 ```
 
-Missingness variant level
+These results from BigQuery and vcftools are expected to be different.  Sample-level missingness in BigQuery is calculated by joining all positions in the genome against the reference genome to identify all sites that were not called by sequencing.  Vcftools only looks at sites that were called by at least one sample in the group.
+
+[Top](#top)
+
+Variant-Level Missingness
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Variant-Level-QC.md#missingness-rate
+[Variant-Level Missingness in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Variant-Level-QC.md#missingness-rate)
 ```{r message=FALSE, warning=FALSE, comment=NA}
-query <- paste(googleRepository, "variant-level-missingness.sql", sep="")
+query <- "./sql/variant-level-missingness-missing-calls.sql"
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
                                   replacements=c(tableReplacement, constraints))
@@ -290,6 +380,7 @@ result <- DisplayAndDispatchQuery(query,
 print(xtable(head(result)), type="html", include.rownames=F)
 ```
     
+    
 Compare to [output](./data/brca1/missing_sites.lmiss) from vcftools.
 
 ```{r}
@@ -297,13 +388,48 @@ expectedResult <- read.table("./data/brca1/missing_sites.lmiss", header=TRUE)
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+```{r}
+expectedResult <- mutate(expectedResult, POS = POS - 1)
+n = c("reference_name", "start", "expected_count", "filtered", "expected_missing_count", "expected_rate")
+names(expectedResult) = n
+```
+
+```{r results='asis'}
 print(xtable(head(expectedResult)), type="html", include.rownames=F)
 ```
 
+Let's join them and look at the differences
+```{r}
+joinedResult = data.table(inner_join(result, expectedResult, by=c("reference_name", "start")))
+matches = joinedResult[missingness_rate == expected_rate]
+differences = joinedResult[missingness_rate != expected_rate]
+```
+
+How many do they have in common?
+```{r}
+nrow(matches)
+```
+
+How many are different?
+```{r}
+nrow(differences)
+```
+
+Here we can see which rows where different
+```{r results='asis', echo=FALSE}
+print(xtable(differences), type="html", include.rownames=F)
+```
+
+The differences appear to be mostly form positions with insertions or deletions.
+
+TODO: Look at the differences more closely.
+
+[Top](#top)
 
 Sex Inference
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Sample-Level-QC.md#sex-inference
+[Sex Inference in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#sex-inference)
+
 ```{r message=FALSE, warning=FALSE, comment=NA}
 query <- paste(googleRepository, "gender-check.sql", sep="")
 result <- DisplayAndDispatchQuery(query,
@@ -335,20 +461,54 @@ ggplot(joinedResult) +
 
 ```
 
+TODO: Compare to Plink
+
+[Top](#top)
+
+Heterozygous Haplotype
+-----------------------------------
+[Heterozygous Haplotype in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Variant-Level-QC.md#heterozygous-haplotype)
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- paste(googleRepository, "sex-chromosome-heterozygous-haplotypes.sql", sep="")
+male_sample_ids = paste("'", paste(sampleInfo[sampleInfo$gender == 'Male',]$call_call_set_name, collapse=",'", "'", sep=''))
+male_sample_ids = gsub(" ", "", male_sample_ids, fixed = TRUE)
+male_sub = list("_MALE_SAMPLE_IDS_" = male_sample_ids)
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(tableReplacement, constraints, male_sub))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(tail(result)), type="html", include.rownames=F)
+```
+
+TODO Compare to command line
+
+[Top](#top)
+
 Ethnicity Inference
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Sample-Level-QC.md#ethnicity-inference
+[Ethnicity Inference in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#ethnicity-inference)
+
+Status: Waiting for PCA release from Elmer.  See [here](https://github.com/elmer-garduno/spark-examples/tree/multiple_dataset_pca) for status.
+
+[Top](#top)
 
 Genome Similarity
 -----------------------------------
-https://github.com/deflaux/codelabs/blob/qc-codelab/R/PlatinumGenomes-QC/Sample-Level-QC.md#genome-similarity
+[Genome Similarity in Google Genomics](https://github.com/googlegenomics/codelabs/blob/master/R/PlatinumGenomes-QC/Sample-Level-QC.md#genome-similarity)
 
-Ti/Tv by Depth
+Status: Installed apache maven and built Google Genomics dataflow package.  Ran into errors when trying to run dataflow job.
+
+```
+java -cp target/google-genomics-dataflow-v1beta2-0.2-SNAPSHOT.jar   com/google/cloud/genomics/dataflow/pipelines/IdentityByState   --project=my-project-id   --output=gs://my-bucket/localtest.txt   --genomicsSecretsFile=client_secrets.json
+Error: Could not find or load main class com.google.cloud.genomics.dataflow.pipelines.IdentityByState
+```
+
+[Top](#top)
+
+Genotype Concordance
 -----------------------------------
-
-Heterozygous haplotype
------------------------------------
-
 
 
 

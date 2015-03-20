@@ -22,13 +22,12 @@ SELECT
         call.DP,
         call.call_set_name,
       FROM(FLATTEN((
-      [va_aaa_pilot_data.5_genome_test_vcfs_no_calls]), call.DP))
+      [_THE_EXPANDED_TABLE_]), call.DP))
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
-      WHERE
-        reference_name = 'chr17'
-        AND start BETWEEN 41196311
-          AND 41277499 )   
+      #_WHERE_ )  
+    WHERE
+      call.DP is not null
     HAVING
     # Skip 1/2 genotypes _and non-SNP variants
     num_alts = 1
