@@ -1,31 +1,34 @@
-
 SELECT
-    SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
-    SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
-                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
-  #alternate_allele_count,
-  call.DP,
   call.call_set_name,
+  (transitions/transversions) AS titv_ratio,
+  average_depth,
+FROM(
+SELECT
+  call.call_set_name,
+  SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
+  SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
+                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
+  ROUND(AVG(call.DP)) AS average_depth,
   FROM(
-  
+
   SELECT
+      call.call_set_name,
       CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
       COUNT(alternate_bases) WITHIN RECORD AS num_alts,
-      #SUM(call.genotype = 1) WITHIN RECORD AS alternate_allele_count,
-      call.DP,
-      call.call_set_name,
+      call.DP
     FROM(
       SELECT
+        call.call_set_name,
         reference_bases,
         alternate_bases,
         call.genotype,
         call.DP,
-        call.call_set_name,
       FROM(FLATTEN((
       [_THE_EXPANDED_TABLE_]), call.DP))
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
-      #_WHERE_ )  
+      #_WHERE_  
+      )
     WHERE
       call.DP is not null
     HAVING
@@ -34,6 +37,12 @@ SELECT
       AND reference_bases IN ('A','C','G','T')
       AND alternate_bases IN ('A','C','G','T'))
     GROUP BY 
-      call.DP,
       call.call_set_name,
-    ORDER BY call.DP DESC
+      call.DP,)
+WHERE
+  transversions > 0
+GROUP BY
+  call.call_set_name,
+  titv_ratio,
+  average_depth,
+ORDER BY average_depth DESC

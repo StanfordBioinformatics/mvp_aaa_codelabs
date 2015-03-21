@@ -137,7 +137,7 @@ Number of rows returned by this query: 33.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:03 2015 -->
+<!-- Fri Mar 20 17:21:12 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> REF </th> <th> ALT </th> <th> INDV </th> <th> genotype </th> <th> num_samples_with_variant </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> S </td> <td> T </td> <td> C </td> <td> LP6005038-DNA_B02 </td> <td> "0,1" </td> <td align="right">   1 </td> </tr>
@@ -211,7 +211,7 @@ print(xtable(onlyVcftools), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:03 2015 -->
+<!-- Fri Mar 20 17:21:12 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> ALLELE </th> <th> INDV </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41271293.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
@@ -287,7 +287,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:06 2015 -->
+<!-- Fri Mar 20 17:21:15 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_B01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41252696 </td> <td align="right"> 41252755 </td> <td> T </td> <td>  </td> <td align="right"> 31.21 </td> <td>  </td> </tr>
@@ -367,7 +367,7 @@ Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:09 2015 -->
+<!-- Fri Mar 20 17:21:18 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right">  16 </td> <td align="right"> 79.87 </td> <td align="right"> 136 </td> <td align="right"> -1.14 </td> </tr>
@@ -384,7 +384,7 @@ expectedResult <- read.table("./data/brca1/het_calls.het", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:10 2015 -->
+<!-- Fri Mar 20 17:21:18 2015 -->
 <table border=1>
 <tr> <th> E_HOM.x </th> <th> E_HOM.y </th> <th> F.x </th> <th> F.y </th> <th> INDV </th> <th> N_SITES.x </th> <th> N_SITES.y </th> <th> O_HOM.x </th> <th> O_HOM.y </th>  </tr>
   <tr> <td align="right"> 65.50 </td> <td align="right"> 79.87 </td> <td align="right"> -0.85 </td> <td align="right"> -1.14 </td> <td> LP6005038-DNA_A01 </td> <td align="right"> 143 </td> <td align="right"> 136 </td> <td align="right">   0 </td> <td align="right">  16 </td> </tr>
@@ -516,7 +516,7 @@ Number of rows returned by this query: 185.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:13 2015 -->
+<!-- Fri Mar 20 17:21:21 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41230104 </td> <td> CT </td> <td> C </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.00 </td> <td align="right"> 2.00 </td> <td align="right"> 1.00 </td> <td align="right"> 4.00 </td> <td> FALSE </td> </tr>
@@ -569,7 +569,7 @@ nrow(onlyBQ)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:13 2015 -->
+<!-- Fri Mar 20 17:21:22 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> T </td> <td> C </td> <td align="right">   4 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 4.05 </td> <td align="right"> 0.90 </td> <td align="right"> 0.05 </td> <td align="right"> 0.06 </td> <td> FALSE </td> </tr>
@@ -593,7 +593,7 @@ nrow(onlyVcftools)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:13 2015 -->
+<!-- Fri Mar 20 17:21:22 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> ChiSq </th> <th> P </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> </tr>
@@ -644,7 +644,7 @@ ORDER BY
 
 The first few:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:17 2015 -->
+<!-- Fri Mar 20 17:21:25 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41196408 </td> <td align="right"> 41197273 </td> <td> G </td> <td>  </td> <td align="right"> 61.23 </td> <td>  </td> </tr>
@@ -707,7 +707,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:20 2015 -->
+<!-- Fri Mar 20 17:21:28 2015 -->
 <table border=1>
 <tr> <th> transitions </th> <th> transversions </th> <th> titv </th> <th> alternate_allele_count </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> </tr>
@@ -725,7 +725,7 @@ expectedResult <- read.table("./data/brca1/TsTv-by-count.TsTv.count", header=TRU
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:20 2015 -->
+<!-- Fri Mar 20 17:21:28 2015 -->
 <table border=1>
 <tr> <th> ALT_ALLELE_COUNT </th> <th> N_Ts </th> <th> N_Tv </th> <th> Ts.Tv </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">  </td> </tr>
@@ -751,41 +751,41 @@ Ti/Tv by Depth
 query <- "./sql/ti-tv-by-depth.sql"
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
-                                  replacements=c(tableReplacement, constraints))
+                                  replacements=c(tableReplacement))
 ```
 
 ```
-
 SELECT
-    SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
-    SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
-                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
-  #alternate_allele_count,
-  call.DP,
   call.call_set_name,
+  (transitions/transversions) AS titv_ratio,
+  average_depth,
+FROM(
+SELECT
+  call.call_set_name,
+  SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
+  SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
+                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
+  ROUND(AVG(call.DP)) AS average_depth,
   FROM(
-  
+
   SELECT
+      call.call_set_name,
       CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
       COUNT(alternate_bases) WITHIN RECORD AS num_alts,
-      #SUM(call.genotype = 1) WITHIN RECORD AS alternate_allele_count,
-      call.DP,
-      call.call_set_name,
+      call.DP
     FROM(
       SELECT
+        call.call_set_name,
         reference_bases,
         alternate_bases,
         call.genotype,
         call.DP,
-        call.call_set_name,
       FROM(FLATTEN((
       [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2]), call.DP))
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
-      WHERE 
-                    reference_name = 'chr17'
-                    AND start BETWEEN 41196311
-                    AND 41277499 )  
+      #_WHERE_  
+      )
     WHERE
       call.DP is not null
     HAVING
@@ -794,48 +794,43 @@ SELECT
       AND reference_bases IN ('A','C','G','T')
       AND alternate_bases IN ('A','C','G','T'))
     GROUP BY 
-      call.DP,
       call.call_set_name,
-    ORDER BY call.DP DESC
+      call.DP,)
+WHERE
+  transversions > 0
+GROUP BY
+  call.call_set_name,
+  titv_ratio,
+  average_depth,
+ORDER BY average_depth DESC
+Running query:   RUNNING  2.6s
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:23 2015 -->
+<!-- Fri Mar 20 17:21:35 2015 -->
 <table border=1>
-<tr> <th> transitions </th> <th> transversions </th> <th> call_DP </th> <th> call_call_set_name </th>  </tr>
-  <tr> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right">  61 </td> <td> LP6005038-DNA_A03 </td> </tr>
-  <tr> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right">  58 </td> <td> LP6005038-DNA_B01 </td> </tr>
-  <tr> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right">  57 </td> <td> LP6005038-DNA_A03 </td> </tr>
-  <tr> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right">  57 </td> <td> LP6005038-DNA_B01 </td> </tr>
-  <tr> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right">  54 </td> <td> LP6005038-DNA_A02 </td> </tr>
-  <tr> <td align="right">   1 </td> <td align="right">   1 </td> <td align="right">  54 </td> <td> LP6005038-DNA_B01 </td> </tr>
+<tr> <th> call_call_set_name </th> <th> titv_ratio </th> <th> average_depth </th>  </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.28 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 1.25 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 1.41 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.24 </td> <td align="right"> 249.00 </td> </tr>
    </table>
 
 
 ```r
-ggplot(result, aes(x=call_DP, y=transitions, color=call_call_set_name)) + 
+ggplot(result, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
   geom_point() +
-  geom_smooth(se=FALSE,    # Don't add shaded confidence region
-                fullrange=T) +
-  ggtitle("Transistions By Depth") +
+  #geom_smooth(se=FALSE,    # Don't add shaded confidence region
+  #              fullrange=T) +
+  ggtitle("Ti/Tv Ratio By Depth") +
   xlab("Coverage Depth") + 
-  ylab("Transitions")
+  ylab("Ti/Tv")
 ```
 
-<img src="figure/transitions-1.png" title="plot of chunk transitions" alt="plot of chunk transitions" style="display: block; margin: auto;" />
+<img src="figure/titv-by-depth-1.png" title="plot of chunk titv-by-depth" alt="plot of chunk titv-by-depth" style="display: block; margin: auto;" />
 
-
-```r
-ggplot(result, aes(x=call_DP, y=transversions, color=call_call_set_name)) + 
-  geom_point() +
-  geom_smooth(se=FALSE,    # Don't add shaded confidence region
-                fullrange=T) +
-  ggtitle("Transversions By Depth") +
-  xlab("Coverage Depth") + 
-  ylab("Transversions")
-```
-
-<img src="figure/transversions-1.png" title="plot of chunk transversions" alt="plot of chunk transversions" style="display: block; margin: auto;" />
 
 TODO: Find academic tool to compare against.
 
@@ -904,7 +899,7 @@ ON
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:28 2015 -->
+<!-- Fri Mar 20 17:21:39 2015 -->
 <table border=1>
 <tr> <th> sample_name </th> <th> no_call_count </th> <th> missingness </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 286 </td> <td align="right"> 0.00 </td> </tr>
@@ -922,7 +917,7 @@ expectedResult <- read.table("./data/brca1/missingness.imiss", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:28 2015 -->
+<!-- Fri Mar 20 17:21:39 2015 -->
 <table border=1>
 <tr> <th> INDV </th> <th> N_DATA </th> <th> N_GENOTYPES_FILTERED </th> <th> N_MISS </th> <th> F_MISS </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 81239 </td> <td align="right">   0 </td> <td align="right"> 274 </td> <td align="right"> 0.00 </td> </tr>
@@ -993,7 +988,7 @@ CROSS JOIN (
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:31 2015 -->
+<!-- Fri Mar 20 17:21:42 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196407 </td> <td align="right"> 41196408 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
@@ -1026,7 +1021,7 @@ print(xtable(head(expectedResult)), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:31 2015 -->
+<!-- Fri Mar 20 17:21:43 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196311.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
@@ -1067,7 +1062,7 @@ nrow(differences)
 
 Here we can see which rows where different
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:31 2015 -->
+<!-- Fri Mar 20 17:21:43 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 41196945 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
@@ -1207,7 +1202,7 @@ Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:34 2015 -->
+<!-- Fri Mar 20 17:21:47 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 91043 </td> </tr>
@@ -1277,11 +1272,11 @@ HAVING call.call_set_name IN ('LP6005038-DNA_A01','LP6005038-DNA_A02','LP6005038
 # Optionally add a clause here to sort and limit the results.
 #_ORDER_BY_
 
-Retrieving data:  3.9s
+Retrieving data:  3.3s
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 00:09:42 2015 -->
+<!-- Fri Mar 20 17:21:54 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 25842402 </td> <td align="right"> 25842404 </td> <td> AT </td> <td> A </td> </tr>

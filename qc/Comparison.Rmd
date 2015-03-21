@@ -304,32 +304,23 @@ Ti/Tv by Depth
 query <- "./sql/ti-tv-by-depth.sql"
 result <- DisplayAndDispatchQuery(query,
                                   project=project,
-                                  replacements=c(tableReplacement, constraints))
+                                  replacements=c(tableReplacement))
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
 print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
-```{r transitions, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
-ggplot(result, aes(x=call_DP, y=transitions, color=call_call_set_name)) + 
+```{r titv-by-depth, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
+ggplot(result, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
   geom_point() +
-  geom_smooth(se=FALSE,    # Don't add shaded confidence region
-                fullrange=T) +
-  ggtitle("Transistions By Depth") +
+  #geom_smooth(se=FALSE,    # Don't add shaded confidence region
+  #              fullrange=T) +
+  ggtitle("Ti/Tv Ratio By Depth") +
   xlab("Coverage Depth") + 
-  ylab("Transitions")
+  ylab("Ti/Tv")
 ```
 
-```{r transversions, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
-ggplot(result, aes(x=call_DP, y=transversions, color=call_call_set_name)) + 
-  geom_point() +
-  geom_smooth(se=FALSE,    # Don't add shaded confidence region
-                fullrange=T) +
-  ggtitle("Transversions By Depth") +
-  xlab("Coverage Depth") + 
-  ylab("Transversions")
-```
 
 TODO: Find academic tool to compare against.
 
