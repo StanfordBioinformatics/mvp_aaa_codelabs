@@ -132,12 +132,14 @@ HAVING
 ORDER BY
   POS,
   INDV
+
+Running query:   RUNNING  2.4s
 ```
 Number of rows returned by this query: 33.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:12 2015 -->
+<!-- Mon Mar 23 12:06:28 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> REF </th> <th> ALT </th> <th> INDV </th> <th> genotype </th> <th> num_samples_with_variant </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> S </td> <td> T </td> <td> C </td> <td> LP6005038-DNA_B02 </td> <td> "0,1" </td> <td align="right">   1 </td> </tr>
@@ -149,6 +151,11 @@ Displaying the first few results:
    </table>
 
 Compare to [output](./data/brca1/singletons.singletons) from vcftools, which has 85 some of which are for 0/0 genotypes from reference matching blocks (see the [vcftools command line](./data/brca1/singletons.e9636222) used to create this file).
+
+Command line execution
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --singletons --out singletons
+```
 
 
 ```r
@@ -211,7 +218,7 @@ print(xtable(onlyVcftools), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:12 2015 -->
+<!-- Mon Mar 23 12:06:28 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> ALLELE </th> <th> INDV </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41271293.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
@@ -287,7 +294,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:15 2015 -->
+<!-- Mon Mar 23 12:06:33 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_B01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41252696 </td> <td align="right"> 41252755 </td> <td> T </td> <td>  </td> <td align="right"> 31.21 </td> <td>  </td> </tr>
@@ -362,12 +369,14 @@ FROM (
     )
 ORDER BY
   call.call_set_name
+
+Running query:   RUNNING  2.2s
 ```
 Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:18 2015 -->
+<!-- Mon Mar 23 12:06:39 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right">  16 </td> <td align="right"> 79.87 </td> <td align="right"> 136 </td> <td align="right"> -1.14 </td> </tr>
@@ -379,12 +388,19 @@ Displaying the first few results:
 
 Let's compare to what was found using vcftools.
 
+Command line execution.
+
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --het --out het_calls
+```
+
+
 ```r
 expectedResult <- read.table("./data/brca1/het_calls.het", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:18 2015 -->
+<!-- Mon Mar 23 12:06:39 2015 -->
 <table border=1>
 <tr> <th> E_HOM.x </th> <th> E_HOM.y </th> <th> F.x </th> <th> F.y </th> <th> INDV </th> <th> N_SITES.x </th> <th> N_SITES.y </th> <th> O_HOM.x </th> <th> O_HOM.y </th>  </tr>
   <tr> <td align="right"> 65.50 </td> <td align="right"> 79.87 </td> <td align="right"> -0.85 </td> <td align="right"> -1.14 </td> <td> LP6005038-DNA_A01 </td> <td align="right"> 143 </td> <td align="right"> 136 </td> <td align="right">   0 </td> <td align="right">  16 </td> </tr>
@@ -516,18 +532,23 @@ Number of rows returned by this query: 185.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:21 2015 -->
+<!-- Mon Mar 23 12:06:43 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230104 </td> <td> CT </td> <td> C </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.00 </td> <td align="right"> 2.00 </td> <td align="right"> 1.00 </td> <td align="right"> 4.00 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230227 </td> <td> G </td> <td> A </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230335 </td> <td> A </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230375 </td> <td> A </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230523 </td> <td> T </td> <td> G </td> <td align="right">   3 </td> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right"> 3.20 </td> <td align="right"> 1.60 </td> <td align="right"> 0.20 </td> <td align="right"> 0.31 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230536 </td> <td> A </td> <td> T </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41250046 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right"> 0.00 </td> <td align="right"> 0.00 </td> <td align="right"> 1.00 </td> <td align="right">  </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41250677 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.00 </td> <td align="right"> 2.00 </td> <td align="right"> 1.00 </td> <td align="right"> 4.00 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41250922 </td> <td> T </td> <td> C </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41251494 </td> <td> C </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41251645 </td> <td> T </td> <td> A </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41251930 </td> <td> G </td> <td> A </td> <td align="right">   4 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 4.05 </td> <td align="right"> 0.90 </td> <td align="right"> 0.05 </td> <td align="right"> 0.06 </td> <td> FALSE </td> </tr>
    </table>
 
 Compare to [brca1.hwe](./data/brca1/hardy.hwe) (see the [vcftools command line](./data/hwe/brca1.log) used to create this file).
+
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --hardy --out hardy
+```
 
 
 ```r
@@ -569,7 +590,7 @@ nrow(onlyBQ)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:22 2015 -->
+<!-- Mon Mar 23 12:06:44 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> T </td> <td> C </td> <td align="right">   4 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 4.05 </td> <td align="right"> 0.90 </td> <td align="right"> 0.05 </td> <td align="right"> 0.06 </td> <td> FALSE </td> </tr>
@@ -593,7 +614,7 @@ nrow(onlyVcftools)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:22 2015 -->
+<!-- Mon Mar 23 12:06:44 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> ChiSq </th> <th> P </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> </tr>
@@ -644,7 +665,7 @@ ORDER BY
 
 The first few:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:25 2015 -->
+<!-- Mon Mar 23 12:06:48 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41196408 </td> <td align="right"> 41197273 </td> <td> G </td> <td>  </td> <td align="right"> 61.23 </td> <td>  </td> </tr>
@@ -707,7 +728,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:28 2015 -->
+<!-- Mon Mar 23 12:06:53 2015 -->
 <table border=1>
 <tr> <th> transitions </th> <th> transversions </th> <th> titv </th> <th> alternate_allele_count </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> </tr>
@@ -719,13 +740,18 @@ ORDER BY
     
 Compare to [output](./data/brca1/TsTv-by-count.TsTv.count) from vcftools.
 
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --TsTv-by-count --out TsTv-by-coun
+```
+
 
 ```r
 expectedResult <- read.table("./data/brca1/TsTv-by-count.TsTv.count", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:28 2015 -->
+<!-- Mon Mar 23 12:06:53 2015 -->
 <table border=1>
 <tr> <th> ALT_ALLELE_COUNT </th> <th> N_Ts </th> <th> N_Tv </th> <th> Ts.Tv </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">  </td> </tr>
@@ -803,18 +829,20 @@ GROUP BY
   titv_ratio,
   average_depth,
 ORDER BY average_depth DESC
-Running query:   RUNNING  2.6s
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
+Running query:   RUNNING  3.5s
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:35 2015 -->
+<!-- Mon Mar 23 12:07:00 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> titv_ratio </th> <th> average_depth </th>  </tr>
   <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.28 </td> <td align="right"> 250.00 </td> </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
   <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 1.25 </td> <td align="right"> 250.00 </td> </tr>
   <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 1.41 </td> <td align="right"> 250.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 1.25 </td> <td align="right"> 250.00 </td> </tr>
   <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.24 </td> <td align="right"> 249.00 </td> </tr>
    </table>
 
@@ -899,7 +927,7 @@ ON
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:39 2015 -->
+<!-- Mon Mar 23 12:07:04 2015 -->
 <table border=1>
 <tr> <th> sample_name </th> <th> no_call_count </th> <th> missingness </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 286 </td> <td align="right"> 0.00 </td> </tr>
@@ -911,13 +939,18 @@ ON
     
 Compare to [output](./data/brca1/missingness.imiss) from vcftools.
 
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --missing-indv --out missingness
+```
+
 
 ```r
 expectedResult <- read.table("./data/brca1/missingness.imiss", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:39 2015 -->
+<!-- Mon Mar 23 12:07:04 2015 -->
 <table border=1>
 <tr> <th> INDV </th> <th> N_DATA </th> <th> N_GENOTYPES_FILTERED </th> <th> N_MISS </th> <th> F_MISS </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 81239 </td> <td align="right">   0 </td> <td align="right"> 274 </td> <td align="right"> 0.00 </td> </tr>
@@ -988,19 +1021,24 @@ CROSS JOIN (
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:42 2015 -->
+<!-- Mon Mar 23 12:07:09 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th>  </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41196407 </td> <td align="right"> 41196408 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td align="right"> 41196945 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41240276 </td> <td align="right"> 41240277 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41197273 </td> <td align="right"> 41197274 </td> <td> C </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41197938 </td> <td align="right"> 41197939 </td> <td> A </td> <td> AT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41241389 </td> <td align="right"> 41241390 </td> <td> C </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41226600 </td> <td align="right"> 41226601 </td> <td> G </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41226674 </td> <td align="right"> 41226675 </td> <td> A </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41226735 </td> <td align="right"> 41226741 </td> <td> GGGGTT </td> <td> G </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41227082 </td> <td align="right"> 41227083 </td> <td> C </td> <td> CGGAA </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41229351 </td> <td align="right"> 41229352 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41229385 </td> <td align="right"> 41229386 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
    </table>
     
     
 Compare to [output](./data/brca1/missing_sites.lmiss) from vcftools.
+
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --missing_site --out missing_sites
+```
 
 
 ```r
@@ -1021,7 +1059,7 @@ print(xtable(head(expectedResult)), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:43 2015 -->
+<!-- Mon Mar 23 12:07:10 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196311.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
@@ -1062,7 +1100,7 @@ nrow(differences)
 
 Here we can see which rows where different
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:43 2015 -->
+<!-- Mon Mar 23 12:07:10 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 41196945 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
@@ -1202,7 +1240,7 @@ Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:47 2015 -->
+<!-- Mon Mar 23 12:07:13 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 91043 </td> </tr>
@@ -1233,6 +1271,12 @@ ggplot(joinedResult) +
 <img src="figure/gender-1.png" title="plot of chunk gender" alt="plot of chunk gender" style="display: block; margin: auto;" />
 
 TODO: Compare to Plink
+
+Command line
+```
+plink --vcf ~/scratch/chrX.vcf.gz --make-bed --split-x 'hg19' --out ~/scratch/chrX-split
+plink --bfile ~/scratch/chrX-split --check-sex
+```
 
 [Top](#top)
 
@@ -1272,19 +1316,24 @@ HAVING call.call_set_name IN ('LP6005038-DNA_A01','LP6005038-DNA_A02','LP6005038
 # Optionally add a clause here to sort and limit the results.
 #_ORDER_BY_
 
-Retrieving data:  3.3s
+Running query:   RUNNING  2.1s
+Running query:   RUNNING  2.9s
+Running query:   RUNNING  3.6s
+
+Retrieving data:  2.3s
+Retrieving data:  4.4s
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Fri Mar 20 17:21:54 2015 -->
+<!-- Mon Mar 23 12:07:25 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th>  </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 25842402 </td> <td align="right"> 25842404 </td> <td> AT </td> <td> A </td> </tr>
-  <tr> <td> LP6005038-DNA_A02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 140158249 </td> <td align="right"> 140158250 </td> <td> C </td> <td> A </td> </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 31439974 </td> <td align="right"> 31439977 </td> <td> ACT </td> <td> A </td> </tr>
-  <tr> <td> LP6005038-DNA_B01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 140148423 </td> <td align="right"> 140148424 </td> <td> A </td> <td> G </td> </tr>
-  <tr> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 140144632 </td> <td align="right"> 140144633 </td> <td> C </td> <td> G </td> </tr>
-  <tr> <td> LP6005038-DNA_A02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 97378032 </td> <td align="right"> 97378033 </td> <td> A </td> <td> AATTCT </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62509723 </td> <td align="right"> 62509724 </td> <td> G </td> <td> T </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184578 </td> <td align="right"> 62184579 </td> <td> C </td> <td> T </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184501 </td> <td align="right"> 62184502 </td> <td> G </td> <td> A </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184501 </td> <td align="right"> 62184502 </td> <td> G </td> <td> A </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184524 </td> <td align="right"> 62184525 </td> <td> C </td> <td> T </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184524 </td> <td align="right"> 62184525 </td> <td> C </td> <td> T </td> </tr>
    </table>
 
 TODO Compare to command line
@@ -1308,6 +1357,11 @@ Status: Installed apache maven and built Google Genomics dataflow package.  Ran 
 ```
 java -cp target/google-genomics-dataflow-v1beta2-0.2-SNAPSHOT.jar   com/google/cloud/genomics/dataflow/pipelines/IdentityByState   --project=my-project-id   --output=gs://my-bucket/localtest.txt   --genomicsSecretsFile=client_secrets.json
 Error: Could not find or load main class com.google.cloud.genomics.dataflow.pipelines.IdentityByState
+```
+
+Command line
+```
+plink --genome --vcf chr22-merged.vcf.gz
 ```
 
 [Top](#top)
