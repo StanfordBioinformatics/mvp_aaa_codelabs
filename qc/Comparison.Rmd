@@ -92,6 +92,11 @@ print(xtable(head(result)), type="html", include.rownames=F)
 
 Compare to [output](./data/brca1/singletons.singletons) from vcftools, which has 85 some of which are for 0/0 genotypes from reference matching blocks (see the [vcftools command line](./data/brca1/singletons.e9636222) used to create this file).
 
+Command line execution
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --singletons --out singletons
+```
+
 ```{r}
 expectedResult <- read.table("./data/brca1/singletons.singletons", header=TRUE)
 # Convert to zero-based coordinates
@@ -164,6 +169,13 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
 Let's compare to what was found using vcftools.
+
+Command line execution.
+
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --het --out het_calls
+```
+
 ```{r}
 expectedResult <- read.table("./data/brca1/het_calls.het", header=TRUE)
 ```
@@ -203,6 +215,11 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
 Compare to [brca1.hwe](./data/brca1/hardy.hwe) (see the [vcftools command line](./data/hwe/brca1.log) used to create this file).
+
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --hardy --out hardy
+```
 
 ```{r}
 require(dplyr)
@@ -286,6 +303,11 @@ print(xtable(result), type="html", include.rownames=F)
     
 Compare to [output](./data/brca1/TsTv-by-count.TsTv.count) from vcftools.
 
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --TsTv-by-count --out TsTv-by-coun
+```
+
 ```{r}
 expectedResult <- read.table("./data/brca1/TsTv-by-count.TsTv.count", header=TRUE)
 ```
@@ -345,6 +367,11 @@ print(xtable(result), type="html", include.rownames=F)
     
 Compare to [output](./data/brca1/missingness.imiss) from vcftools.
 
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --missing-indv --out missingness
+```
+
 ```{r}
 expectedResult <- read.table("./data/brca1/missingness.imiss", header=TRUE)
 ```
@@ -373,6 +400,11 @@ print(xtable(head(result)), type="html", include.rownames=F)
     
     
 Compare to [output](./data/brca1/missing_sites.lmiss) from vcftools.
+
+Command line
+```
+vcftools --gzvcf brca1.merged.sample_set.vcf.gz --missing_site --out missing_sites
+```
 
 ```{r}
 expectedResult <- read.table("./data/brca1/missing_sites.lmiss", header=TRUE)
@@ -454,6 +486,12 @@ ggplot(joinedResult) +
 
 TODO: Compare to Plink
 
+Command line
+```
+plink --vcf ~/scratch/chrX.vcf.gz --make-bed --split-x 'hg19' --out ~/scratch/chrX-split
+plink --bfile ~/scratch/chrX-split --check-sex
+```
+
 [Top](#top)
 
 Heterozygous Haplotype
@@ -494,6 +532,11 @@ Status: Installed apache maven and built Google Genomics dataflow package.  Ran 
 ```
 java -cp target/google-genomics-dataflow-v1beta2-0.2-SNAPSHOT.jar   com/google/cloud/genomics/dataflow/pipelines/IdentityByState   --project=my-project-id   --output=gs://my-bucket/localtest.txt   --genomicsSecretsFile=client_secrets.json
 Error: Could not find or load main class com.google.cloud.genomics.dataflow.pipelines.IdentityByState
+```
+
+Command line
+```
+plink --genome --vcf chr22-merged.vcf.gz
 ```
 
 [Top](#top)
