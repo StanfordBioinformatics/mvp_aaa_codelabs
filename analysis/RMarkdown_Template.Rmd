@@ -1,0 +1,76 @@
+# RMarkdown Template
+
+## Setup
+
+For more information about how to set up set up BigQuery usage in R see [this page](https://github.com/googlegenomics/getting-started-bigquery/blob/master/RMarkdown/literate-programming-demo.md#data-visualization) from google genomics.
+
+#### Set project details
+
+```{r eval=FALSE}
+######################[ CHANGE ME ]##################################
+# This codelab assumes that the current working directory is where the Rmd file resides.
+setwd("/Users/gmcinnes/GitHub/mvp_aaa_codelabs/qc")
+
+# Set the Google Cloud Platform project id under which these queries will run.
+project <- "gbsc-gcp-project-mvp"
+#####################################################################
+```
+
+#### Set up query function
+```{r eval=TRUE, warning=FALSE}
+# Set up for BigQuery access.
+source("./rHelpers/setup.R")
+```
+
+#### Define tables to be used in queries 
+```{r}
+tableReplacement <- list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2",
+                         "_THE_EXPANDED_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2",
+                         "_REF_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_ref_calls_brca1",
+                         "_VARIANT_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_variants_brca1")
+
+sampleData <- read.csv("./data/patient_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+constraints <- list("#_WHERE_"="WHERE 
+                    reference_name = 'chr17'
+                    AND start BETWEEN 41196311
+                    AND 41277499")
+
+googleRepository = "https://raw.githubusercontent.com/googlegenomics/codelabs/master/R/PlatinumGenomes-QC/sql/"
+```
+
+## Executing queries
+
+Queries can be imported from a local file, from the internet, or by pasting the query into the rmarkdown file.  
+
+In this example we'll look at all the variants found within brca1 for our sample cohort.
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "https://raw.githubusercontent.com/googlegenomics/getting-started-bigquery/master/sql/sample-variant-counts-for-brca1.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+Plot it:
+```{r example, fig.align="center", fig.width=10}
+ggplot(result, aes(x=call_set_name, y=variant_count)) +
+  geom_bar(stat="identity") + coord_flip() +
+  ggtitle("Count of Variants Per Sample")
+```
+
+## Generate Markdown File
+Execute the the following commands to create the markdown file.
+```
+require(knitr)
+
+setwd("/YOUR/WORKING/DIRECTORY")
+knit("./RMarkdown_Template.Rmd")
+```
+  
