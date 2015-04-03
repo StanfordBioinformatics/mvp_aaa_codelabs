@@ -1,0 +1,13 @@
+type,count
+A>C,8
+A>G,22
+A>T,6
+C>A,3
+C>G,1
+C>T,23
+G>A,22
+G>C,7
+G>T,3
+T>A,4
+T>C,33
+T>G,6

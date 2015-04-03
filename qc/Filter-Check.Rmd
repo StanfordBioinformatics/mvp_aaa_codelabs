@@ -1,0 +1,307 @@
+# Filtering Validation
+
+Here we show that the tables created with the calls filtered by [gvcf-mapper.py](https://github.com/StanfordBioinformatics/googva/blob/master/gvcf-mapper.py) contain all the calls that meet our filtering criteria and nothing extra.  For details on how this table was prepared see [here](./Data-Preparation-GC.md).
+
+* [Setup](#setup)
+* [Genomes in dataset](#genomes-in-dataset)
+* [Variant filters](#variant-filters)
+* [Reference filteres](#reference-filters)
+* [Variant Details](#variant-details)
+
+## Setup
+
+```{r echo=FALSE, eval=FALSE}
+######################[ CHANGE ME ]##################################
+# This codelab assumes that the current working directory is where the Rmd file resides.
+setwd("/Users/gmcinnes/GitHub/mvp_aaa_codelabs/qc")
+
+# Set the Google Cloud Platform project id under which these queries will run.
+project <- "gbsc-gcp-project-mvp"
+
+# Link to the sql queries in Google Genomics
+googleRepository = "https://raw.githubusercontent.com/googlegenomics/codelabs/master/R/PlatinumGenomes-QC/sql/"
+#####################################################################
+```
+
+```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# Set up for BigQuery access.
+source("./rHelpers/setup.R")
+```
+
+```{r}
+# By default this codelab runs upon the Illumina Platinum Genomes Variants.  
+# Change the table here if you wish to run these queries against your own data.
+queryReplacements <- list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2")
+
+# To run this against other public data, source in one of the dataset helpers.  For example:
+# source("./rHelpers/pgpCGIOnlyDataset.R")
+```
+
+
+## Genomes in dataset
+Let's first make sure all of our samples made it into BigQuery.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/sample-names.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```  
+
+Looks good.  All of our samples are there.
+  
+## Variant filters
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/variant-filters.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+``` 
+
+## Ref filters
+Let's look at the reference calls and make sure they all meet the filtering requirements.
+
+* QUAL > 30
+* MQ > 30
+* MQ0 < 4
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/ref-quality.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+``` 
+
+We can see from the table that each of our samples has a QUAL score greater than 30, but the MQ an MQ0 columns have values outside our desired range.  This is because when variants are imported into variant store in Google the value fields are merged for identical sites.  Since we have no-calls (calls outside our desired quality range) in our dataset good calls and bad calls are being merged together.  This is why it is important to filter our data prior to importing to variant store. We can see that the first sample passes for each metric.  Subsequent samples have calls that are merged with no-calls from the first sample leading to values ourside of our desired range.  All samples pass for QUAL because that metric is stored for each call within 'call'.  We can be sure that the filtering is working properly based on the first sample.
+
+## Variant details
+all of these are messed up.  show brca1 first (which looks good) then show whole genome.  why are they different?????
+Check that count of 1,2 genotypes does not match difference, pretty sure it doesn't but check
+
+### SNPs
+#### BRCA1
+##### Count
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/snp-count.sql"
+where <- list("#_AND_"="AND reference_name = 'chr17'
+                    AND start BETWEEN 41196311
+                    AND 41277499")
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(queryReplacements,where))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/mutation_counts_brca1.csv'
+expectedResult = read.csv(file)
+bcftoolsCount = expectedResult[expectedResult$type=='SNPs',]
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(bcftoolsCount), type="html", include.rownames=F)
+``` 
+
+##### Substitution types
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/unique-snp-positions.sql"
+where <- list("#_AND_"="AND reference_name = 'chr17'
+                    AND start BETWEEN 41196311
+                    AND 41277499")
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(queryReplacements, where))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/snp_types_brca1.csv'
+expectedResult = read.csv(file)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(expectedResult), type="html", include.rownames=F)
+```
+
+
+
+#### Full Genomes
+##### Count
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/snp-count.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/mutation_counts.csv'
+expectedResult = read.csv(file)
+bcftoolsCount = expectedResult[expectedResult$type=='SNPs',]
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(bcftoolsCount), type="html", include.rownames=F)
+```
+
+##### Substitution types
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/unique-snp-positions.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/snp_types.csv'
+expectedResult = read.csv(file)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(expectedResult), type="html", include.rownames=F)
+```
+
+### INDELs
+#### BRCA1
+##### Count
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/indel-count.sql"
+where <- list("#_AND_"="AND reference_name = 'chr17'
+                    AND start BETWEEN 41196311
+                    AND 41277499")
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(queryReplacements, where))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/mutation_counts_brca1.csv'
+expectedResult = read.csv(file)
+bcftoolsCount = expectedResult[expectedResult$type=='indels',]
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(bcftoolsCount), type="html", include.rownames=F)
+```
+
+##### Length Distibution
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/indel-length-distribution.sql"
+where <- list("#_AND_"="AND reference_name = 'chr17'
+                    AND start BETWEEN 41196311
+                    AND 41277499")
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(queryReplacements, where))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools
+```{r}
+file = './data/bcfstats/indel_length_brca1.csv'
+expectedResult = read.csv(file)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(expectedResult), type="html", include.rownames=F)
+```
+
+#### Full Genome
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/indel-count.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(result), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/mutation_counts_brca1.csv'
+expectedResult = read.csv(file)
+bcftoolsCount = expectedResult[expectedResult$type=='indels',]
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(bcftoolsCount), type="html", include.rownames=F)
+```
+
+##### Length Distibution
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/indel-length-distribution.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+``` 
+
+Compare to bcftools stats
+
+```{r}
+file = './data/bcfstats/indel_length.csv'
+expectedResult = read.csv(file)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(expectedResult), type="html", include.rownames=F)
+```
+
+
