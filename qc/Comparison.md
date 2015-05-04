@@ -1,21 +1,3 @@
-<!-- R Markdown Documentation, DO NOT EDIT THE PLAIN MARKDOWN VERSION OF THIS FILE -->
-  
-  <!-- Copyright 2015 Stanford University All rights reserved. -->
-  
-  <!-- Licensed under the Apache License, Version 2.0 (the "License"); -->
-  <!-- you may not use this file except in compliance with the License. -->
-  <!-- You may obtain a copy of the License at -->
-  
-  <!--     http://www.apache.org/licenses/LICENSE-2.0 -->
-  
-  <!-- Unless required by applicable law or agreed to in writing, software -->
-  <!-- distributed under the License is distributed on an "AS IS" BASIS, -->
-  <!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
-  <!-- See the License for the specific language governing permissions and -->
-  <!-- limitations under the License. -->
-
-<a id="top"></a>
-
 # Comparison of Google Genomics tools vs Academic Tools
 
 The purpose of this codelab is to compare BigQuery queries to academic command line tools for genomic analysis. 
@@ -34,9 +16,9 @@ The purpose of this codelab is to compare BigQuery queries to academic command l
 * [Genome Similarity](#genome-similarity)
 * [Genotype Concordance](#genotype-concordance)
 
-
-
 ## Setup
+
+
 
 
 
@@ -45,7 +27,8 @@ The purpose of this codelab is to compare BigQuery queries to academic command l
 tableReplacement <- list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2",
                           "_THE_EXPANDED_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2",
                          "_REF_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_ref_calls_brca1",
-                         "_VARIANT_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_variants_brca1")
+                         "_VARIANT_TABLE_"="gbsc-gcp-project-mvp:qc_tables.5_genomes_variants_brca1",
+                         "_GENOTYPING_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_genotyping_vcfs")
 sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 
@@ -132,14 +115,12 @@ HAVING
 ORDER BY
   POS,
   INDV
-
-Running query:   RUNNING  2.4s
 ```
 Number of rows returned by this query: 33.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:28 2015 -->
+<!-- Mon May  4 15:50:24 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> REF </th> <th> ALT </th> <th> INDV </th> <th> genotype </th> <th> num_samples_with_variant </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> S </td> <td> T </td> <td> C </td> <td> LP6005038-DNA_B02 </td> <td> "0,1" </td> <td align="right">   1 </td> </tr>
@@ -218,7 +199,7 @@ print(xtable(onlyVcftools), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:28 2015 -->
+<!-- Mon May  4 15:50:24 2015 -->
 <table border=1>
 <tr> <th> CHROM </th> <th> POS </th> <th> SINGLETON_DOUBLETON </th> <th> ALLELE </th> <th> INDV </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41271293.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
@@ -238,12 +219,12 @@ print(xtable(onlyVcftools), type="html", include.rownames=F)
   <tr> <td> chr17 </td> <td align="right"> 41256077.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41256076.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41256075.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41252696.00 </td> <td> D </td> <td> T </td> <td> LP6005038-DNA_B01 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41252647.00 </td> <td> D </td> <td> G </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41252634.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41249363.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41242077.00 </td> <td> D </td> <td> G </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41242076.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41242075.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41230105.00 </td> <td> D </td> <td> T </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41229760.00 </td> <td> D </td> <td> T </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41226740.00 </td> <td> D </td> <td> T </td> <td> LP6005038-DNA_B02 </td> </tr>
@@ -252,9 +233,9 @@ print(xtable(onlyVcftools), type="html", include.rownames=F)
   <tr> <td> chr17 </td> <td align="right"> 41226737.00 </td> <td> D </td> <td> G </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41226736.00 </td> <td> D </td> <td> G </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41214210.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41242075.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41214209.00 </td> <td> D </td> <td> A </td> <td> LP6005038-DNA_B02 </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41202634.00 </td> <td> D </td> <td> G </td> <td> LP6005038-DNA_B02 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41252696.00 </td> <td> D </td> <td> T </td> <td> LP6005038-DNA_B01 </td> </tr>
    </table>
 
 Retrieving the gVCF data for the singletons identified only by vcftools:
@@ -286,7 +267,7 @@ FROM
 WHERE
   reference_name = 'chr17'
 HAVING
-  start = 41271293 OR start = 41267518 OR start = 41256102 OR start = 41256101 OR start = 41256100 OR start = 41256086 OR start = 41256085 OR start = 41256084 OR start = 41256083 OR start = 41256082 OR start = 41256081 OR start = 41256080 OR start = 41256079 OR start = 41256078 OR start = 41256077 OR start = 41256076 OR start = 41256075 OR start = 41252647 OR start = 41252634 OR start = 41249363 OR start = 41242077 OR start = 41242076 OR start = 41242075 OR start = 41230105 OR start = 41229760 OR start = 41226740 OR start = 41226739 OR start = 41226738 OR start = 41226737 OR start = 41226736 OR start = 41214210 OR start = 41214209 OR start = 41202634 OR start = 41252696
+  start = 41271293 OR start = 41267518 OR start = 41256102 OR start = 41256101 OR start = 41256100 OR start = 41256086 OR start = 41256085 OR start = 41256084 OR start = 41256083 OR start = 41256082 OR start = 41256081 OR start = 41256080 OR start = 41256079 OR start = 41256078 OR start = 41256077 OR start = 41256076 OR start = 41256075 OR start = 41252696 OR start = 41252647 OR start = 41252634 OR start = 41249363 OR start = 41242077 OR start = 41242076 OR start = 41230105 OR start = 41229760 OR start = 41226740 OR start = 41226739 OR start = 41226738 OR start = 41226737 OR start = 41226736 OR start = 41214210 OR start = 41242075 OR start = 41214209 OR start = 41202634
 ORDER BY
   start,
   end,
@@ -294,7 +275,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:33 2015 -->
+<!-- Mon May  4 15:50:27 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_B01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41252696 </td> <td align="right"> 41252755 </td> <td> T </td> <td>  </td> <td align="right"> 31.21 </td> <td>  </td> </tr>
@@ -369,14 +350,12 @@ FROM (
     )
 ORDER BY
   call.call_set_name
-
-Running query:   RUNNING  2.2s
 ```
 Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:39 2015 -->
+<!-- Mon May  4 15:50:30 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right">  16 </td> <td align="right"> 79.87 </td> <td align="right"> 136 </td> <td align="right"> -1.14 </td> </tr>
@@ -400,7 +379,7 @@ expectedResult <- read.table("./data/brca1/het_calls.het", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:39 2015 -->
+<!-- Mon May  4 15:50:30 2015 -->
 <table border=1>
 <tr> <th> E_HOM.x </th> <th> E_HOM.y </th> <th> F.x </th> <th> F.y </th> <th> INDV </th> <th> N_SITES.x </th> <th> N_SITES.y </th> <th> O_HOM.x </th> <th> O_HOM.y </th>  </tr>
   <tr> <td align="right"> 65.50 </td> <td align="right"> 79.87 </td> <td align="right"> -0.85 </td> <td align="right"> -1.14 </td> <td> LP6005038-DNA_A01 </td> <td align="right"> 143 </td> <td align="right"> 136 </td> <td align="right">   0 </td> <td align="right">  16 </td> </tr>
@@ -532,15 +511,15 @@ Number of rows returned by this query: 185.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:43 2015 -->
+<!-- Mon May  4 15:50:33 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41250046 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right"> 0.00 </td> <td align="right"> 0.00 </td> <td align="right"> 1.00 </td> <td align="right">  </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41250677 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.00 </td> <td align="right"> 2.00 </td> <td align="right"> 1.00 </td> <td align="right"> 4.00 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41250922 </td> <td> T </td> <td> C </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41251494 </td> <td> C </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41251645 </td> <td> T </td> <td> A </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41251930 </td> <td> G </td> <td> A </td> <td align="right">   4 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 4.05 </td> <td align="right"> 0.90 </td> <td align="right"> 0.05 </td> <td align="right"> 0.06 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41277186 </td> <td> G </td> <td> C </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41230104 </td> <td> CT </td> <td> C </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.00 </td> <td align="right"> 2.00 </td> <td align="right"> 1.00 </td> <td align="right"> 4.00 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41230227 </td> <td> G </td> <td> A </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41230335 </td> <td> A </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41230375 </td> <td> A </td> <td> G </td> <td align="right">   1 </td> <td align="right">   4 </td> <td align="right">   0 </td> <td align="right"> 1.80 </td> <td align="right"> 2.40 </td> <td align="right"> 0.80 </td> <td align="right"> 2.22 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41230523 </td> <td> T </td> <td> G </td> <td align="right">   3 </td> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right"> 3.20 </td> <td align="right"> 1.60 </td> <td align="right"> 0.20 </td> <td align="right"> 0.31 </td> <td> FALSE </td> </tr>
    </table>
 
 Compare to [brca1.hwe](./data/brca1/hardy.hwe) (see the [vcftools command line](./data/hwe/brca1.log) used to create this file).
@@ -590,13 +569,13 @@ nrow(onlyBQ)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:44 2015 -->
+<!-- Mon May  4 15:50:33 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> reference_bases </th> <th> alternate_bases </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th> <th> ChiSq </th> <th> PVALUE_SIG </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944 </td> <td> T </td> <td> C </td> <td align="right">   4 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 4.05 </td> <td align="right"> 0.90 </td> <td align="right"> 0.05 </td> <td align="right"> 0.06 </td> <td> FALSE </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41201363 </td> <td> T </td> <td> C </td> <td align="right">   3 </td> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right"> 3.20 </td> <td align="right"> 1.60 </td> <td align="right"> 0.20 </td> <td align="right"> 0.31 </td> <td> FALSE </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41211485 </td> <td> C </td> <td> CACAACA </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> <td align="right"> 1.00 </td> <td> FALSE </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41211485 </td> <td> C </td> <td> CACA </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> <td align="right"> 1.00 </td> <td> FALSE </td> </tr>
+  <tr> <td> chr17 </td> <td align="right"> 41211485 </td> <td> C </td> <td> CACAACA </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> <td align="right"> 1.00 </td> <td> FALSE </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41213759 </td> <td> C </td> <td> T </td> <td align="right">   3 </td> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right"> 3.20 </td> <td align="right"> 1.60 </td> <td align="right"> 0.20 </td> <td align="right"> 0.31 </td> <td> FALSE </td> </tr>
   <tr> <td> chr17 </td> <td align="right"> 41216205 </td> <td> T </td> <td> C </td> <td align="right">   3 </td> <td align="right">   2 </td> <td align="right">   0 </td> <td align="right"> 3.20 </td> <td align="right"> 1.60 </td> <td align="right"> 0.20 </td> <td align="right"> 0.31 </td> <td> FALSE </td> </tr>
    </table>
@@ -614,7 +593,7 @@ nrow(onlyVcftools)
 
 Let's take a look at the first few.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:44 2015 -->
+<!-- Mon May  4 15:50:33 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> ChiSq </th> <th> P </th> <th> OBS_HOM1 </th> <th> OBS_HET </th> <th> OBS_HOM2 </th> <th> E_HOM1 </th> <th> E_HET </th> <th> E_HOM2 </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 1.00 </td> <td align="right"> 1.00 </td> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right">   0 </td> <td align="right"> 0.25 </td> <td align="right"> 0.50 </td> <td align="right"> 0.25 </td> </tr>
@@ -656,7 +635,7 @@ FROM
 WHERE
   reference_name = 'chr17'
 HAVING
-  start <=  41258790 AND end >=  41258791 OR start <=  41252694 AND end >=  41252695 OR start <=  41251930 AND end >=  41251931 OR start <=  41249362 AND end >=  41249363 OR start <=  41248903 AND end >=  41248904 OR start <=  41247623 AND end >=  41247624 OR start <=  41247054 AND end >=  41247055 OR start <=  41245470 AND end >=  41245471 OR start <=  41241567 AND end >=  41241568 OR start <=  41239979 AND end >=  41239980 OR start <=  41222098 AND end >=  41222099 OR start <=  41220771 AND end >=  41220772 OR start <=  41216205 AND end >=  41216206 OR start <=  41213759 AND end >=  41213760 OR start <=  41201363 AND end >=  41201364 OR start <=  41196944 AND end >=  41196945
+  start <=  41258790 AND end >=  41258791 OR start <=  41252694 AND end >=  41252695 OR start <=  41249362 AND end >=  41249363 OR start <=  41248903 AND end >=  41248904 OR start <=  41247623 AND end >=  41247624 OR start <=  41247054 AND end >=  41247055 OR start <=  41245470 AND end >=  41245471 OR start <=  41241567 AND end >=  41241568 OR start <=  41239979 AND end >=  41239980 OR start <=  41251930 AND end >=  41251931 OR start <=  41222098 AND end >=  41222099 OR start <=  41220771 AND end >=  41220772 OR start <=  41216205 AND end >=  41216206 OR start <=  41213759 AND end >=  41213760 OR start <=  41201363 AND end >=  41201364 OR start <=  41196944 AND end >=  41196945
 ORDER BY
   start,
   end,
@@ -665,7 +644,7 @@ ORDER BY
 
 The first few:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:48 2015 -->
+<!-- Mon May  4 15:50:36 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th> <th> quality </th> <th> filter </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td> 0,0 </td> <td> chr17 </td> <td align="right"> 41196408 </td> <td align="right"> 41197273 </td> <td> G </td> <td>  </td> <td align="right"> 61.23 </td> <td>  </td> </tr>
@@ -728,7 +707,7 @@ ORDER BY
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:53 2015 -->
+<!-- Mon May  4 15:50:38 2015 -->
 <table border=1>
 <tr> <th> transitions </th> <th> transversions </th> <th> titv </th> <th> alternate_allele_count </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   1 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> </tr>
@@ -751,7 +730,7 @@ expectedResult <- read.table("./data/brca1/TsTv-by-count.TsTv.count", header=TRU
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:06:53 2015 -->
+<!-- Mon May  4 15:50:38 2015 -->
 <table border=1>
 <tr> <th> ALT_ALLELE_COUNT </th> <th> N_Ts </th> <th> N_Tv </th> <th> Ts.Tv </th>  </tr>
   <tr> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right">  </td> </tr>
@@ -785,38 +764,38 @@ SELECT
   call.call_set_name,
   (transitions/transversions) AS titv_ratio,
   average_depth,
-FROM(
-SELECT
-  call.call_set_name,
-  SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
-  SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
-                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
-  ROUND(AVG(call.DP)) AS average_depth,
-  FROM(
-
+FROM (
   SELECT
+    call.call_set_name,
+    SUM(mutation IN ('A->G', 'G->A', 'C->T', 'T->C')) AS transitions,
+    SUM(mutation IN ('A->C', 'C->A', 'G->T', 'T->G',
+                     'A->T', 'T->A', 'C->G', 'G->C')) AS transversions,
+    ROUND(AVG(call.DP)) AS average_depth,
+  FROM (
+
+    SELECT
       call.call_set_name,
       CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
       COUNT(alternate_bases) WITHIN RECORD AS num_alts,
       call.DP
-    FROM(
+    FROM (
       SELECT
         call.call_set_name,
         reference_bases,
-        alternate_bases,
+        GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
         call.genotype,
         call.DP,
-      FROM(FLATTEN((
-      [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2]), call.DP))
-    # Optionally add clause here to limit the query to a particular
-    # region of the genome.
+      FROM
+        [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2]
+      # Optionally add clause here to limit the query to a particular
+      # region of the genome.
       #_WHERE_  
       )
     WHERE
       call.DP is not null
     HAVING
-    # Skip 1/2 genotypes _and non-SNP variants
-    num_alts = 1
+      # Skip 1/2 genotypes _and non-SNP variants
+      num_alts = 1
       AND reference_bases IN ('A','C','G','T')
       AND alternate_bases IN ('A','C','G','T'))
     GROUP BY 
@@ -828,22 +807,18 @@ GROUP BY
   call.call_set_name,
   titv_ratio,
   average_depth,
-ORDER BY average_depth DESC
-Running query:   RUNNING  2.0s
-Running query:   RUNNING  2.7s
-Running query:   RUNNING  3.5s
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:00 2015 -->
+<!-- Mon May  4 15:50:41 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> titv_ratio </th> <th> average_depth </th>  </tr>
-  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.28 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 1.26 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 1.41 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 1.25 </td> <td align="right"> 250.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 1.24 </td> <td align="right"> 249.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 2.09 </td> <td align="right"> 39.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 2.20 </td> <td align="right"> 28.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 2.20 </td> <td align="right"> 30.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 2.12 </td> <td align="right"> 30.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 2.15 </td> <td align="right"> 35.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 2.16 </td> <td align="right"> 33.00 </td> </tr>
    </table>
 
 
@@ -927,7 +902,7 @@ ON
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:04 2015 -->
+<!-- Mon May  4 15:50:44 2015 -->
 <table border=1>
 <tr> <th> sample_name </th> <th> no_call_count </th> <th> missingness </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 286 </td> <td align="right"> 0.00 </td> </tr>
@@ -950,7 +925,7 @@ expectedResult <- read.table("./data/brca1/missingness.imiss", header=TRUE)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:04 2015 -->
+<!-- Mon May  4 15:50:44 2015 -->
 <table border=1>
 <tr> <th> INDV </th> <th> N_DATA </th> <th> N_GENOTYPES_FILTERED </th> <th> N_MISS </th> <th> F_MISS </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 81239 </td> <td align="right">   0 </td> <td align="right"> 274 </td> <td align="right"> 0.00 </td> </tr>
@@ -1020,16 +995,21 @@ CROSS JOIN (
 #_ORDER_BY_
 ```
 
+```
+Error: Not found: Table gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_no_calls
+
+ notFound. Not found: Table gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_no_calls
+```
+
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:09 2015 -->
+<!-- Mon May  4 15:50:45 2015 -->
 <table border=1>
-<tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th>  </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41226600 </td> <td align="right"> 41226601 </td> <td> G </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41226674 </td> <td align="right"> 41226675 </td> <td> A </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41226735 </td> <td align="right"> 41226741 </td> <td> GGGGTT </td> <td> G </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41227082 </td> <td align="right"> 41227083 </td> <td> C </td> <td> CGGAA </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41229351 </td> <td align="right"> 41229352 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41229385 </td> <td align="right"> 41229386 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
+<tr> <th> sample_name </th> <th> no_call_count </th> <th> missingness </th>  </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 286 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 115 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 332 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 228 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 639 </td> <td align="right"> 0.01 </td> </tr>
    </table>
     
     
@@ -1059,7 +1039,7 @@ print(xtable(head(expectedResult)), type="html", include.rownames=F)
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:10 2015 -->
+<!-- Mon May  4 15:50:46 2015 -->
 <table border=1>
 <tr> <th> reference_name </th> <th> start </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
   <tr> <td> chr17 </td> <td align="right"> 41196311.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
@@ -1074,8 +1054,26 @@ Let's join them and look at the differences
 
 ```r
 joinedResult = data.table(inner_join(result, expectedResult, by=c("reference_name", "start")))
+```
+
+```
+## Error in eval(expr, envir, enclos): could not find function "data.table"
+```
+
+```r
 matches = joinedResult[missingness_rate == expected_rate]
+```
+
+```
+## Error in `[.data.frame`(joinedResult, missingness_rate == expected_rate): object 'missingness_rate' not found
+```
+
+```r
 differences = joinedResult[missingness_rate != expected_rate]
+```
+
+```
+## Error in `[.data.frame`(joinedResult, missingness_rate != expected_rate): object 'missingness_rate' not found
 ```
 
 How many do they have in common?
@@ -1085,7 +1083,7 @@ nrow(matches)
 ```
 
 ```
-## [1] 165
+## Error in nrow(matches): object 'matches' not found
 ```
 
 How many are different?
@@ -1095,90 +1093,14 @@ nrow(differences)
 ```
 
 ```
-## [1] 75
+## Error in nrow(differences): object 'differences' not found
 ```
 
 Here we can see which rows where different
-<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:10 2015 -->
-<table border=1>
-<tr> <th> reference_name </th> <th> start </th> <th> END </th> <th> reference_bases </th> <th> alternate_bases </th> <th> no_calls </th> <th> all_calls </th> <th> missing_calls </th> <th> missingness_rate </th> <th> expected_count </th> <th> filtered </th> <th> expected_missing_count </th> <th> expected_rate </th>  </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 41196945 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41196944.00 </td> <td align="right"> 41196945 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41197938.00 </td> <td align="right"> 41197939 </td> <td> A </td> <td> AT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41200549.00 </td> <td align="right"> 41200550 </td> <td> T </td> <td> TA </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41200703.00 </td> <td align="right"> 41200705 </td> <td> GT </td> <td> G </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41201363.00 </td> <td align="right"> 41201364 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41201363.00 </td> <td align="right"> 41201364 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41202631.00 </td> <td align="right"> 41202635 </td> <td> AAAG </td> <td> A </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41202633.00 </td> <td align="right"> 41202635 </td> <td> AG </td> <td> A </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41204835.00 </td> <td align="right"> 41204842 </td> <td> ACACACT </td> <td> A </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41208691.00 </td> <td align="right"> 41208692 </td> <td> G </td> <td> GA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41211485.00 </td> <td align="right"> 41211486 </td> <td> C </td> <td> CACAACA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41211485.00 </td> <td align="right"> 41211486 </td> <td> C </td> <td> CACA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41211485.00 </td> <td align="right"> 41211486 </td> <td> C </td> <td> CACAACA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41211485.00 </td> <td align="right"> 41211486 </td> <td> C </td> <td> CACA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41213759.00 </td> <td align="right"> 41213760 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41213759.00 </td> <td align="right"> 41213760 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41214208.00 </td> <td align="right"> 41214211 </td> <td> CAA </td> <td> C </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41216205.00 </td> <td align="right"> 41216206 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41216205.00 </td> <td align="right"> 41216206 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41219852.00 </td> <td align="right"> 41219853 </td> <td> A </td> <td> ATT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41219852.00 </td> <td align="right"> 41219853 </td> <td> A </td> <td> ATTT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41219852.00 </td> <td align="right"> 41219853 </td> <td> A </td> <td> ATT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41219852.00 </td> <td align="right"> 41219853 </td> <td> A </td> <td> ATTT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41220569.00 </td> <td align="right"> 41220571 </td> <td> TA </td> <td> T </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41220771.00 </td> <td align="right"> 41220772 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41220771.00 </td> <td align="right"> 41220772 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41222098.00 </td> <td align="right"> 41222099 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41222098.00 </td> <td align="right"> 41222099 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41224891.00 </td> <td align="right"> 41224892 </td> <td> G </td> <td> GT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41225653.00 </td> <td align="right"> 41225655 </td> <td> TA </td> <td> T </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41226735.00 </td> <td align="right"> 41226741 </td> <td> GGGGTT </td> <td> G </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41227082.00 </td> <td align="right"> 41227083 </td> <td> C </td> <td> CGGAA </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41229351.00 </td> <td align="right"> 41229352 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41229759.00 </td> <td align="right"> 41229761 </td> <td> AT </td> <td> A </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41230104.00 </td> <td align="right"> 41230106 </td> <td> CT </td> <td> C </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41239914.00 </td> <td align="right"> 41239916 </td> <td> AT </td> <td> A </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41239979.00 </td> <td align="right"> 41239980 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41239979.00 </td> <td align="right"> 41239980 </td> <td> T </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41241567.00 </td> <td align="right"> 41241568 </td> <td> T </td> <td> TC </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41242074.00 </td> <td align="right"> 41242078 </td> <td> AAAG </td> <td> A </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41245470.00 </td> <td align="right"> 41245471 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41245470.00 </td> <td align="right"> 41245471 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41247054.00 </td> <td align="right"> 41247055 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41247054.00 </td> <td align="right"> 41247055 </td> <td> C </td> <td> T </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41247121.00 </td> <td align="right"> 41247122 </td> <td> A </td> <td> ACCT </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41247623.00 </td> <td align="right"> 41247624 </td> <td> A </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41247623.00 </td> <td align="right"> 41247624 </td> <td> A </td> <td> C </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41248903.00 </td> <td align="right"> 41248904 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41248903.00 </td> <td align="right"> 41248904 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41249362.00 </td> <td align="right"> 41249364 </td> <td> TA </td> <td> T </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41250046.00 </td> <td align="right"> 41250047 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41250677.00 </td> <td align="right"> 41250678 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41251930.00 </td> <td align="right"> 41251931 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41251930.00 </td> <td align="right"> 41251931 </td> <td> G </td> <td> A </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41252230.00 </td> <td align="right"> 41252232 </td> <td> AT </td> <td> A </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41252590.00 </td> <td align="right"> 41252591 </td> <td> C </td> <td> CAT </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right">   6 </td> <td align="right"> 0.60 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41252694.00 </td> <td align="right"> 41252695 </td> <td> A </td> <td> AT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41252705.00 </td> <td align="right"> 41252706 </td> <td> A </td> <td> ATATGT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41254964.00 </td> <td align="right"> 41254965 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41256074.00 </td> <td align="right"> 41256087 </td> <td> AAAAAAAAAAAAG </td> <td> A </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41256099.00 </td> <td align="right"> 41256103 </td> <td> AAAG </td> <td> A </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41258790.00 </td> <td align="right"> 41258791 </td> <td> T </td> <td> G </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41258790.00 </td> <td align="right"> 41258791 </td> <td> T </td> <td> G </td> <td align="right">   0 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41260351.00 </td> <td align="right"> 41260352 </td> <td> C </td> <td> CA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41263116.00 </td> <td align="right"> 41263117 </td> <td> C </td> <td> CA </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41264472.00 </td> <td align="right"> 41264480 </td> <td> CTTAAAAA </td> <td> C </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41267517.00 </td> <td align="right"> 41267519 </td> <td> CA </td> <td> C </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41268207.00 </td> <td align="right"> 41268208 </td> <td> C </td> <td> CTT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41268207.00 </td> <td align="right"> 41268208 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41268207.00 </td> <td align="right"> 41268208 </td> <td> C </td> <td> CTT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41268207.00 </td> <td align="right"> 41268208 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   6 </td> <td align="right">   4 </td> <td align="right"> 0.40 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41270777.00 </td> <td align="right"> 41270778 </td> <td> C </td> <td> CT </td> <td align="right">   0 </td> <td align="right">   2 </td> <td align="right">   8 </td> <td align="right"> 0.80 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41271292.00 </td> <td align="right"> 41271294 </td> <td> GA </td> <td> G </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> chr17 </td> <td align="right"> 41275080.00 </td> <td align="right"> 41275081 </td> <td> G </td> <td> GA </td> <td align="right">   0 </td> <td align="right">   8 </td> <td align="right">   2 </td> <td align="right"> 0.20 </td> <td align="right">  10 </td> <td align="right">   0 </td> <td align="right">   0 </td> <td align="right"> 0.00 </td> </tr>
-   </table>
+
+```
+## Error in xtable(differences): object 'differences' not found
+```
 
 The differences appear to be mostly form positions with insertions or deletions.
 
@@ -1240,7 +1162,7 @@ Number of rows returned by this query: 5.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:13 2015 -->
+<!-- Mon May  4 15:50:49 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 91043 </td> </tr>
@@ -1312,29 +1234,15 @@ OMIT
   call if (2 > COUNT(call.genotype))
   OR EVERY(call.genotype <= 0)
   OR EVERY(call.genotype = 1)
-HAVING call.call_set_name IN ('LP6005038-DNA_A01','LP6005038-DNA_A02','LP6005038-DNA_B01','LP6005038-DNA_B02')
+HAVING call.call_set_name IN ('')
 # Optionally add a clause here to sort and limit the results.
 #_ORDER_BY_
-
-Running query:   RUNNING  2.1s
-Running query:   RUNNING  2.9s
-Running query:   RUNNING  3.6s
-
-Retrieving data:  2.3s
-Retrieving data:  4.4s
 ```
 
-<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Mon Mar 23 12:07:25 2015 -->
-<table border=1>
-<tr> <th> call_call_set_name </th> <th> genotype </th> <th> reference_name </th> <th> start </th> <th> end </th> <th> reference_bases </th> <th> alternate_bases </th>  </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62509723 </td> <td align="right"> 62509724 </td> <td> G </td> <td> T </td> </tr>
-  <tr> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184578 </td> <td align="right"> 62184579 </td> <td> C </td> <td> T </td> </tr>
-  <tr> <td> LP6005038-DNA_B02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184501 </td> <td align="right"> 62184502 </td> <td> G </td> <td> A </td> </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184501 </td> <td align="right"> 62184502 </td> <td> G </td> <td> A </td> </tr>
-  <tr> <td> LP6005038-DNA_A02 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184524 </td> <td align="right"> 62184525 </td> <td> C </td> <td> T </td> </tr>
-  <tr> <td> LP6005038-DNA_A01 </td> <td> 0,1 </td> <td> chrX </td> <td align="right"> 62184524 </td> <td align="right"> 62184525 </td> <td> C </td> <td> T </td> </tr>
-   </table>
+
+```
+Error in UseMethod("xtable"): no applicable method for 'xtable' applied to an object of class "NULL"
+```
 
 TODO Compare to command line
 
@@ -1369,6 +1277,226 @@ plink --genome --vcf chr22-merged.vcf.gz
 Genotype Concordance
 -----------------------------------
 
+Calculate the concordance between sequencing data and genotyping data.
+
+
+```r
+query <- "./sql/genotyping-concordance.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(tableReplacement))
+```
+
+```
+SELECT
+  sample_id,
+  calls_in_common,
+  identical_calls,
+  (identical_calls/calls_in_common) AS concordance
+FROM (
+  SELECT 
+    sample_id,
+    COUNT(seq_genotype) AS calls_in_common,
+    SUM(IF(seq_genotype = gen_genotype, 1, 0)) AS identical_calls,
+  FROM (
+    SELECT
+      seq.sample_id AS sample_id,
+      seq.reference_name AS reference_name,
+      seq.start AS start,
+      seq.end AS end,
+      seq.genotype AS seq_genotype,
+      gen.genotype AS gen_genotype,
+    FROM (
+      SELECT
+        sample_id,
+        reference_name,
+        start,
+        end,
+        genotype,
+        bin,
+      FROM js(
+        (SELECT
+          call.call_set_name,
+          reference_name,
+          start,
+          end,
+          call.genotype,
+          reference_bases,
+          GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
+          COUNT(alternate_bases) WITHIN RECORD AS num_alts,
+        FROM
+          [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2]
+         #_WHERE_
+        OMIT 
+          call IF EVERY (call.genotype < 0)
+        HAVING 
+          num_alts <= 1
+          AND reference_bases IN ('A','C','G','T')
+          AND (alts IS null
+            OR LENGTH(alts) <= 1)
+        ),
+        // Start javascript function
+        // Input Columns
+        call.call_set_name, reference_name, start, end, call.genotype,
+        // Output Schema
+        "[{name: 'sample_id', type: 'string'},
+        {name: 'reference_name', type: 'string'},
+        {name: 'start', type: 'integer'},
+        {name: 'end', type: 'integer'},
+        {name: 'genotype', type: 'string'},
+        {name: 'bin', type: 'integer'}]",
+        // Function
+        "function(r, emit) {
+          for (c of r.call) {
+            var binSize = 5000;
+            var startBin = Math.floor(r.start/binSize);
+            var endBin = Math.floor(r.end/binSize);
+            var genotype = JSON.stringify(c.genotype.sort());
+            for (var bin = startBin; bin <= endBin; bin++){
+              emit({
+                sample_id: c.call_set_name,
+                reference_name: r.reference_name,
+                start: r.start,
+                end: r.end,
+                genotype: genotype,
+                bin: bin,
+              })
+            }
+          }
+        }")) AS seq
+JOIN EACH (
+  SELECT
+    sample_id,
+    reference_name,
+    start,
+    end,
+    genotype,
+    bin,
+  FROM js(
+    (SELECT
+      call.call_set_name,
+      reference_name,
+      start,
+      end,
+      call.genotype,
+    FROM
+      [gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_genotyping_vcfs]
+      OMIT call IF EVERY (call.genotype < 0)       
+    ),
+    // Start javascript function
+    // Input Columns
+    call.call_set_name, reference_name, start, end, call.genotype,
+    // Output Schema
+    "[{name: 'sample_id', type: 'string'},
+    {name: 'reference_name', type: 'string'},
+    {name: 'start', type: 'integer'},
+    {name: 'end', type: 'integer'},
+    {name: 'genotype', type: 'string'},
+    {name: 'bin', type: 'integer'}]",
+    // Function
+    "function(r, emit) {
+      for (c of r.call) {
+        var binSize = 5000;
+        var bin = Math.floor(r.start/binSize);
+        var genotype = JSON.stringify(c.genotype.sort());
+        emit({
+          sample_id: c.call_set_name,
+          reference_name: r.reference_name,
+          start: r.start,
+          end: r.end,
+          genotype: genotype,
+          bin: bin,
+        })
+      }
+    }")) AS gen
+ON
+  seq.sample_id = gen.sample_id
+  AND seq.reference_name = gen.reference_name
+  AND seq.bin = gen.bin
+WHERE
+  seq.start <= gen.start
+  AND seq.end >= gen.end )
+GROUP BY 
+  sample_id)
+Running query:   RUNNING  2.6s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.4s
+Running query:   RUNNING  5.1s
+Running query:   RUNNING  5.7s
+Running query:   RUNNING  6.3s
+Running query:   RUNNING  6.9s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.1s
+Running query:   RUNNING  8.8s
+Running query:   RUNNING  9.4s
+Running query:   RUNNING 10.0s
+Running query:   RUNNING 10.6s
+Running query:   RUNNING 11.2s
+Running query:   RUNNING 11.9s
+Running query:   RUNNING 12.5s
+Running query:   RUNNING 13.1s
+Running query:   RUNNING 13.7s
+Running query:   RUNNING 14.3s
+Running query:   RUNNING 14.9s
+Running query:   RUNNING 15.6s
+Running query:   RUNNING 16.2s
+Running query:   RUNNING 16.8s
+Running query:   RUNNING 17.4s
+Running query:   RUNNING 18.0s
+Running query:   RUNNING 18.7s
+Running query:   RUNNING 19.3s
+Running query:   RUNNING 19.9s
+Running query:   RUNNING 20.5s
+Running query:   RUNNING 21.1s
+Running query:   RUNNING 21.8s
+Running query:   RUNNING 22.4s
+Running query:   RUNNING 23.0s
+Running query:   RUNNING 23.6s
+Running query:   RUNNING 24.2s
+Running query:   RUNNING 24.8s
+Running query:   RUNNING 25.4s
+Running query:   RUNNING 26.1s
+Running query:   RUNNING 26.7s
+Running query:   RUNNING 27.3s
+Running query:   RUNNING 27.9s
+Running query:   RUNNING 28.5s
+Running query:   RUNNING 29.2s
+Running query:   RUNNING 29.8s
+Running query:   RUNNING 30.4s
+Running query:   RUNNING 31.0s
+Running query:   RUNNING 31.6s
+Running query:   RUNNING 32.3s
+Running query:   RUNNING 32.9s
+Running query:   RUNNING 33.5s
+Running query:   RUNNING 34.1s
+Running query:   RUNNING 34.8s
+Running query:   RUNNING 35.4s
+Running query:   RUNNING 36.0s
+Running query:   RUNNING 36.6s
+Running query:   RUNNING 37.2s
+Running query:   RUNNING 37.8s
+Running query:   RUNNING 38.5s
+Running query:   RUNNING 39.1s
+Running query:   RUNNING 39.7s
+Running query:   RUNNING 40.3s
+Running query:   RUNNING 40.9s
+Running query:   RUNNING 41.6s
+Running query:   RUNNING 42.2s
+Running query:   RUNNING 42.8s
+Running query:   RUNNING 43.4s
+```
+
+<!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
+<!-- Mon May  4 15:51:37 2015 -->
+<table border=1>
+<tr> <th> sample_id </th> <th> calls_in_common </th> <th> identical_calls </th> <th> concordance </th>  </tr>
+  <tr> <td> LP6005038-DNA_A03 </td> <td align="right"> 2199423 </td> <td align="right"> 2177458 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_B01 </td> <td align="right"> 2200890 </td> <td align="right"> 2178871 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 2200420 </td> <td align="right"> 2178471 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_A02 </td> <td align="right"> 2200848 </td> <td align="right"> 2178903 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_B02 </td> <td align="right"> 2201742 </td> <td align="right"> 2179131 </td> <td align="right"> 0.99 </td> </tr>
+   </table>
 
 
 
