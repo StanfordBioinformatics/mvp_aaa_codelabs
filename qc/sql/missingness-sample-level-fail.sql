@@ -1,4 +1,3 @@
-# Select samples whose missingness is below desired threshold
 SELECT
   sample_id,
   missingness
@@ -35,6 +34,6 @@ FROM (
     FROM 
       [google.com:biggene:test.hg19]) AS hg19)
 WHERE
-  missingness < 0.9
+  missingness < _CUTOFF_
 ORDER BY
   g.sample_id

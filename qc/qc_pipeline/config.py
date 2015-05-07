@@ -1,5 +1,5 @@
 class Config(object):
-    QUERY_REPO = '/Users/gmcinnes/GitHub/mvp_aaa_codelabs/qc/sql'
+    QUERY_REPO = '../sql'
     VARIANT_TABLE = 'gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_gvcfs_2'
     EXPANDED_TABLE = 'gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_vcfs_2'
     GENOTYPING_TABLE = 'gbsc-gcp-project-mvp:va_aaa_pilot_data.5_genome_test_genotyping_vcfs'

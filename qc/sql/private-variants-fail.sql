@@ -1,4 +1,3 @@
-# Compute private variants counts for each sample.
 SELECT 
 call.call_set_name,
 private_variant_count

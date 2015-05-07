@@ -29,5 +29,8 @@ class Queries(object):
         GENOTYPING_CONCORDANCE: {"_CUTOFF_": "0.99"},
         GENDER_CHECK: {"_MALE_CUTOFF_": "0.2",
                        "_FEMALE_CUTOFF_": "0.5"},
-        MISSINGNESS_SAMPLE_LEVEL: {"_CUTOFF_": "1"}
+        MISSINGNESS_SAMPLE_LEVEL: {"_CUTOFF_": "1"},
+        MISSINGNESS_VARIANT_LEVEL: {"_CUTOFF_": "0.9"},
+        VARIANT_DEPTH: {"_MAX_VALUE_": "70",
+                        "_MIN_VALUE_": "8"}
     }

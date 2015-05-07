@@ -1,14 +1,13 @@
-# Compute the ratio no-calls for each variant.
 SELECT 
 reference_name,
 start,
-END,
+end,
 missingness_rate,
 FROM (
   SELECT
   reference_name,
   start,
-  END,
+  end,
   reference_bases,
   alternate_bases,
   no_calls,
@@ -20,7 +19,7 @@ FROM (
     SELECT
     reference_name,
     start,
-    END,
+    end,
     reference_bases,
     GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
     SUM(call.genotype == -1) WITHIN RECORD AS no_calls,

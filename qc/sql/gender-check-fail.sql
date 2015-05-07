@@ -1,4 +1,3 @@
-# Identify samples whose reported gender does not match the computed gender
 SELECT 
   sample_id,
   gender,
@@ -63,7 +62,7 @@ JOIN (
 ON
   data.sample_id = info.IlluminaID)
 WHERE
-  (gender = 'M' AND perct_het_alt_in_snvs > 0.2) OR
-  (gender = 'F' AND perct_het_alt_in_snvs < 0.5) 
+  (gender = 'M' AND perct_het_alt_in_snvs > _MALE_CUTOFF_) OR
+  (gender = 'F' AND perct_het_alt_in_snvs < _FEMALE_CUTOFF_) 
 ORDER BY
   data.sample_id

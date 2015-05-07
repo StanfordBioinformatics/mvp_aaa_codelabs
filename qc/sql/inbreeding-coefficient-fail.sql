@@ -1,4 +1,3 @@
-# Compute the expected and observed homozygosity rate for each individual.
 SELECT
 call.call_set_name,
 O_HOM,

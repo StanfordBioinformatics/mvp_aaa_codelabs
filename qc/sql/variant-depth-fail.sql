@@ -1,5 +1,5 @@
 SELECT
-  call.call_set_name,
+  call.call_set_name as sample_id,
   reference_name,
   start,
   end,
