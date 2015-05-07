@@ -14,6 +14,7 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*Used with permission by [Google Genomics](https://github.com/googlegenomics)*
 # Part 1: Data Overview
 
 In Part 1 of the codelab, we perform some queries to acquaint ourselves with the data and determine whether it has any characteristics requiring any additional consideration in the QC checks that follow.
