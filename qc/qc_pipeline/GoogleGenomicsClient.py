@@ -14,7 +14,6 @@ class GoogleGenomicsClient(object):
         self.project_number = project_number
         self.service = self.setup(self.client_secrets_path)
 
-
     def setup(self, client_secrets):
         storage = Storage('credentials.dat')
         credentials = storage.get()
@@ -36,7 +35,3 @@ class GoogleGenomicsClient(object):
         request = self.service.datasets().list(projectNumber=self.project_number)
         response = request.execute()
         pprint.pprint(response)
-
-#client_secret_path = '/Users/gmcinnes/bin/google_genomics/client_secrets.json'
-#g = GoogleGenomicsClient(client_secrets=client_secret_path)
-#g.datasets()
