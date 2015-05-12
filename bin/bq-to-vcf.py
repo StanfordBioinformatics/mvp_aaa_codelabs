@@ -2,7 +2,7 @@ from __future__ import print_function
 import sys
 import os
 import re
-
+import argparse
 
 CHROM=0
 POS=1
@@ -14,8 +14,10 @@ FILTER=6
 INFO=7
 CALLS=8
 
-def main():
-    file = '/Users/gmcinnes/data/sample-bq-vcf.csv'
+def main(file):
+    if not os.path.exists(file):
+        print("Couldn't find input file: %s" % file)
+        exit(1)
     samples = {}
     with open (file, "r") as f:
         for line in f:
@@ -73,5 +75,20 @@ def print_header(samples):
         count += 1
     print("#" + "\t".join(columns) + "\t" + "\t".join(sample_list))
 
+
+def parse_command_line():
+    parser = argparse.ArgumentParser(
+        description = 'Convert csv output from BigQuery to vcf.')
+
+    parser.add_argument("--input", default=None,
+                                help="csv file to be converted to vcf")
+
+    options = parser.parse_args()
+    if options.input is None:
+        print("Exiting, specify input.")
+        exit(0)
+    return options
+
 if __name__ == "__main__":
-    main()
+    options = parse_command_line()
+    main(options.input)
