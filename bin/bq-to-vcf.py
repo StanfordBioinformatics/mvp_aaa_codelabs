@@ -19,6 +19,8 @@ def main():
     samples = {}
     with open (file, "r") as f:
         for line in f:
+            if line.startswith("CHROM"):
+                continue
             line = line.rstrip()
             list = line.split(",")
             calls = list[CALLS].split("|")
