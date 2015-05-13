@@ -2,7 +2,7 @@ import os
 import sys
 import re
 from GenomicsQueries import Queries
-import BigQueryClient
+from BigQueryClient import BigQuery
 from config import Config
 from GoogleGenomicsClient import GoogleGenomicsClient
 import logging
@@ -15,6 +15,7 @@ class GenomicsQC(object):
         self.client_secrets_path = Config.CLIENT_SECRETS
         self.project_number = Config.PROJECT_NUMBER
         self.setup_log(verbose)
+        self.bq = BigQuery()
 
     #### Specific types of QC functions ####
     # Sample level QC
@@ -41,8 +42,7 @@ class GenomicsQC(object):
             prequery = Queries.AVERAGE_STDDEV[query_file]
             cutoffs = self.average_stddev_cutoffs(prequery)
         query = self.prepare_query(query_file, preset_cutoffs=cutoffs)
-        response = self.run_query(query)
-        result = self.parse_bq_response(response)
+        result = self.bq.run(query)
         failed = []
         if level == 'sample':
             failed = self.get_failed_samples(result)
@@ -92,8 +92,7 @@ class GenomicsQC(object):
     # Run metrics query to define cutoffs based on average and standard deviation values
     def average_stddev_cutoffs(self, query_file):
         query = self.prepare_query(query_file)
-        response = self.run_query(query)
-        result = self.parse_bq_response(response)
+        result = self.bq.run(query)
         average, stddev = self.get_average_stddev(result)
         max, min = self.calculate_max_min(average, stddev)
         substitutions = self.create_max_min_substitutions(max, min)
@@ -121,42 +120,6 @@ class GenomicsQC(object):
         }
         return dict
 
-    #### Query execution and handling ####
-    # Execute a prepared query
-    def run_query(self, query):
-        #print query
-        bq = BigQueryClient.BigQuery(client_secrets=self.client_secrets_path, project_number=self.project_number)
-        response = bq.execute_query(query)
-        return response
-        # todo make sure queries finish
-
-    # Parse BigQuery response into list of dictionaries
-    def parse_bq_response(self, response):
-        fields = self.get_fields(response)
-        result = []
-        if 'rows' in response:
-            for row in response['rows']:
-                result_row = {}
-                position = 0
-                for field in row['f']:
-                    result_row[fields[position]] = field['v']
-                    position += 1
-                result.append(result_row)
-                #print result_row
-            return result
-        return None
-
-    # Get field names from BigQuery response
-    def get_fields(self, response):
-        fields = {}
-        if 'schema' in response:
-            position = 0
-            for field in response['schema']['fields']:
-                fields[position] = field['name']
-                position += 1
-            return fields
-        return None
-
     # Get failed sample ids
     def get_failed_samples(self, result):
         if result:
@@ -179,13 +142,6 @@ class GenomicsQC(object):
                 failed_positions.append(position)
             return failed_positions
         return None
-
-    # Check that the response from BigQuery is valid and that the job completed
-    def check_response(self, response):
-        if 'jobComplete' in response:
-            if response['jobComplete'] is True:
-                return True
-        raise Exception("Query failed to complete")
 
     #### Miscellaneous functions ####
     # Check if a path exists

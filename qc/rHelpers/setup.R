@@ -18,7 +18,7 @@ require(RCurl)
 require(dplyr)
 require(ggplot2)
 
-DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
+DisplayAndDispatchQuery <- function(queryUri, project, replacements=list(), largeResults=TRUE, outputTable=NULL) {
   if (missing(queryUri)) {
     stop("Pass the file path or url to the file containing the query.")
   }
@@ -43,5 +43,5 @@ DisplayAndDispatchQuery <- function(queryUri, project, replacements=list()) {
   cat(querySql)
 
   # Dispatch the query to BigQuery.
-  query_exec(querySql, project)
+  query_exec(querySql, project, destination_table=outputTable)
 }

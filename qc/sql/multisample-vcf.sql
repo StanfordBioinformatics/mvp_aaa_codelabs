@@ -7,6 +7,7 @@ ALT,
 QUAL,
 FILTER,
 INFO,
+sample_count,
 sample_calls
 FROM (
   SELECT
@@ -19,7 +20,7 @@ FROM (
   FILTER,
   CONCAT("DP=", STRING(ROUND(AVG(DP),2))) AS INFO,
   COUNT(sample) AS sample_count,
-  GROUP_CONCAT(sample) AS sample_calls
+  GROUP_CONCAT(sample,"|") AS sample_calls
   FROM (
     SELECT
     reference_name AS CHROM,
@@ -35,11 +36,11 @@ FROM (
       SELECT
       reference_name,
       start,
-      GROUP_CONCAT(names) WITHIN RECORD AS names,
+      GROUP_CONCAT(names,"|") WITHIN RECORD AS names,
       reference_bases,
       GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
       quality,
-      GROUP_CONCAT(filter) WITHIN RECORD AS filter, 
+      GROUP_CONCAT(filter,"|") WITHIN RECORD AS filter, 
       call.DP AS DP,
       call.call_set_name AS call_set_name,
       GROUP_CONCAT(STRING(call.genotype),"/") WITHIN call AS genotype,
@@ -57,6 +58,7 @@ FROM (
       AND alternate_bases IN ('A','C','G','T')
       AND names is not null
       AND FILTER == 'PASS'
+      AND call.call_set_name NOT IN ('LP6005243-DNA_A08') # this sample is missing some chromosomes!
     )
     GROUP EACH BY 
     CHROM,
@@ -76,7 +78,7 @@ FROM (
   FILTER,)
 # Only include sites where all samples have a call
 WHERE
-sample_count = 479
+sample_count = 478
 #ORDER BY
 # POS,
 # ALT

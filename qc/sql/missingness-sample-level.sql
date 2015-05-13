@@ -1,7 +1,7 @@
 # Determine the level of missingness for each sample when compared to the hg19 reference genome
 SELECT 
-  g.sample_id,
-  ROUND(1 - ((hg19.count - g.all_calls_count)/hg19.count), 3) AS missingness
+  g.sample_id AS sample_id,
+  ROUND(((hg19.count - g.all_calls_count)/hg19.count), 3) AS missingness
 FROM (
   SELECT
     call.call_set_name AS sample_id,
@@ -31,4 +31,4 @@ FROM (
     FROM 
       [google.com:biggene:test.hg19]) AS hg19
 ORDER BY
-  g.sample_id
+  missingness DESC

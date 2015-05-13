@@ -14,9 +14,6 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
-*This code is used with permission by Google Genomics*
-*https://github.com/googlegenomics*
-
 # Part 4: Variant-Level QC
 
 ```{r echo=FALSE, eval=FALSE}
@@ -38,16 +35,22 @@ In Part 4 of the codelab, we perform some quality control analyses that could he
 
 * [Ti/Tv by Genomic Window](#titv-by-genomic-window)
 * [Ti/Tv by Alternate Allele Counts](#titv-by-alternate-allele-counts)
+* [Ti/Tv by Depth](#titv-by-depth)
 * [Missingness Rate](#missingness-rate)
 * [Hardy-Weinberg Equilibrium](#hardy-weinberg-equilibrium)
 * [Heterozygous Haplotype](#heterozygous-haplotype)
+* [Blacklisted Variants](#blacklisted-variants)
 
 By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
 ```{r}
-tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.5_genome_test_gvcfs_no_calls",
-                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.5_genome_test_vcfs_no_calls")
-sampleData <- read.csv("data/patient_info.csv")
+queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java2",
+                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions")
+sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+# To run this against other public data, source in one of the dataset helpers.  For example:
+# source("./rHelpers/pgpCGIOnlyDataset.R")
 ```
 
 ## Ti/Tv by Genomic Window
@@ -57,21 +60,27 @@ Check whether the ratio of transitions vs. transversions in SNPs appears to be r
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/ti-tv-ratio.sql",
                                   project=project,
-                                  replacements=c(tableReplacement,
-                                                 "#_WHERE_"="WHERE reference_name='chr1'",
-                                                 "_WINDOW_SIZE_"="100000"))
+                                  replacements=c("#_WHERE_"="WHERE reference_name = 'chr1'",
+                                                 "_WINDOW_SIZE_"="100000",
+                                                 queryReplacements))
 ```
-Number of rows returned by this query: `r nrow(result)`.
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
 
-Displaying the first few results:
+Displaying the first few rows of the dataframe of results:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
-print(xtable(head(result)), type="html", include.rownames=F)
+if(is.null(result)) { 
+  cat("**None**") 
+} else {
+  print(xtable(head(result)), type="html", include.rownames=F)
+}
 ```
 
 Visualizing the results:
 ```{r titvByWindow, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(result) +
-  geom_point(aes(x=window_start, y=titv)) +
+ggplot(result, aes(x=window_start, y=titv)) +
+  geom_point() +
+  stat_smooth() +
+  scale_x_continuous() +
   xlab("Genomic Position") +
   ylab("Ti/Tv") +
   ggtitle("Ti/Tv by 100,000 base pair windows on Chromosome 1")
@@ -84,22 +93,51 @@ Check whether the ratio of transitions vs. transversions in SNPs appears to be r
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/ti-tv-by-alternate-allele-count.sql",
                                   project=project,
-                                  replacements=c(tableReplacement))
+                                  replacements=c(queryReplacements))
 ```
-Number of rows returned by this query: `r nrow(result)`.
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
 
-Displaying the first few results:
+Displaying the first few rows of the dataframe of results:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
-print(xtable(head(result)), type="html", include.rownames=F)
+if(is.null(result)) { 
+  cat("**None**") 
+} else {
+  print(xtable(head(result)), type="html", include.rownames=F)
+}
 ```
 
 Visualizing the results:
 ```{r titvByAlt, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(result) +
-  geom_point(aes(x=alternate_allele_count, y=titv)) +
+ggplot(result, aes(x=alternate_allele_count, y=titv)) +
+  geom_point() +
+  stat_smooth() +
+  scale_x_continuous() +
   xlab("Total Number of Sample Alleles with the Variant") +
   ylab("Ti/Tv") +
   ggtitle("Ti/Tv by Alternate Allele Count")
+```
+
+## Ti/Tv by Depth
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+query <- "./sql/ti-tv-by-depth.sql"
+result <- DisplayAndDispatchQuery(query,
+                                  project=project,
+                                  replacements=c(tableReplacement))
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+```{r titv-by-depth, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
+ggplot(result, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
+  geom_point() +
+  #geom_smooth(se=FALSE,    # Don't add shaded confidence region
+  #              fullrange=T) +
+  ggtitle("Ti/Tv Ratio By Depth") +
+  xlab("Coverage Depth") + 
+  ylab("Ti/Tv")
 ```
 
 ## Missingness Rate
@@ -108,16 +146,22 @@ For each variant, compute the missingness rate.  This query can be used to ident
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 sortAndLimit <- "ORDER BY missingness_rate DESC, reference_name, start, reference_bases, alternate_bases LIMIT 1000"
-result <- DisplayAndDispatchQuery("./sql/variant-level-missingness.sql",
+cutoff <- list("_CUTOFF_"="0.9")
+result <- DisplayAndDispatchQuery("./sql/variant-level-missingness-fail.sql",
                                   project=project,
-                                  replacements=c(tableReplacement,
-                                                 "#_ORDER_BY_"=sortAndLimit))
+                                  replacements=c("#_ORDER_BY_"=sortAndLimit,
+                                                 queryReplacements,
+                                                 cutoff))
 ```
-Number of rows returned by this query: `r nrow(result)`.
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
 
-Displaying the first few results:
+Displaying the first few rows of the dataframe of results:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
-print(xtable(head(result)), type="html", include.rownames=F)
+if(is.null(result)) { 
+  cat("**None**") 
+} else {
+  print(xtable(head(result)), type="html", include.rownames=F)
+}
 ```
 
 ## Hardy-Weinberg Equilibrium
@@ -128,14 +172,18 @@ For each variant, compute the expected versus observed relationship between alle
 sortAndLimit <- "ORDER BY ChiSq DESC, reference_name, start, alternate_bases LIMIT 1000"
 result <- DisplayAndDispatchQuery("./sql/hardy-weinberg.sql",
                                   project=project,
-                                  replacements=c(tableReplacement,
-                                                 "#_ORDER_BY_"=sortAndLimit))
+                                  replacements=c("#_ORDER_BY_"=sortAndLimit,
+                                                 queryReplacements))
 ```
-Number of rows returned by this query: `r nrow(result)`.
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
 
-Displaying the first few results:
+Displaying the first few rows of the dataframe of results:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
-print(xtable(head(result)), type="html", include.rownames=F)
+if(is.null(result)) { 
+  cat("**None**") 
+} else {
+  print(xtable(head(result)), type="html", include.rownames=F)
+}
 ```
 
 ## Heterozygous Haplotype
@@ -150,26 +198,33 @@ maleSampleIds <- paste("'", filter(sampleInfo, gender == "Male")$call_call_set_n
 sortAndLimit <- "ORDER BY reference_name, start, alternate_bases, call.call_set_name LIMIT 1000"
 result <- DisplayAndDispatchQuery("./sql/sex-chromosome-heterozygous-haplotypes.sql",
                                   project=project,
-                                  replacements=c(tableReplacement,
-                                                 "_MALE_SAMPLE_IDS_"=maleSampleIds,
-                                                 "#_ORDER_BY_"=sortAndLimit))
+                                  replacements=c("_MALE_SAMPLE_IDS_"=maleSampleIds,
+                                                 "#_ORDER_BY_"=sortAndLimit,
+                                                 queryReplacements))
 ```
-Number of rows returned by this query: `r nrow(result)`.
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
 
-Displaying the first few results:
+Displaying the first few rows of the dataframe of results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+if(is.null(result)) { 
+  cat("**None**") 
+} else {
+  print(xtable(head(result)), type="html", include.rownames=F)
+}
+```
+
+## Blacklisted Variants
+Identify all variants within our cohort that have been blacklisted.  For more information on what variants are blacklisted and why see [here](link)
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/blacklisted-variants.sql",
+                                  project=project,
+                                  replacements=c(queryReplacements))
+```
+Number of rows returned by this query: **`r if(is.null(result)) { "None" } else { nrow(result) }`**.
+
+Displaying the first few rows of the dataframe of results:
 ```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
 print(xtable(head(result)), type="html", include.rownames=F)
 ```
-
-# Removing variants from the Cohort
-
-To remove a variant from a variant set in the Genomics API:
-* See the [variant delete](https://cloud.google.com/genomics/v1beta2/reference/variants/delete) method.
-
-To instead mark a variant as problematic so that downstream analyses can filter it out:
-* See the [variant update](https://cloud.google.com/genomics/v1beta2/reference/variants/update) method
-
-To remove variants from BigQuery only:
-* Materialize the results of queries that include the non-problematic variants to a new table.
-* Alternatively, write a custom filtering job similar to what we explored in [Part 2: Data Conversion](./Data-Conversion.md) of this codelab.
 

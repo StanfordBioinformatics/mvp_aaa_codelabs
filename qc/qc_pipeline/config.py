@@ -6,3 +6,4 @@ class Config(object):
     PATIENT_INFO = 'gbsc-gcp-project-mvp:va_aaa_pilot_data.patient_info'
     CLIENT_SECRETS = '/Users/gmcinnes/bin/google_genomics/client_secrets.json'
     PROJECT_NUMBER = 963911152157
+    DATA_SET = 2442214609072563359 # va-aaa_5-genome-test-dataset-no-calls
