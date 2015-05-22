@@ -1,84 +1,70 @@
-SELECT 
-CHROM,
-POS,
-ID,
-REF,
-ALT,
-QUAL,
-FILTER,
-INFO,
-sample_count,
-sample_calls
-FROM (
-  SELECT
+SELECT
   CHROM,
   POS,
   ID,
   REF,
   ALT,
-  ROUND(AVG(QUAL),2) AS QUAL,
-  FILTER,
-  CONCAT("DP=", STRING(ROUND(AVG(DP),2))) AS INFO,
-  COUNT(sample) AS sample_count,
-  GROUP_CONCAT(sample,"|") AS sample_calls
-  FROM (
-    SELECT
-    reference_name AS CHROM,
-    start AS POS,
-    names AS ID,
-    reference_bases AS REF,
-    alternate_bases AS ALT,
-    AVG(quality) AS QUAL,
-    filter AS FILTER,
-    DP,
-    CONCAT(call_set_name, ":", genotype) AS sample
-    FROM (
-      SELECT
-      reference_name,
-      start,
-      GROUP_CONCAT(names,"|") WITHIN RECORD AS names,
-      reference_bases,
-      GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
-      quality,
-      GROUP_CONCAT(filter,"|") WITHIN RECORD AS filter, 
-      call.DP AS DP,
-      call.call_set_name AS call_set_name,
-      GROUP_CONCAT(STRING(call.genotype),"/") WITHIN call AS genotype,
-      COUNT(alternate_bases) WITHIN RECORD AS num_alts,
-      FROM
-      [_THE_EXPANDED_TABLE_] 
-      WHERE
-      reference_name = _CHR_
-      OMIT 
-      call IF EVERY(call.genotype < 0) 
-      HAVING
-      # Skip 1/2 genotypes _and non-SNP variants
-      num_alts = 1
-      AND reference_bases IN ('A','C','G','T')
-      AND alternate_bases IN ('A','C','G','T')
-      AND names is not null
-      AND FILTER == 'PASS'
-      AND call.call_set_name NOT IN ('LP6005243-DNA_A08') # this sample is missing some chromosomes!
-    )
-    GROUP EACH BY 
-    CHROM,
-    POS,
-    ID,
-    REF,
-    ALT,
-    FILTER,
-    sample,
-    DP)
-  GROUP EACH BY 
-  CHROM,
-  POS,
-  ID,
-  REF,
-  ALT,
-  FILTER,)
-# Only include sites where all samples have a call
-WHERE
-sample_count = 478
-#ORDER BY
-# POS,
-# ALT
+  ROUND(QUAL, 2) AS QUAL,
+  "PASS" AS FILTER,
+  "." AS INFO,
+  sample_calls,
+FROM js(
+  (SELECT
+     reference_name, 
+     start, 
+     reference_bases, 
+     alternate_bases, 
+     names, 
+     call.call_set_name, 
+     call.genotype, 
+     call.DP, 
+     call.FILTER, 
+     call.QUAL
+   FROM
+     [va_aaa_pilot_data.all_genomes_expanded_vcfs_java3]
+   OMIT RECORD IF EVERY(call.genotype <= 0) # OR COUNT(names) = 0
+   #LIMIT 1000
+  ),
+  reference_name, 
+  start, 
+  reference_bases, 
+  alternate_bases, 
+  names, 
+  call.call_set_name, 
+  call.genotype, 
+  call.DP, 
+  call.FILTER, 
+  call.QUAL,
+  "[{name: 'debug', type: 'string'},
+    {name: 'CHROM', type: 'string'},
+    {name: 'POS', type: 'integer'},
+    {name: 'ID', type: 'string'},
+    {name: 'REF', type: 'string'},
+    {name: 'ALT', type: 'string'},
+    {name: 'QUAL', type: 'float'},
+
+    {name: 'sample_calls', type: 'string'}]",
+#    {name: 'FILTER', type: 'string'},    
+#    {name: 'INFO', type: 'string'},
+  "function(r, emit) {
+     var alt = r.alternate_bases.join();
+     if(1 == alt.length && 1 == r.reference_bases.length) { 
+       var samples = '';
+       var quality = 0.0;
+       var filter = '';
+       for (call in r.call) {
+         samples += r.call[call].call_set_name + ':' + r.call[call].genotype.join('/') + '|' ;
+         quality += r.call[call].QUAL;
+       }
+       emit({
+         debug: JSON.stringify(r),
+         CHROM: r.reference_name,
+         POS: r.start,
+         ID: r.names.join([separator = '|']),
+         REF: r.reference_bases,
+         ALT: alt,
+         QUAL: quality/r.call.length,
+         sample_calls: samples
+       });
+     }
+   }")
