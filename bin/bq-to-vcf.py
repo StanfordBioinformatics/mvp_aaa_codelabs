@@ -14,7 +14,7 @@ FILTER=6
 INFO=7
 CALLS=8
 
-def main(file, sample_list=None):
+def main(file, sample_list=None, one_based=False):
     if not os.path.exists(file):
         print("Couldn't find input file: %s" % file)
         exit(1)
@@ -34,6 +34,8 @@ def main(file, sample_list=None):
                 print_header(samples)
             genotypes = get_genotypes(calls, samples)
             list[ID] = clean_name(list[ID])
+            if one_based is True:
+                list[POS] = convert_to_one_based(list[POS])
             print_line(list, genotypes, samples)
 
 def clean_name(name):
@@ -90,6 +92,10 @@ def clean_low_quality(genotypes):
             genotypes[g] = './.'
     return genotypes
 
+def convert_to_one_based(position):
+    one_based = int(position) + 1
+    return str(one_based)
+
 def print_line(list, genotypes, samples):
     statics = list[0:8]
     genotypes_sorted = []
@@ -138,6 +144,8 @@ def parse_command_line():
                                 help="List of samples to include in the vcf.  If not included samples will be "
                                      "collected from the first variant in the input.  If some samples have missing"
                                      "calls you should provide a sample list.")
+    parser.add_argument("--convert_to_one_based", default=False, action='store_true',
+                                help="Convert zero based coordinates to one based.")
 
     options = parser.parse_args()
     if options.input is None:
@@ -147,4 +155,4 @@ def parse_command_line():
 
 if __name__ == "__main__":
     options = parse_command_line()
-    main(options.input, options.sample_list)
+    main(options.input, options.sample_list, options.convert_to_one_based)
