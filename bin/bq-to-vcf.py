@@ -64,11 +64,11 @@ def samples_from_file(file):
     count = 0
     with open(file) as f:
         for s in f:
-            s.strip()
+            s = s.rstrip()
             samples[count] = s
             count += 1
     return samples
-    
+
 def get_genotypes(calls, samples):
     genotypes = {}
     for c in calls:
