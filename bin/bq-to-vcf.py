@@ -60,14 +60,15 @@ def make_sample_dict(calls):
     return samples
 
 def samples_from_file(file):
-    sample_list = [line.strip() for line in open(file, 'r')]
-    samples = {}
+    samples ={}
     count = 0
-    for s in sample_list:
-        samples[count] = s
-        count += 1
+    with open(file) as f:
+        for s in f:
+            s.strip()
+            samples[count] = s
+            count += 1
     return samples
-
+    
 def get_genotypes(calls, samples):
     genotypes = {}
     for c in calls:
