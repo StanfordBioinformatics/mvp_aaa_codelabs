@@ -31,13 +31,15 @@ FROM (
     # region of the genome.
     #_WHERE_
     # Skip no calls and haploid sites
-    OMIT call IF SOME(call.genotype < 0) OR (2 > COUNT(call.genotype))
+    OMIT call IF SOME(call.genotype < 0) OR (2 > COUNT(call.genotype)) OR (call.call_set_name = 'LP6005243-DNA_A08')
     HAVING
       # Skip 1/2 genotypes _and non-SNP variants
       num_alts = 1
       AND reference_bases IN ('A','C','G','T')
       AND alternate_bases IN ('A','C','G','T')
       )
+  WHERE
+    freq > 0
   GROUP BY
     call.call_set_name
     )
