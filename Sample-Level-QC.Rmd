@@ -1,0 +1,349 @@
+<!-- R Markdown Documentation, DO NOT EDIT THE PLAIN MARKDOWN VERSION OF THIS FILE -->
+
+<!-- Copyright 2015 Stanford University All rights reserved. -->
+
+<!-- Licensed under the Apache License, Version 2.0 (the "License"); -->
+<!-- you may not use this file except in compliance with the License. -->
+<!-- You may obtain a copy of the License at -->
+
+<!--     http://www.apache.org/licenses/LICENSE-2.0 -->
+
+<!-- Unless required by applicable law or agreed to in writing, software -->
+<!-- distributed under the License is distributed on an "AS IS" BASIS, -->
+<!-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. -->
+<!-- See the License for the specific language governing permissions and -->
+<!-- limitations under the License. -->
+
+*This codelab was made in collaboration with [Google Genomics](https://github.com/googlegenomics)*
+
+# Part 2: Sample-Level QC
+
+```{r echo=FALSE, eval=FALSE}
+######################[ CHANGE ME ]##################################
+# This codelab assumes that the current working directory is where the Rmd file resides.
+setwd("/Users/gmcinnes/src/mvp_aaa_codelabs")
+
+# Set the Google Cloud Platform project id under which these queries will run.
+project <- "gbsc-gcp-project-mvp"
+#####################################################################
+```
+
+```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# Set up for BigQuery access.
+source("./rHelpers/setup.R")
+```
+
+In Part 3 of the codelab, we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+
+By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+```{r}
+tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs_no_tissue",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java3",
+                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
+sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+ibs <- read.table("./data/all-genomes-ibs.tsv",
+                  col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
+
+# To run this against other public data, source in one of the dataset helpers.  For example:
+# source("./rHelpers/pgpCGIOnlyDataset.R")
+```
+
+
+* [Missingness Rate](#missingness-rate)
+* [Singleton Rate](#singleton-rate)
+* [Heterozygosity Rate and Inbreeding Coefficient](#homozygosity-rate-and-inbreeding-coefficient)
+* [Sex Inference](#sex-inference)
+* [Genotyping Concordance](#genotyping-concordance)
+* [Ethnicity Inference](#ethnicity-inference)
+* [Genome Similarity](#genome-similarity)
+
+
+By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+```{r}
+sampleData <- read.csv("./data/patient_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+```
+
+## Missingness Rate
+
+For each genome, determine the percentage of sites explicitly called as a no-call.  If this percentage is too high, the genome may be problematic.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/missingness-sample-level.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+And visualizing the results:
+```{r sampleMissingness, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(result) +
+  geom_point(aes(x=sample_id, y=missingness)) +
+  theme(axis.text.x=if(nrow(result) <= 20)
+    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
+  xlab("Sample") +
+  ylab("Missingness Rate") +
+  ggtitle("Genome-Specific Missingness")
+```
+
+## Singleton Rate
+
+For each genome, count the number of variants shared by no other member of the cohort.  Too many private calls for a particular individual may indicate a problem.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/private-variants.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+And visualizing the results:
+```{r singletons, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(result) +
+  geom_point(aes(x=call_call_set_name, y=private_variant_count)) +
+  theme(axis.text.x=if(nrow(result) <= 20)
+    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
+  xlab("Sample") +
+  ylab("Number of Singletons") +
+  ggtitle("Count of Singletons Per Genome")
+```
+
+## Inbreeding Coefficient
+
+For each genome, compare the expected and observed rates of homozygosity.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/homozygous-variants.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+And visualizing the results:
+```{r homozygosity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+limits <- c(min(result$O_HOM, result$E_HOM),
+            max(result$O_HOM, result$E_HOM))
+
+ggplot(result) +
+  geom_point(aes(x=O_HOM, y=E_HOM, label=call_call_set_name), alpha=1/1.5) +
+  geom_abline(color="darkslateblue") +
+  scale_x_continuous(limits=limits) + 
+  scale_y_continuous(limits=limits) +
+  xlab("Observed Homozygous Variants") +
+  ylab("Expected Homozygous Variants") +
+  ggtitle("Homozygosity")
+```
+
+And with labels:
+```{r homozygosity-labeled, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(result) +
+  geom_text(aes(x=O_HOM, y=E_HOM, label=call_call_set_name, hjust=0, vjust=0), alpha=1/1.5) +
+  geom_abline(color="darkslateblue") +
+  scale_x_continuous(limits=limits, expand=c(0.05, 5)) +
+  scale_y_continuous(limits=limits) +
+  xlab("Observed Homozygous Variants") +
+  ylab("Expected Homozygous Variants") +
+  ggtitle("Homozygosity")
+```
+
+## Heterozygosity Rate 
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/heterozygous_calls_count.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+And visualizing the results:
+```{r homozygosity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+max <- mean(result$O_HET) + 3*sd(result$O_HET)
+min <- mean(result$O_HET)  - 3*sd(result$O_HET)
+cutoffs = data.frame(c(max,min))
+names(cutoffs) = "cutoffs"
+
+ggplot(result) +
+  geom_point(aes(y=O_HET, x=call_call_set_name, label=call_call_set_name), alpha=1/1.5) +
+  #geom_abline(intercept=max, slope=0, color="darkslateblue") +  
+  geom_abline(aes(intercept=cutoffs),slope=0, data=cutoffs, color="darkslateblue") + 
+  xlab("Sample") +
+  ylab("Observed Heterozygous Call Counts") +
+  ggtitle("Hetrozygosity Rates")
+```
+
+
+
+## Sex Inference
+
+For each genome, compare the gender from the sample information to the heterozygosity rate on the chromosome X calls.
+```{r message=FALSE, warning=FALSE, comment=NA}
+result <- DisplayAndDispatchQuery("./sql/gender-check.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(result)), type="html", include.rownames=F)
+```
+
+Let's join this with the sample information:
+```{r message=FALSE, warning=FALSE, comment=NA}
+joinedResult <- inner_join(result, sampleInfo)
+```
+
+And visualize the results:
+```{r gender-boxplot, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(joinedResult) +
+  geom_boxplot(aes(x=gender, y=perct_het_alt_in_snvs, fill=gender)) +
+  scale_y_continuous() +
+  xlab("Gender") +
+  ylab("Heterozygosity Rate ") +
+  ggtitle("Box Plot: Heterozygosity Rate on the X Chromosome")
+```
+
+```{r gender, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(joinedResult) +
+  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender)) +
+  theme(axis.text.x=if(nrow(result) <= 20)
+    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
+  xlab("Sample") +
+  ylab("Heterozygosity Rate ") +
+  ggtitle("Heterozygosity Rate on the X Chromosome")
+
+```
+
+## Genotyping Concordance
+
+We next want to look at the concordance between SNPs called from the sequencing data and those called through the use genotyping.  This allows us to identify samples that may have been mixed up in the laboratory.
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+concordanceResult <- DisplayAndDispatchQuery("./sql/genotyping-concordance.sql",
+                                  project=project,
+                                  replacements=tableReplacement)
+```
+Number of rows returned by this query: `r nrow(result)`.
+
+Displaying the first few results:
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+print(xtable(head(concordanceResult)), type="html", include.rownames=F)
+```
+
+
+Visualizing the results:
+```{r concordance, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(concordanceResult) +
+  geom_point(aes(x=sample_id, y=concordance)) +
+  xlab("Sample") +
+  ylab("Concordance") +
+  ggtitle("Concordance with Genotyping Data")
+```
+
+## Ethnicity Inference
+
+TODO
+
+## Genome Similarity
+
+Perform a simplistic similarity check on each pair of genomes to identify any mislabled or cross-contaminated samples.
+
+Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
+
+
+
+```{r}
+require(reshape2)
+require(dplyr)
+ibsDataFlowFilename = '/Users/gmcinnes/data/all-genomes-ibs-2.tsv'
+ReadIBSFile <- function(ibsFilename, header=FALSE, rowNames=NULL) {
+  ibsData <- read.table(file=ibsFilename, header=header,
+                        row.names=rowNames, stringsAsFactors=FALSE)
+  return (ibsData)
+}
+ibsDataflowData <- ReadIBSFile(ibsDataFlowFilename)
+
+ColumnNames <- function(ibsData) { 
+  if(3 == ncol(ibsData)) {
+    colnames(ibsData) <- c("sample1", "sample2", "ibsScore")
+  } else {
+    colnames(ibsData) <- c("sample1", "sample2", "ibsScore", "similar", "observed")
+  }
+}
+colnames(ibsDataflowData) <- ColumnNames(ibsDataflowData)
+
+MakeIBSDataSymmetric <- function(ibsData) {
+  ibsPairsMirrored <- data.frame(sample1=ibsData$sample2,
+                                 sample2=ibsData$sample1,
+                                 ibsScore=ibsData$ibsScore)
+  ibsData <- rbind(ibsData[,1:3], ibsPairsMirrored)
+}
+ibsDataflowData <- MakeIBSDataSymmetric(ibsDataflowData)
+
+ExcludeDiagonal <- function(ibsData) {
+  ibsData <- filter(ibsData, ibsData$sample1 != ibsData$sample2)
+  return (ibsData)
+}
+ibsDataflowDataSample <- ExcludeDiagonal(ibsDataflowData)
+
+SampleIBSMatrix <- function(ibsData, sampleSize=50) {
+  individuals <- unique(ibsData$sample1)
+  sample <- sample(individuals, sampleSize)
+  ibsData <- subset(ibsData, ibsData$sample1 %in% sample)
+  ibsData <- subset(ibsData, ibsData$sample2 %in% sample)
+  return (ibsData)
+}
+ibsDataflowDataSubset <- SampleIBSMatrix(ibsDataflowDataSample)
+```
+
+Let's plot a subset of the data to understand the plot
+```{r ibs-1, fig.align="center", fig.width=12, message=FALSE, comment=NA}
+DrawHeatMap <- function(ibsData) {
+  p <- ggplot(data=ibsData, aes(x=sample1, y=sample2)) +
+    theme(axis.ticks=element_blank(), axis.text=element_blank()) +
+    geom_tile(aes(fill=ibsScore), colour="white") +
+    scale_fill_gradient(low="white", high="steelblue", na.value="black",
+                        guide=guide_colourbar(title= "IBS Score")) +
+    labs(list(title="Identity By State (IBS) Heat Map",
+              x="Sample", y="Sample"))
+  p
+}
+DrawHeatMap(ibsDataflowDataSubset)
+```
+
+Now let's look at all the genomes
+
+```{r ibs-full, fig.align="center", fig.width=12, message=FALSE, comment=NA}
+DrawHeatMap(ibsDataflowDataSample)
+```
+
+Let's take a look at the most similar genomes.
+```{r echo=FALSE, message=FALSE, warning=FALSE, comment=NA, results="asis"}
+related = ibsDataflowDataSample[ibsDataflowDataSample$ibsScore > 0.06,]
+print(xtable(related), type="html", include.rownames=F)
+```
+
+
+--------------------------------------------------------
+_Next_: [Part 3: Variant-Level QC](./Variant-Level-QC.md)

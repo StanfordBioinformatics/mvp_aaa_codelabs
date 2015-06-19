@@ -1,0 +1,11 @@
+# Analysis overview
+
+This document details the methods used to prepare genomic data for analysis on Google Cloud
+
+## Upload data 
+First, we uploaded all the vcfs from our local compute cluster to Google Cloud Storage.  A [bash script](../bin/gc_upoad.sh) was used to to execute the upload for each sample.
+```r
+
+for x in `ls LP*` ; do gsutil -m cp */*/vcfs/* gs://gbsc-gcp-project-mvp-va_aaa/data/
+
+
