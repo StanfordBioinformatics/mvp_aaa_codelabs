@@ -57,5 +57,4 @@ FROM (
     )
 GROUP BY
   call.call_set_name
-ORDER BY
-  private_variant_count DESC
+#_ORDER_BY_
