@@ -29,6 +29,9 @@ project <- "gbsc-gcp-project-mvp"
 ```
 
 ```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+# Load packages
+require(scales)
+
 # Set up for BigQuery access.
 source("./rHelpers/setup.R")
 ```
@@ -37,38 +40,29 @@ In Part 3 of the codelab, we perform some quality control analyses that could he
 
 By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
 ```{r}
-tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs_no_tissue",
-                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java3",
+tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_seq_qc",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.multi_sample_variants_seq_qc",
                           "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
-sampleData <- read.csv("http://storage.googleapis.com/genomics-public-data/platinum-genomes/other/platinum_genomes_sample_info.csv")
-sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 
 ibs <- read.table("./data/all-genomes-ibs.tsv",
                   col.names=c("sample1", "sample2", "ibsScore", "similar", "observed"))
 
-# To run this against other public data, source in one of the dataset helpers.  For example:
-# source("./rHelpers/pgpCGIOnlyDataset.R")
+sampleData <- read.csv("./data/patient_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 ```
-
 
 * [Missingness Rate](#missingness-rate)
 * [Singleton Rate](#singleton-rate)
-* [Heterozygosity Rate and Inbreeding Coefficient](#homozygosity-rate-and-inbreeding-coefficient)
+* [Inbreeding Coefficient](#inbreeding-coefficient)
+* [Heterozygosity Rate](#heterozygosity-rate)
 * [Sex Inference](#sex-inference)
 * [Genotyping Concordance](#genotyping-concordance)
 * [Ethnicity Inference](#ethnicity-inference)
 * [Genome Similarity](#genome-similarity)
 
-
-By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
-```{r}
-sampleData <- read.csv("./data/patient_info.csv")
-sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
-```
-
 ## Missingness Rate
 
-For each genome, determine the percentage of sites explicitly called as a no-call.  If this percentage is too high, the genome may be problematic.
+Missingess is defined as the proportion of sites found in the reference genome that are not called in a given genome. We calculate the missingness rate of each genome in our cohort in order to identify samples that are potentially low quality.  If a sample has a high missingness rate it may be indicative of issues with sample preparation or sequencing.  Genomes with a missingness rate greater than 0.1 are removed from the cohort.
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/missingness-sample-level.sql",
@@ -86,16 +80,22 @@ And visualizing the results:
 ```{r sampleMissingness, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(result) +
   geom_point(aes(x=sample_id, y=missingness)) +
-  theme(axis.text.x=if(nrow(result) <= 20)
-    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
   xlab("Sample") +
   ylab("Missingness Rate") +
-  ggtitle("Genome-Specific Missingness")
+  ggtitle("Genome-Specific Missingness") +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank())
 ```
 
 ## Singleton Rate
 
-For each genome, count the number of variants shared by no other member of the cohort.  Too many private calls for a particular individual may indicate a problem.
+Singleton rate is defined as the number of variants that are unique to a genome.  If a variant is found in only one genome in the cohort it is considered a singleton.  Genomes with singleton rates more than 3 standard deviations away from the mean are removed from the cohort.  
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/private-variants.sql",
@@ -113,16 +113,24 @@ And visualizing the results:
 ```{r singletons, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(result) +
   geom_point(aes(x=call_call_set_name, y=private_variant_count)) +
-  theme(axis.text.x=if(nrow(result) <= 20)
-    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
   xlab("Sample") +
   ylab("Number of Singletons") +
-  ggtitle("Count of Singletons Per Genome")
+  ggtitle("Count of Singletons Per Genome") +
+  scale_y_continuous(labels=comma) +
+    theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        axis.text.x=element_blank())
 ```
 
 ## Inbreeding Coefficient
 
-For each genome, compare the expected and observed rates of homozygosity.
+The inbreeding coefficient (F) is a measure of expected homozygosity rates vs observed homozygosity rates for individual genomes.  Here, we calculate the inbreeding coefficient using the method-of-moments estimator.  Genomes with an inbreeding coefficient more than 3 standard deviations away from the mean are removed from the cohort.  
+
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/homozygous-variants.sql",
@@ -137,35 +145,34 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
 And visualizing the results:
-```{r homozygosity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+```{r inbreeding, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 limits <- c(min(result$O_HOM, result$E_HOM),
             max(result$O_HOM, result$E_HOM))
 
 ggplot(result) +
   geom_point(aes(x=O_HOM, y=E_HOM, label=call_call_set_name), alpha=1/1.5) +
   geom_abline(color="darkslateblue") +
-  scale_x_continuous(limits=limits) + 
-  scale_y_continuous(limits=limits) +
+  scale_x_continuous(limits=limits, labels=comma) + 
+  scale_y_continuous(limits=limits, labels=comma) +
   xlab("Observed Homozygous Variants") +
   ylab("Expected Homozygous Variants") +
-  ggtitle("Homozygosity")
+  ggtitle("Homozygosity") +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none",
+        axis.ticks = element_blank())  
 ```
 
-And with labels:
-```{r homozygosity-labeled, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(result) +
-  geom_text(aes(x=O_HOM, y=E_HOM, label=call_call_set_name, hjust=0, vjust=0), alpha=1/1.5) +
-  geom_abline(color="darkslateblue") +
-  scale_x_continuous(limits=limits, expand=c(0.05, 5)) +
-  scale_y_continuous(limits=limits) +
-  xlab("Observed Homozygous Variants") +
-  ylab("Expected Homozygous Variants") +
-  ggtitle("Homozygosity")
-```
 
 ## Heterozygosity Rate 
+
+Heterozygosity rate is defined as the number of heterozygous calls in a genome.  Genomes with a heterozygosity rate more than 3 standard deviations away from the mean are removed from the cohort.  
+
 ```{r message=FALSE, warning=FALSE, comment=NA}
-result <- DisplayAndDispatchQuery("./sql/heterozygous_calls_count.sql",
+result <- DisplayAndDispatchQuery("./sql/heterozygous-calls-count.sql",
                                   project=project,
                                   replacements=tableReplacement)
 ```
@@ -177,26 +184,28 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
 And visualizing the results:
-```{r homozygosity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-max <- mean(result$O_HET) + 3*sd(result$O_HET)
-min <- mean(result$O_HET)  - 3*sd(result$O_HET)
-cutoffs = data.frame(c(max,min))
-names(cutoffs) = "cutoffs"
-
+```{r heterozygosity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(result) +
   geom_point(aes(y=O_HET, x=call_call_set_name, label=call_call_set_name), alpha=1/1.5) +
-  #geom_abline(intercept=max, slope=0, color="darkslateblue") +  
-  geom_abline(aes(intercept=cutoffs),slope=0, data=cutoffs, color="darkslateblue") + 
   xlab("Sample") +
   ylab("Observed Heterozygous Call Counts") +
-  ggtitle("Hetrozygosity Rates")
+  ggtitle("Hetrozygosity Rates") +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none",
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank())    
 ```
 
 
 
 ## Sex Inference
 
-For each genome, compare the gender from the sample information to the heterozygosity rate on the chromosome X calls.
+Gender is inferred for each genome by calculating the heterozygosity rate on the X chromosome.  Genomes who's inferred sex is different from that of the reported sex are removed from the cohort.  Although it is possible for people to be genotypically male and phenotypically female, it is more likely that samples and phenotypic records were mislabeled.
+
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/gender-check.sql",
                                   project=project,
@@ -215,24 +224,21 @@ joinedResult <- inner_join(result, sampleInfo)
 ```
 
 And visualize the results:
-```{r gender-boxplot, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(joinedResult) +
-  geom_boxplot(aes(x=gender, y=perct_het_alt_in_snvs, fill=gender)) +
-  scale_y_continuous() +
-  xlab("Gender") +
-  ylab("Heterozygosity Rate ") +
-  ggtitle("Box Plot: Heterozygosity Rate on the X Chromosome")
-```
 
 ```{r gender, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(joinedResult) +
-  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender)) +
-  theme(axis.text.x=if(nrow(result) <= 20)
-    {element_text(angle = 90, hjust = 1)} else {element_blank()}) +
+  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=5) +
   xlab("Sample") +
-  ylab("Heterozygosity Rate ") +
-  ggtitle("Heterozygosity Rate on the X Chromosome")
-
+  ylab("Heterozygosity Rate") +
+  ggtitle("Heterozygosity Rate on the X Chromosome") +
+  scale_colour_brewer(palette="Set1", name="Gender") +
+  theme(axis.line = element_line(colour = "black"),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_blank(),
+    panel.background = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.x = element_blank()) 
 ```
 
 ## Genotyping Concordance
@@ -251,14 +257,28 @@ Displaying the first few results:
 print(xtable(head(concordanceResult)), type="html", include.rownames=F)
 ```
 
+Get the sample preparation plate for each sample
+```{r message=FALSE, warning=FALSE, comment=NA}
+plate = substr(concordanceResult$sample_id, 1, 9)
+concordanceResult = cbind(concordanceResult, plate)
+```
 
 Visualizing the results:
 ```{r concordance, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(concordanceResult) +
-  geom_point(aes(x=sample_id, y=concordance)) +
+  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4) +
   xlab("Sample") +
   ylab("Concordance") +
-  ggtitle("Concordance with Genotyping Data")
+  ggtitle("Concordance with Genotyping Data") +
+  scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  theme(axis.text.x=element_blank(),
+        axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text.x = element_blank()) 
 ```
 
 ## Ethnicity Inference
@@ -270,7 +290,6 @@ TODO
 Perform a simplistic similarity check on each pair of genomes to identify any mislabled or cross-contaminated samples.
 
 Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
-
 
 
 ```{r}

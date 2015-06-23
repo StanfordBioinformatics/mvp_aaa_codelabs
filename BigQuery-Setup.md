@@ -30,7 +30,7 @@ First, we uploaded all the vcfs from our local compute cluster to Google Cloud S
 See [here](https://cloud.google.com/storage/docs/gsutil) for more information on gsutil.
 
 ## Sequence level filtering and gvcf conversion
-Our variant data for this project is in gVCF format with every genomic position listed.  We want to compress all sequenctial reference calls into reference matching blocks in order to save time and compute cost when querying the data later.  To do this we use a [MapReduce script](https://github.com/StanfordBioinformatics/googva/blob/master/gvcf-mapper.py) running on Hadoop streaming.  Since we will be running over every position in every genome we might as well do some filtering and get some statistics about our data.  This script also flags low quality reference calls and variants, as well as counts the number of SNPs, INDELs, and reference calls encountered and how many were flagged.  Flagged reference calls and variants are assigned a genotype of -1/-1 and sequential low quality calls are grouped in to low quality blocks.
+Our variant data for this project is in gVCF format with every genomic position listed.  We want to compress all sequenctial reference calls into reference matching blocks in order to save time and compute cost when querying the data in BigQuery later.  To do this we use a [MapReduce script](https://github.com/StanfordBioinformatics/googva/blob/master/gvcf-mapper.py) running on Hadoop streaming.  This script also flags low quality reference calls and variants.  Flagged reference calls and variants are assigned a genotype of -1/-1 and sequential low quality calls are grouped in to low quality blocks.
 
 Variants are requried to have `PASS` in the FILTER column.  Variants with any other descriptors are flagged.
 
@@ -80,19 +80,6 @@ screen
   -output gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/reduced-gvcfs-460-genomes
 ```
 
-
-Once the job is complete we can get our summary statistics.  Counts from each map task are output are printed into individual folders.  A vcf header is added to every output file, we'll just filter that out.
-
-```r
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/ref_count/* | grep -v '^#' | paste -sd+ - | bc
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/filtered_ref_count/* | grep -v '^#' | paste -sd+ - | bc
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/snp_count/* | grep -v '^#' | paste -sd+ - | bc
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/filtered_snp_count/* | grep -v '^#' | paste -sd+ - | bc
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/indel_count/* | grep -v '^#' | paste -sd+ - | bc
-gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/sanity-check/filtered_indel_count/* | grep -v '^#' | paste -sd+ - | bc
-```
-
-
 ## Import into genomics variant set
 Next, we import all the vcfs into a genomics [variant set](https://cloud.google.com/genomics/v1beta2/managing-variants).  This makes out data accessible through the genomics API.
 
@@ -126,17 +113,17 @@ java -jar genomics-tools-client-java-v1beta2.jar importvariants \
 Now that we have our data stored in a variant set we can create a BigQuery table where we can query our data.  We name the table genome_calls_no_qc to indicate that this table has not yet undergone quality control.  We will go over this in the next step.
 
 ```r
-java -jar genomics-tools-client-java-v1beta2.jar exportvariants 
-  --variant_set_id 12721125545898647337 
-  --project_number 963911152157 
-  --bigquery_dataset va_aaa_genomic_data 
-  --bigquery_table genome_calls_no_qc
+java -jar genomics-tools-client-java-v1beta2.jar exportvariants \
+  --variant_set_id 12721125545898647337 \
+  --project_number 963911152157 \
+  --bigquery_dataset va_aaa_genomic_data \ 
+  --bigquery_table genome_calls_seq_qc
 ```
 
 ### Multi Sample Variants Table
-For some of the queries we want to run it is much easier to have the call for each sample listed explicitly rather than grouped into reference matching blocks.  To account for this we create a table resembling a multi sample VCF with the call for every sample listed at every position where at least one sample had a variant.  To accomplish this we run a [Cloud Dataflow job](https://github.com/StanfordBioinformatics/codelabs/tree/master/Java/PlatinumGenomes-variant-transformation) to transform our genomic call table into a multi sample variant table.
+For some of the queries we want to run it is much easier to have the call for each sample listed explicitly rather than grouped into reference matching blocks.  To accomplish this we create a table resembling a multi sample VCF with the call for every sample listed at every position where at least one sample had a variant.  To create this table we run a [Cloud Dataflow job](https://github.com/StanfordBioinformatics/codelabs/tree/master/Java/PlatinumGenomes-variant-transformation) to transform our genomic call table into a multi sample variant table.
 
-*NOTE* The code needs to be compild before running.  Follow the setup instructions for the variant transformation program.
+*NOTE:* The code needs to be compiled before running.  Follow the setup instructions for the variant transformation.
 
 ```r
 java -cp target/non-variant-segment-transformer-*.jar   \
@@ -147,7 +134,7 @@ java -cp target/non-variant-segment-transformer-*.jar   \
   --datasetId=12721125545898647337   \
   --allReferences   \
   --hasNonVariantSegments    \
-  --outputTable=gbsc-gcp-project-mvp:va_aaa_genomic_data.multi_sample_variants_no_qc \
+  --outputTable=gbsc-gcp-project-mvp:va_aaa_pilot_data.multi_sample_variants_seq_qc \
   --numWorkers=200 \
   --runner=DataflowPipelineRunner
 ```
