@@ -18,5 +18,4 @@ FROM (
     GROUP_CONCAT(call.call_set_name) AS call.call_set_name,
     GROUP_CONCAT(genotype) AS genotype,
     SUM(num_samples_with_variant) AS num_samples_with_variant
-    FROM (_MAIN_QUERY_)
-
+    FROM (_MAIN_QUERY_)))
