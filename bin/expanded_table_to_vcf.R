@@ -3,7 +3,7 @@ setwd("/Users/gmcinnes/GitHub/mvp_aaa_codelabs/qc")
 project <- "gbsc-gcp-project-mvp"
 source("./rHelpers/setup.R")
 tableReplacement <- list("_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java2")
-for (c in c(seq(1,22),"X","Y")) {
+for (c in c(seq(17,22),"X","Y","M")) {
   chr = paste("'chr", c, "'", sep="")
   chrSub = list("_CHR_"=chr)
   outputTable = paste("qc_tables.vcf_chr", c, sep="")
