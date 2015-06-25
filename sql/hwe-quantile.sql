@@ -1,6 +1,6 @@
 # Get chisq quantile cutoff
 SELECT 
-  quantile,
+  quantile AS cutoff,
   row_num,
 FROM(
   SELECT
