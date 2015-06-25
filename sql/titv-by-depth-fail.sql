@@ -10,7 +10,7 @@ SELECT
   call.DP AS depth,
   GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
 FROM(FLATTEN((
-  [va_aaa_pilot_data.all_genomes_expanded_vcfs_java3]), call.call_set_name))
+  [_THE_EXPANDED_TABLE_]), call.call_set_name))
 OMIT call IF EVERY(call.genotype <= 0)) AS var
 JOIN (
 SELECT

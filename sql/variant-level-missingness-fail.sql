@@ -35,7 +35,7 @@ FROM (
       SELECT 
       call.call_set_name
       FROM
-      [va_aaa_pilot_data.all_genomes_gvcfs]
+      [_THE_TABLE_]
       GROUP BY 
       call.call_set_name)) AS count )
 WHERE
