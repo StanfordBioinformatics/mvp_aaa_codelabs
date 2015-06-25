@@ -35,7 +35,7 @@ FROM (
       SELECT 
       call.call_set_name
       FROM
-      [_THE_TABLE_]
+      [_THE_EXPANDED_TABLE_]
       GROUP BY 
       call.call_set_name)) AS count )
 WHERE
