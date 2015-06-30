@@ -53,7 +53,6 @@ ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
   ylab("SNV Count") + 
-  ggtitle("SNV Counts for Each Genotype") +
   scale_y_continuous(labels=comma, expand = c(0, 0)) +
   theme(axis.line = element_line(colour = "black"),
         panel.grid.major = element_blank(),
