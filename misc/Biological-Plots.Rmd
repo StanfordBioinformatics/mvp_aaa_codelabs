@@ -1,0 +1,151 @@
+# Publication Plots - Biological
+
+## Setup
+```{r echo=FALSE, eval=FALSE}
+require(scales)
+require(reshape2)
+require(dplyr)
+require(plyr)
+
+# Set Working Directory
+setwd("/Users/gmcinnes/src/mvp_aaa_codelabs/misc")
+
+# Set the Google Cloud Platform project id under which these queries will run.
+project <- "gbsc-gcp-project-mvp"
+
+# Set up for BigQuery access.
+source("../rHelpers/setup.R")
+
+# Define Query Substitutions
+queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java2",
+                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
+                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
+
+# Read in sample information
+sampleData <- read.csv("../data/patient_info.csv")
+sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
+
+chromosomeLengths <- read.table("http://genome.ucsc.edu/goldenpath/help/hg19.chrom.sizes")
+names(chromosomeLengths) = c("reference_name", "length")
+```
+
+
+## Biological Query Plots
+Tables for biological queries
+```{r}
+queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc",
+                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.multi_sample_variants_full_qc",
+                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
+                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
+```
+
+#### Genotype Counts
+```{r message=FALSE, warning=FALSE, comment=NA}
+genotypeCountResult <- DisplayAndDispatchQuery("../sql/genotype-counts.sql",
+                                               project=project,
+                                               replacements=queryReplacements)
+genotypeCountResult <- genotypeCountResult[complete.cases(genotypeCountResult),]
+```
+
+```{r genotype-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(genotypeCountResult) +
+  geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
+  xlab("Genotypes") + 
+  ylab("SNV Count") + 
+  ggtitle("SNV Counts for Each Genotype") +
+  scale_y_continuous(labels=comma, expand = c(0, 0)) +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=20),
+        axis.title=element_text(size=22),
+        legend.text=element_text(size=20)) 
+```
+
+#### Variant Counts By Chromosome
+```{r message=FALSE, warning=FALSE, comment=NA}
+variantCountResult <- DisplayAndDispatchQuery("../sql/variants-by-chromosome.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+
+variantCountResult <- join(variantCountResult, chromosomeLengths, by = "reference_name")
+variantCountResult$scaled_count <- variantCountResult$Cnt / variantCountResult$length
+
+chromosomes <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY", "chrM")
+snps <- variantCountResult[grep("SNV", variantCountResult$VAR_type), ]
+snps$reference_name <- factor(snps$reference_name, levels=chromosomes)
+snps <- snps[complete.cases(snps),]
+
+indels <- variantCountResult[grep("INDEL", variantCountResult$VAR_type), ]
+indels$reference_name <- factor(indels$reference_name, levels=chromosomes)
+indels <- indels[complete.cases(indels),]
+
+
+
+```
+
+```{r snv-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(data=snps, aes(y=scaled_count, x=reference_name)) + 
+  geom_point() + 
+  ylab("Scaled SNV Count") +
+  xlab("Chromosome") +
+  scale_y_continuous(label=comma) +
+  theme(text = element_text(size=12), 
+        axis.text.x = element_text(angle=90, vjust=1),
+        axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=20),
+        axis.title=element_text(size=22),
+        legend.text=element_text(size=24)) 
+```
+
+```{r indel-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(data=indels, aes(y=scaled_count, x=reference_name)) + 
+  geom_point() + 
+  ylab("Scaled Indel Count") +
+  xlab("Chromosome") +
+  scale_y_continuous(label=comma) +
+  theme(text = element_text(size=12), 
+        axis.text.x = element_text(angle=90, vjust=1),
+        axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=20),
+        axis.title=element_text(size=22),
+        legend.text=element_text(size=20)) 
+```
+
+#### Saturation Rate
+```{r message=FALSE, warning=FALSE, comment=NA}
+# Need to redo queries for this
+genome_count = c(1,2,3,4,5,10,50,100,200,300,400,478)
+snv_count = c(3590360,4847512,5627244,6158953,6616457,
+              8014799,11841547,14387937,18693833,21567571,23638061,25890797)
+saturation_rate = data_frame(genome_count, snv_count)
+
+```
+
+
+```{r saturation-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(saturation_rate) +
+  geom_point(aes(x=genome_count, y=snv_count), size=4) +
+  xlab("Number of Genomes") +
+  ylab("Unique SNVs") +
+  scale_y_continuous(label=comma) +
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.text=element_text(size=20),
+        axis.title=element_text(size=22),
+        legend.text=element_text(size=20)) 
+```
