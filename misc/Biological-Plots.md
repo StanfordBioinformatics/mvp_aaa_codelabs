@@ -49,9 +49,13 @@ FROM
     start,
     reference_bases,
     GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
-    GROUP_CONCAT(STRING(call.genotype), "/") WITHIN call AS genotype
+    GROUP_CONCAT(STRING(call.genotype), "/") WITHIN call AS genotype,
+    GROUP_CONCAT(QC) WITHIN RECORD AS qc,
+    GROUP_CONCAT(call.QC) WITHIN CALL AS call_qc,
     FROM 
     [va_aaa_pilot_data.multi_sample_variants_full_qc]
+    OMIT call IF SOME(call.qc IS NOT NULL)
+    HAVING QC IS NULL
   )
   GROUP EACH BY
   reference_name,
@@ -110,10 +114,14 @@ FROM
     start,
     reference_bases,
     GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
+    GROUP_CONCAT(QC) WITHIN RECORD AS qc,
+    GROUP_CONCAT(call.QC) WITHIN CALL AS call_qc,
     IF(LENGTH(reference_bases)=1 AND LENGTH(alternate_bases)=1, "SNV", "INDEL") AS VAR_type
     FROM 
     [va_aaa_pilot_data.multi_sample_variants_full_qc]
-    OMIT call IF EVERY(call.genotype <= 0)
+    OMIT call IF EVERY(call.genotype <= 0) 
+      OR SOME(call.qc IS NOT NULL)
+    HAVING QC IS NULL
   )
   GROUP EACH BY
   reference_name,
@@ -128,6 +136,24 @@ VAR_type
 ORDER BY
 reference_name,
 VAR_type
+
+Running query:   RUNNING  2.4s
+Running query:   RUNNING  3.0s
+Running query:   RUNNING  3.6s
+Running query:   RUNNING  4.2s
+Running query:   RUNNING  4.8s
+Running query:   RUNNING  5.4s
+Running query:   RUNNING  6.1s
+Running query:   RUNNING  6.7s
+Running query:   RUNNING  7.3s
+Running query:   RUNNING  7.9s
+Running query:   RUNNING  8.5s
+Running query:   RUNNING  9.1s
+Running query:   RUNNING  9.7s
+Running query:   RUNNING 10.4s
+Running query:   RUNNING 11.0s
+Running query:   RUNNING 11.6s
+Running query:   RUNNING 12.2s
 ```
 
 ```r
