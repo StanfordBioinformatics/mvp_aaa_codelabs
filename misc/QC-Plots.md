@@ -3,6 +3,12 @@
 ## Setup
 
 
+Plot theme
+
+```r
+plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"))
+```
 
 ## QC Plots
 Tables for sample level qc plots
@@ -21,6 +27,8 @@ concordanceResult <- DisplayAndDispatchQuery("../sql/genotyping-concordance.sql"
                                              project=project,
                                              replacements=queryReplacements)
 ```
+
+
 
 ```
 SELECT
@@ -155,489 +163,315 @@ WHERE
   AND seq.end >= gen.end )
 GROUP BY 
   sample_id)
-Running query:   RUNNING  2.8s
-Running query:   RUNNING  3.6s
-Running query:   RUNNING  5.1s
-Running query:   RUNNING  5.8s
-Running query:   RUNNING  6.4s
-Running query:   RUNNING  7.2s
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
+Running query:   RUNNING  3.4s
+Running query:   RUNNING  4.0s
+Running query:   RUNNING  4.7s
+Running query:   RUNNING  5.4s
+Running query:   RUNNING  6.3s
+Running query:   RUNNING  7.1s
 Running query:   RUNNING  7.9s
 Running query:   RUNNING  8.6s
 Running query:   RUNNING  9.3s
-Running query:   RUNNING 10.0s
-Running query:   RUNNING 10.7s
-Running query:   RUNNING 11.4s
-Running query:   RUNNING 12.5s
-Running query:   RUNNING 13.2s
-Running query:   RUNNING 14.0s
-Running query:   RUNNING 14.7s
-Running query:   RUNNING 15.4s
-Running query:   RUNNING 16.2s
+Running query:   RUNNING 10.3s
+Running query:   RUNNING 11.6s
+Running query:   RUNNING 12.8s
+Running query:   RUNNING 13.5s
+Running query:   RUNNING 14.4s
+Running query:   RUNNING 15.3s
+Running query:   RUNNING 16.0s
 Running query:   RUNNING 17.2s
+Running query:   RUNNING 18.0s
 Running query:   RUNNING 18.7s
 Running query:   RUNNING 19.5s
-Running query:   RUNNING 20.2s
-Running query:   RUNNING 21.7s
-Running query:   RUNNING 22.6s
-Running query:   RUNNING 23.3s
-Running query:   RUNNING 24.2s
-Running query:   RUNNING 24.9s
-Running query:   RUNNING 26.0s
-Running query:   RUNNING 26.8s
-Running query:   RUNNING 27.6s
-Running query:   RUNNING 29.2s
-Running query:   RUNNING 30.0s
-Running query:   RUNNING 30.7s
-Running query:   RUNNING 31.5s
-Running query:   RUNNING 32.2s
-Running query:   RUNNING 33.8s
-Running query:   RUNNING 37.0s
-Running query:   RUNNING 39.3s
+Running query:   RUNNING 20.8s
+Running query:   RUNNING 21.5s
+Running query:   RUNNING 22.2s
+Running query:   RUNNING 22.9s
+Running query:   RUNNING 23.6s
+Running query:   RUNNING 24.4s
+Running query:   RUNNING 25.1s
+Running query:   RUNNING 25.9s
+Running query:   RUNNING 26.6s
+Running query:   RUNNING 27.4s
+Running query:   RUNNING 28.1s
+Running query:   RUNNING 28.9s
+Running query:   RUNNING 29.6s
+Running query:   RUNNING 30.4s
+Running query:   RUNNING 31.2s
+Running query:   RUNNING 31.9s
+Running query:   RUNNING 32.7s
+Running query:   RUNNING 33.4s
+Running query:   RUNNING 34.2s
+Running query:   RUNNING 34.9s
+Running query:   RUNNING 35.7s
+Running query:   RUNNING 36.4s
+Running query:   RUNNING 37.2s
+Running query:   RUNNING 37.9s
+Running query:   RUNNING 38.7s
+Running query:   RUNNING 39.5s
+Running query:   RUNNING 40.2s
 Running query:   RUNNING 40.9s
 Running query:   RUNNING 41.7s
-Running query:   RUNNING 42.4s
-Running query:   RUNNING 43.1s
-Running query:   RUNNING 43.8s
-Running query:   RUNNING 44.5s
-Running query:   RUNNING 45.2s
-Running query:   RUNNING 45.9s
-Running query:   RUNNING 46.7s
-Running query:   RUNNING 47.4s
-Running query:   RUNNING 48.1s
-Running query:   RUNNING 48.8s
+Running query:   RUNNING 42.5s
+Running query:   RUNNING 44.0s
+Running query:   RUNNING 45.1s
+Running query:   RUNNING 46.0s
+Running query:   RUNNING 47.2s
+Running query:   RUNNING 48.0s
+Running query:   RUNNING 48.7s
 Running query:   RUNNING 49.6s
 Running query:   RUNNING 50.3s
-Running query:   RUNNING 51.0s
-Running query:   RUNNING 51.7s
-Running query:   RUNNING 52.5s
-Running query:   RUNNING 53.3s
-Running query:   RUNNING 54.0s
+Running query:   RUNNING 51.1s
+Running query:   RUNNING 51.9s
+Running query:   RUNNING 52.6s
+Running query:   RUNNING 53.4s
 Running query:   RUNNING 54.7s
-Running query:   RUNNING 55.5s
+Running query:   RUNNING 55.4s
 Running query:   RUNNING 56.2s
 Running query:   RUNNING 56.9s
-Running query:   RUNNING 57.6s
-Running query:   RUNNING 58.4s
-Running query:   RUNNING 59.1s
-Running query:   RUNNING 59.8s
-Running query:   RUNNING 60.6s
-Running query:   RUNNING 61.3s
-Running query:   RUNNING 62.6s
+Running query:   RUNNING 57.7s
+Running query:   RUNNING 58.3s
+Running query:   RUNNING 59.0s
+Running query:   RUNNING 59.7s
+Running query:   RUNNING 60.5s
+Running query:   RUNNING 61.2s
+Running query:   RUNNING 62.0s
+Running query:   RUNNING 62.7s
 Running query:   RUNNING 63.5s
-Running query:   RUNNING 67.3s
-Running query:   RUNNING 68.4s
-Running query:   RUNNING 69.1s
-Running query:   RUNNING 70.0s
-Running query:   RUNNING 71.8s
-Running query:   RUNNING 72.9s
-Running query:   RUNNING 74.3s
-Running query:   RUNNING 75.2s
-Running query:   RUNNING 76.7s
-Running query:   RUNNING 77.6s
-Running query:   RUNNING 78.2s
-Running query:   RUNNING 78.9s
+Running query:   RUNNING 64.2s
+Running query:   RUNNING 65.0s
+Running query:   RUNNING 65.7s
+Running query:   RUNNING 66.4s
+Running query:   RUNNING 67.2s
+Running query:   RUNNING 67.9s
+Running query:   RUNNING 68.6s
+Running query:   RUNNING 69.4s
+Running query:   RUNNING 73.6s
+Running query:   RUNNING 74.4s
+Running query:   RUNNING 75.1s
+Running query:   RUNNING 75.8s
+Running query:   RUNNING 76.6s
+Running query:   RUNNING 77.8s
+Running query:   RUNNING 78.8s
 Running query:   RUNNING 79.6s
-Running query:   RUNNING 80.3s
-Running query:   RUNNING 81.1s
-Running query:   RUNNING 81.8s
-Running query:   RUNNING 82.5s
-Running query:   RUNNING 83.2s
-Running query:   RUNNING 83.9s
-Running query:   RUNNING 84.7s
-Running query:   RUNNING 85.4s
-Running query:   RUNNING 86.1s
-Running query:   RUNNING 86.8s
-Running query:   RUNNING 87.6s
-Running query:   RUNNING 88.3s
-Running query:   RUNNING 89.0s
-Running query:   RUNNING 89.7s
-Running query:   RUNNING 90.4s
-Running query:   RUNNING 91.1s
-Running query:   RUNNING 91.9s
-Running query:   RUNNING 92.6s
-Running query:   RUNNING 93.3s
-Running query:   RUNNING 94.0s
-Running query:   RUNNING 94.7s
-Running query:   RUNNING 95.4s
-Running query:   RUNNING 96.2s
-Running query:   RUNNING 96.9s
-Running query:   RUNNING 97.6s
-Running query:   RUNNING 98.3s
-Running query:   RUNNING 99.0s
-Running query:   RUNNING 99.8s
-Running query:   RUNNING 102.0s
-Running query:   RUNNING 103.5s
-Running query:   RUNNING 104.7s
-Running query:   RUNNING 105.5s
-Running query:   RUNNING 106.3s
-Running query:   RUNNING 107.1s
-Running query:   RUNNING 108.2s
-Running query:   RUNNING 109.0s
+Running query:   RUNNING 92.5s
+Running query:   RUNNING 99.6s
+Running query:   RUNNING 101.5s
+Running query:   RUNNING 102.3s
+Running query:   RUNNING 103.0s
+Running query:   RUNNING 104.3s
+Running query:   RUNNING 105.1s
+Running query:   RUNNING 106.5s
+Running query:   RUNNING 107.4s
+Running query:   RUNNING 108.5s
 Running query:   RUNNING 109.9s
-Running query:   RUNNING 110.6s
-Running query:   RUNNING 111.3s
-Running query:   RUNNING 112.2s
-Running query:   RUNNING 112.9s
-Running query:   RUNNING 114.1s
+Running query:   RUNNING 111.1s
+Running query:   RUNNING 112.6s
+Running query:   RUNNING 113.4s
+Running query:   RUNNING 114.0s
 Running query:   RUNNING 114.7s
 Running query:   RUNNING 115.5s
 Running query:   RUNNING 116.2s
-Running query:   RUNNING 116.9s
-Running query:   RUNNING 117.6s
-Running query:   RUNNING 118.3s
-Running query:   RUNNING 119.0s
-Running query:   RUNNING 119.8s
+Running query:   RUNNING 117.0s
+Running query:   RUNNING 117.7s
+Running query:   RUNNING 118.5s
+Running query:   RUNNING 119.2s
+Running query:   RUNNING 119.9s
 Running query:   RUNNING 120.7s
-Running query:   RUNNING 121.5s
+Running query:   RUNNING 121.4s
 Running query:   RUNNING 122.2s
 Running query:   RUNNING 122.9s
 Running query:   RUNNING 123.6s
 Running query:   RUNNING 124.4s
 Running query:   RUNNING 125.1s
-Running query:   RUNNING 125.8s
-Running query:   RUNNING 126.5s
-Running query:   RUNNING 127.2s
-Running query:   RUNNING 128.0s
-Running query:   RUNNING 128.7s
-Running query:   RUNNING 129.4s
-Running query:   RUNNING 130.2s
-Running query:   RUNNING 130.9s
-Running query:   RUNNING 131.6s
-Running query:   RUNNING 132.3s
-Running query:   RUNNING 133.4s
+Running query:   RUNNING 125.9s
+Running query:   RUNNING 126.6s
+Running query:   RUNNING 127.3s
+Running query:   RUNNING 128.1s
+Running query:   RUNNING 128.8s
+Running query:   RUNNING 129.6s
+Running query:   RUNNING 130.5s
+Running query:   RUNNING 131.2s
+Running query:   RUNNING 132.0s
+Running query:   RUNNING 132.8s
+Running query:   RUNNING 133.5s
 Running query:   RUNNING 134.2s
 Running query:   RUNNING 134.9s
-Running query:   RUNNING 135.6s
+Running query:   RUNNING 135.7s
 Running query:   RUNNING 136.4s
-Running query:   RUNNING 137.1s
-Running query:   RUNNING 137.9s
-Running query:   RUNNING 138.6s
-Running query:   RUNNING 139.3s
-Running query:   RUNNING 140.1s
-Running query:   RUNNING 140.8s
-Running query:   RUNNING 141.5s
-Running query:   RUNNING 142.2s
-Running query:   RUNNING 143.0s
-Running query:   RUNNING 143.7s
-Running query:   RUNNING 144.4s
-Running query:   RUNNING 145.5s
-Running query:   RUNNING 146.2s
-Running query:   RUNNING 147.0s
-Running query:   RUNNING 147.7s
-Running query:   RUNNING 148.5s
-Running query:   RUNNING 149.2s
-Running query:   RUNNING 149.9s
+Running query:   RUNNING 137.2s
+Running query:   RUNNING 138.0s
+Running query:   RUNNING 139.0s
+Running query:   RUNNING 139.9s
+Running query:   RUNNING 140.7s
+Running query:   RUNNING 141.8s
+Running query:   RUNNING 142.5s
+Running query:   RUNNING 143.2s
+Running query:   RUNNING 144.1s
+Running query:   RUNNING 144.8s
+Running query:   RUNNING 146.1s
+Running query:   RUNNING 146.9s
+Running query:   RUNNING 148.7s
+Running query:   RUNNING 149.5s
+Running query:   RUNNING 150.2s
 Running query:   RUNNING 150.8s
 Running query:   RUNNING 151.6s
-Running query:   RUNNING 152.7s
-Running query:   RUNNING 153.4s
-Running query:   RUNNING 154.1s
-Running query:   RUNNING 154.8s
-Running query:   RUNNING 155.5s
-Running query:   RUNNING 156.2s
-Running query:   RUNNING 157.1s
-Running query:   RUNNING 157.8s
-Running query:   RUNNING 158.6s
-Running query:   RUNNING 159.4s
-Running query:   RUNNING 160.5s
-Running query:   RUNNING 161.3s
-Running query:   RUNNING 162.0s
-Running query:   RUNNING 162.8s
-Running query:   RUNNING 163.5s
-Running query:   RUNNING 164.7s
-Running query:   RUNNING 165.5s
+Running query:   RUNNING 152.3s
+Running query:   RUNNING 153.1s
+Running query:   RUNNING 153.8s
+Running query:   RUNNING 154.6s
+Running query:   RUNNING 155.3s
+Running query:   RUNNING 156.0s
+Running query:   RUNNING 156.8s
+Running query:   RUNNING 157.5s
+Running query:   RUNNING 158.2s
+Running query:   RUNNING 159.0s
+Running query:   RUNNING 159.7s
+Running query:   RUNNING 160.4s
+Running query:   RUNNING 161.2s
+Running query:   RUNNING 161.9s
+Running query:   RUNNING 162.6s
+Running query:   RUNNING 163.4s
+Running query:   RUNNING 164.1s
+Running query:   RUNNING 164.8s
+Running query:   RUNNING 165.6s
 Running query:   RUNNING 166.3s
-Running query:   RUNNING 167.6s
-Running query:   RUNNING 168.3s
-Running query:   RUNNING 169.0s
-Running query:   RUNNING 170.3s
-Running query:   RUNNING 170.9s
-Running query:   RUNNING 171.6s
-Running query:   RUNNING 172.3s
-Running query:   RUNNING 173.0s
-Running query:   RUNNING 173.8s
-Running query:   RUNNING 174.5s
-Running query:   RUNNING 175.2s
+Running query:   RUNNING 167.0s
+Running query:   RUNNING 167.7s
+Running query:   RUNNING 168.5s
+Running query:   RUNNING 169.2s
+Running query:   RUNNING 169.9s
+Running query:   RUNNING 170.7s
+Running query:   RUNNING 171.4s
+Running query:   RUNNING 172.1s
+Running query:   RUNNING 172.9s
+Running query:   RUNNING 173.6s
+Running query:   RUNNING 174.4s
+Running query:   RUNNING 175.1s
 Running query:   RUNNING 175.9s
 Running query:   RUNNING 176.6s
 Running query:   RUNNING 177.4s
 Running query:   RUNNING 178.1s
-Running query:   RUNNING 178.8s
-Running query:   RUNNING 179.5s
-Running query:   RUNNING 180.2s
-Running query:   RUNNING 180.9s
-Running query:   RUNNING 181.7s
-Running query:   RUNNING 182.8s
-Running query:   RUNNING 183.5s
-Running query:   RUNNING 184.2s
-Running query:   RUNNING 184.9s
-Running query:   RUNNING 185.7s
-Running query:   RUNNING 186.4s
-Running query:   RUNNING 187.1s
-Running query:   RUNNING 187.8s
-Running query:   RUNNING 188.5s
-Running query:   RUNNING 189.2s
-Running query:   RUNNING 190.0s
-Running query:   RUNNING 190.8s
-Running query:   RUNNING 191.5s
-Running query:   RUNNING 192.2s
-Running query:   RUNNING 192.9s
-Running query:   RUNNING 194.1s
-Running query:   RUNNING 194.9s
-Running query:   RUNNING 195.6s
-Running query:   RUNNING 197.7s
-Running query:   RUNNING 198.5s
-Running query:   RUNNING 199.2s
-Running query:   RUNNING 200.0s
-Running query:   RUNNING 201.4s
-Running query:   RUNNING 202.7s
+Running query:   RUNNING 178.9s
+Running query:   RUNNING 179.6s
+Running query:   RUNNING 180.4s
+Running query:   RUNNING 181.3s
+Running query:   RUNNING 182.1s
+Running query:   RUNNING 182.9s
+Running query:   RUNNING 183.7s
+Running query:   RUNNING 184.5s
+Running query:   RUNNING 185.3s
+Running query:   RUNNING 186.0s
+Running query:   RUNNING 187.3s
+Running query:   RUNNING 188.0s
+Running query:   RUNNING 188.7s
+Running query:   RUNNING 189.4s
+Running query:   RUNNING 190.1s
+Running query:   RUNNING 190.9s
+Running query:   RUNNING 191.7s
+Running query:   RUNNING 192.4s
+Running query:   RUNNING 193.1s
+Running query:   RUNNING 193.9s
+Running query:   RUNNING 194.6s
+Running query:   RUNNING 195.3s
+Running query:   RUNNING 196.1s
+Running query:   RUNNING 196.8s
+Running query:   RUNNING 197.5s
+Running query:   RUNNING 198.3s
+Running query:   RUNNING 199.0s
+Running query:   RUNNING 199.8s
+Running query:   RUNNING 200.5s
+Running query:   RUNNING 201.2s
+Running query:   RUNNING 202.0s
+Running query:   RUNNING 202.8s
 Running query:   RUNNING 203.5s
 Running query:   RUNNING 204.2s
-Running query:   RUNNING 204.9s
+Running query:   RUNNING 205.0s
 Running query:   RUNNING 205.7s
-Running query:   RUNNING 206.4s
 Running query:   RUNNING 207.2s
-Running query:   RUNNING 208.2s
-Running query:   RUNNING 208.9s
-Running query:   RUNNING 209.6s
-Running query:   RUNNING 210.5s
-Running query:   RUNNING 211.2s
-Running query:   RUNNING 211.9s
-Running query:   RUNNING 212.6s
-Running query:   RUNNING 213.4s
-Running query:   RUNNING 214.1s
-Running query:   RUNNING 214.8s
-Running query:   RUNNING 215.6s
-Running query:   RUNNING 216.3s
-Running query:   RUNNING 217.0s
-Running query:   RUNNING 217.7s
-Running query:   RUNNING 218.5s
+Running query:   RUNNING 208.0s
+Running query:   RUNNING 208.7s
+Running query:   RUNNING 209.4s
+Running query:   RUNNING 210.1s
+Running query:   RUNNING 210.9s
+Running query:   RUNNING 211.6s
+Running query:   RUNNING 212.3s
+Running query:   RUNNING 213.1s
+Running query:   RUNNING 214.4s
+Running query:   RUNNING 215.1s
+Running query:   RUNNING 215.9s
+Running query:   RUNNING 216.9s
+Running query:   RUNNING 217.6s
+Running query:   RUNNING 218.4s
 Running query:   RUNNING 219.2s
 Running query:   RUNNING 219.9s
-Running query:   RUNNING 220.8s
-Running query:   RUNNING 221.5s
-Running query:   RUNNING 222.3s
-Running query:   RUNNING 223.0s
-Running query:   RUNNING 223.8s
-Running query:   RUNNING 224.5s
-Running query:   RUNNING 225.2s
-Running query:   RUNNING 225.9s
-Running query:   RUNNING 226.6s
-Running query:   RUNNING 227.4s
-Running query:   RUNNING 228.1s
-Running query:   RUNNING 228.8s
-Running query:   RUNNING 229.5s
-Running query:   RUNNING 230.6s
-Running query:   RUNNING 231.3s
-Running query:   RUNNING 232.1s
-Running query:   RUNNING 232.8s
-Running query:   RUNNING 234.7s
-Running query:   RUNNING 235.4s
-Running query:   RUNNING 236.2s
-Running query:   RUNNING 237.8s
-Running query:   RUNNING 238.5s
-Running query:   RUNNING 239.3s
+Running query:   RUNNING 220.7s
+Running query:   RUNNING 221.4s
+Running query:   RUNNING 223.9s
+Running query:   RUNNING 225.1s
+Running query:   RUNNING 225.7s
+Running query:   RUNNING 226.4s
+Running query:   RUNNING 227.1s
+Running query:   RUNNING 227.8s
+Running query:   RUNNING 228.5s
+Running query:   RUNNING 229.3s
+Running query:   RUNNING 230.0s
+Running query:   RUNNING 230.7s
+Running query:   RUNNING 231.5s
+Running query:   RUNNING 232.2s
+Running query:   RUNNING 232.9s
+Running query:   RUNNING 233.6s
+Running query:   RUNNING 234.4s
+Running query:   RUNNING 235.1s
+Running query:   RUNNING 235.8s
+Running query:   RUNNING 236.6s
+Running query:   RUNNING 237.3s
+Running query:   RUNNING 238.0s
+Running query:   RUNNING 238.8s
+Running query:   RUNNING 239.5s
 Running query:   RUNNING 240.2s
-Running query:   RUNNING 241.4s
-Running query:   RUNNING 242.0s
-Running query:   RUNNING 242.8s
-Running query:   RUNNING 243.5s
-Running query:   RUNNING 244.2s
-Running query:   RUNNING 244.9s
-Running query:   RUNNING 245.6s
-Running query:   RUNNING 246.4s
-Running query:   RUNNING 247.1s
-Running query:   RUNNING 247.8s
-Running query:   RUNNING 248.5s
-Running query:   RUNNING 249.2s
-Running query:   RUNNING 249.9s
-Running query:   RUNNING 250.6s
+Running query:   RUNNING 240.9s
+Running query:   RUNNING 241.7s
+Running query:   RUNNING 242.4s
+Running query:   RUNNING 243.1s
+Running query:   RUNNING 243.8s
+Running query:   RUNNING 244.6s
+Running query:   RUNNING 245.3s
+Running query:   RUNNING 246.1s
+Running query:   RUNNING 246.8s
+Running query:   RUNNING 247.5s
+Running query:   RUNNING 248.3s
+Running query:   RUNNING 249.0s
+Running query:   RUNNING 249.8s
+Running query:   RUNNING 250.5s
 Running query:   RUNNING 251.3s
-Running query:   RUNNING 252.1s
-Running query:   RUNNING 252.8s
-Running query:   RUNNING 253.5s
-Running query:   RUNNING 254.2s
+Running query:   RUNNING 252.4s
+Running query:   RUNNING 253.6s
 Running query:   RUNNING 255.0s
-Running query:   RUNNING 255.9s
-Running query:   RUNNING 256.6s
-Running query:   RUNNING 257.3s
-Running query:   RUNNING 258.4s
-Running query:   RUNNING 259.1s
-Running query:   RUNNING 259.9s
-Running query:   RUNNING 260.6s
-Running query:   RUNNING 261.3s
-Running query:   RUNNING 262.0s
-Running query:   RUNNING 262.7s
-Running query:   RUNNING 263.5s
-Running query:   RUNNING 264.2s
-Running query:   RUNNING 264.9s
-Running query:   RUNNING 265.6s
-Running query:   RUNNING 266.3s
-Running query:   RUNNING 267.4s
-Running query:   RUNNING 268.5s
-Running query:   RUNNING 271.0s
-Running query:   RUNNING 272.0s
-Running query:   RUNNING 273.1s
-Running query:   RUNNING 273.9s
-Running query:   RUNNING 274.8s
-Running query:   RUNNING 275.5s
+Running query:   RUNNING 258.0s
+Running query:   RUNNING 258.8s
+Running query:   RUNNING 259.6s
+Running query:   RUNNING 263.3s
+Running query:   RUNNING 263.9s
+Running query:   RUNNING 264.6s
+Running query:   RUNNING 265.4s
+Running query:   RUNNING 266.1s
+Running query:   RUNNING 266.8s
+Running query:   RUNNING 267.5s
+Running query:   RUNNING 268.3s
+Running query:   RUNNING 269.0s
+Running query:   RUNNING 269.7s
+Running query:   RUNNING 270.5s
+Running query:   RUNNING 271.2s
+Running query:   RUNNING 271.9s
+Running query:   RUNNING 272.7s
+Running query:   RUNNING 273.4s
+Running query:   RUNNING 274.1s
+Running query:   RUNNING 274.9s
+Running query:   RUNNING 275.6s
 Running query:   RUNNING 276.3s
-Running query:   RUNNING 277.1s
-Running query:   RUNNING 278.3s
-Running query:   RUNNING 279.1s
-Running query:   RUNNING 279.8s
-Running query:   RUNNING 280.5s
-Running query:   RUNNING 281.2s
-Running query:   RUNNING 283.4s
-Running query:   RUNNING 284.1s
-Running query:   RUNNING 284.8s
-Running query:   RUNNING 285.5s
-Running query:   RUNNING 286.3s
-Running query:   RUNNING 287.0s
-Running query:   RUNNING 288.4s
-Running query:   RUNNING 289.4s
-Running query:   RUNNING 290.1s
-Running query:   RUNNING 290.9s
-Running query:   RUNNING 291.6s
-Running query:   RUNNING 292.3s
-Running query:   RUNNING 293.1s
-Running query:   RUNNING 293.8s
-Running query:   RUNNING 294.5s
-Running query:   RUNNING 295.3s
-Running query:   RUNNING 296.0s
-Running query:   RUNNING 297.2s
-Running query:   RUNNING 298.2s
-Running query:   RUNNING 298.9s
-Running query:   RUNNING 299.6s
-Running query:   RUNNING 300.4s
-Running query:   RUNNING 301.1s
-Running query:   RUNNING 302.0s
-Running query:   RUNNING 302.7s
-Running query:   RUNNING 303.4s
-Running query:   RUNNING 304.6s
-Running query:   RUNNING 305.3s
-Running query:   RUNNING 306.1s
-Running query:   RUNNING 307.5s
-Running query:   RUNNING 308.4s
-Running query:   RUNNING 309.7s
-Running query:   RUNNING 310.4s
-Running query:   RUNNING 311.1s
-Running query:   RUNNING 312.0s
-Running query:   RUNNING 313.0s
-Running query:   RUNNING 315.4s
-Running query:   RUNNING 316.6s
-Running query:   RUNNING 317.9s
-Running query:   RUNNING 318.6s
-Running query:   RUNNING 319.3s
-Running query:   RUNNING 320.0s
-Running query:   RUNNING 320.7s
-Running query:   RUNNING 321.4s
-Running query:   RUNNING 322.1s
-Running query:   RUNNING 322.9s
-Running query:   RUNNING 323.6s
-Running query:   RUNNING 324.3s
-Running query:   RUNNING 325.0s
-Running query:   RUNNING 325.7s
-Running query:   RUNNING 326.4s
-Running query:   RUNNING 327.2s
-Running query:   RUNNING 327.9s
-Running query:   RUNNING 328.6s
-Running query:   RUNNING 329.4s
-Running query:   RUNNING 330.2s
-Running query:   RUNNING 330.9s
-Running query:   RUNNING 331.6s
-Running query:   RUNNING 332.3s
-Running query:   RUNNING 333.0s
-Running query:   RUNNING 333.8s
-Running query:   RUNNING 334.5s
-Running query:   RUNNING 335.2s
-Running query:   RUNNING 335.9s
-Running query:   RUNNING 336.6s
-Running query:   RUNNING 337.5s
-Running query:   RUNNING 338.2s
-Running query:   RUNNING 338.9s
-Running query:   RUNNING 339.6s
-Running query:   RUNNING 340.3s
-Running query:   RUNNING 341.0s
-Running query:   RUNNING 341.7s
-Running query:   RUNNING 342.5s
-Running query:   RUNNING 343.2s
-Running query:   RUNNING 344.0s
-Running query:   RUNNING 345.4s
-Running query:   RUNNING 346.1s
-Running query:   RUNNING 347.2s
-Running query:   RUNNING 348.0s
-Running query:   RUNNING 349.2s
-Running query:   RUNNING 350.7s
-Running query:   RUNNING 351.4s
-Running query:   RUNNING 352.5s
-Running query:   RUNNING 353.2s
-Running query:   RUNNING 354.5s
-Running query:   RUNNING 355.6s
-Running query:   RUNNING 356.3s
-Running query:   RUNNING 357.0s
-Running query:   RUNNING 357.8s
-Running query:   RUNNING 358.5s
-Running query:   RUNNING 359.2s
-Running query:   RUNNING 359.9s
-Running query:   RUNNING 360.6s
-Running query:   RUNNING 361.3s
-Running query:   RUNNING 362.1s
-Running query:   RUNNING 362.8s
-Running query:   RUNNING 363.5s
-Running query:   RUNNING 364.2s
-Running query:   RUNNING 365.0s
-Running query:   RUNNING 365.7s
-Running query:   RUNNING 366.7s
-Running query:   RUNNING 367.4s
-Running query:   RUNNING 368.1s
-Running query:   RUNNING 368.9s
-Running query:   RUNNING 369.6s
-Running query:   RUNNING 370.4s
-Running query:   RUNNING 371.1s
-Running query:   RUNNING 371.8s
-Running query:   RUNNING 372.6s
-Running query:   RUNNING 373.4s
-Running query:   RUNNING 374.1s
-Running query:   RUNNING 374.9s
-Running query:   RUNNING 375.6s
-Running query:   RUNNING 376.3s
-Running query:   RUNNING 377.0s
-Running query:   RUNNING 377.8s
-Running query:   RUNNING 378.5s
-Running query:   RUNNING 379.2s
-Running query:   RUNNING 380.0s
-Running query:   RUNNING 380.7s
-Running query:   RUNNING 381.4s
-Running query:   RUNNING 382.3s
-Running query:   RUNNING 383.3s
-Running query:   RUNNING 384.0s
-Running query:   RUNNING 384.8s
-Running query:   RUNNING 385.9s
-Running query:   RUNNING 387.2s
-Running query:   RUNNING 388.8s
-Running query:   RUNNING 390.4s
-Running query:   RUNNING 391.1s
-Running query:   RUNNING 391.9s
-Running query:   RUNNING 393.1s
-Running query:   RUNNING 393.8s
-Running query:   RUNNING 394.5s
-Running query:   RUNNING 395.2s
-Running query:   RUNNING 395.9s
-Running query:   RUNNING 396.7s
-Running query:   RUNNING 397.4s
-Running query:   RUNNING 398.1s
-Running query:   RUNNING 398.9s
-Running query:   RUNNING 399.9s
-Running query:   RUNNING 400.7s
-Running query:   RUNNING 401.4s
-Running query:   RUNNING 402.2s
-Running query:   RUNNING 403.0s
-Running query:   RUNNING 403.7s
-Running query:   RUNNING 404.4s
-Running query:   RUNNING 405.2s
-Running query:   RUNNING 405.9s
-Running query:   RUNNING 406.6s
 ```
 
 ```r
@@ -648,23 +482,17 @@ concordanceResult = cbind(concordanceResult, plate)
 
 ```r
 ggplot(concordanceResult) +
-  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4) +
+  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Concordance") +
   ggtitle("Concordance with Genotyping Data") +
   scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  plot_theme + 
   theme(axis.text.x=element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        axis.ticks = element_blank(),
-        axis.text.x = element_blank(),
-        title=element_text(size=24),
-        legend.text=element_text(size=20)) 
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.2, 0.8))
 ```
 
 <img src="figure/concordance-publication-1.png" title="plot of chunk concordance-publication" alt="plot of chunk concordance-publication" style="display: block; margin: auto;" />
@@ -687,16 +515,11 @@ ggplot(pcaResult, aes(pc1, pc2, color=plate)) +
   xlab("Principal Component 1") + 
   ylab("Principal Component 2") +
   scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  plot_theme +
   theme(axis.text.x=element_blank(),
         axis.text.y=element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.title=element_text(size=22),
-        title=element_text(size=24),
-        legend.text=element_text(size=20)) 
+        axis.ticks=element_blank(),
+        legend.position = c(0.85,0.8))
 ```
 
 <img src="figure/pca-batch-effect-publication-1.png" title="plot of chunk pca-batch-effect-publication" alt="plot of chunk pca-batch-effect-publication" style="display: block; margin: auto;" />
@@ -759,17 +582,12 @@ ibsDataflowDataSubset <- SampleIBSMatrix(ibsDataflowDataSample)
 
 DrawHeatMap <- function(ibsData) {
   p <- ggplot(data=ibsData, aes(x=sample1, y=sample2)) +
-    theme_bw() +
+    plot_theme +
     theme(axis.ticks=element_blank(), 
           axis.text=element_blank(),
           axis.line = element_line(colour = "black"),
           panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(),
-          axis.title=element_text(size=22),
-          legend.text=element_text(size=20),
-          title=element_text(size=24)) +
+          panel.grid.minor = element_blank()) +
     geom_tile(aes(fill=ibsScore), colour="white") +
     scale_fill_gradient(low="white", high="steelblue", na.value="black",
                         guide=guide_colourbar(title= "IBS Score")) +
@@ -850,24 +668,17 @@ joinedResult <- inner_join(result, sampleInfo)
 
 ```r
 ggplot(joinedResult) +
-  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=4) +
+  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Heterozygosity Rate") +
   ggtitle("Heterozygosity Rate on the X Chromosome") +
   scale_colour_brewer(palette="Set1", name="Gender") +
-  theme(axis.text.x=if(nrow(result) <= 20)
-    {element_text(angle = 90, hjust = 1)} else {element_blank()},
-    axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    axis.text=element_text(size=20),
-    axis.ticks = element_blank(),
+  plot_theme +
+  theme(axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title=element_text(size=22),
-    title=element_text(size=24),
-    legend.text=element_text(size=20)) 
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend.position = c(0.85, 0.55))
 ```
 
 <img src="figure/sex-inference-publication-1.png" title="plot of chunk sex-inference-publication" alt="plot of chunk sex-inference-publication" style="display: block; margin: auto;" />
@@ -936,20 +747,11 @@ ORDER BY
 ```r
 ggplot(titvWindowResults, aes(x=window_start, y=titv)) +
   geom_point() +
-  stat_smooth() +
   xlab("Genomic Position") +
   ylab("Ti/Tv") +
   scale_x_continuous(expand = c(0, 0), labels=comma) +
-  ggtitle("Ti/Tv by 100,000 base pair windows\non Chromosome 1") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        title=element_text(size=24))
+  ggtitle("Ti/Tv by 100,000 base pair\nwindows on Chromosome 1") +
+  plot_theme
 ```
 
 <img src="figure/titv-by-genomic-window-publication-1.png" title="plot of chunk titv-by-genomic-window-publication" alt="plot of chunk titv-by-genomic-window-publication" style="display: block; margin: auto;" />
@@ -1012,15 +814,15 @@ GROUP BY
   titv_ratio,
   average_depth,
 
-Retrieving data: 19.5s
-Retrieving data: 27.0s
-Retrieving data: 40.3s
-Retrieving data: 66.3s
-Retrieving data: 89.5s
-Retrieving data: 100.0s
-Retrieving data: 139.5s
-Retrieving data: 170.2s
-Retrieving data: 177.6s
+Retrieving data:  6.1s
+Retrieving data: 11.8s
+Retrieving data: 18.9s
+Retrieving data: 32.3s
+Retrieving data: 39.8s
+Retrieving data: 42.6s
+Retrieving data: 44.9s
+Retrieving data: 48.4s
+Retrieving data: 52.6s
 ```
 
 
@@ -1032,15 +834,8 @@ ggplot(titv, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) +
   ylab("Ti/Tv") +
   theme_bw() +
   scale_x_continuous(expand = c(0, 0)) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        title=element_text(size=24))
+  plot_theme + 
+  theme(legend.position="none")
 ```
 
 <img src="figure/titv-by-depth-publication-1.png" title="plot of chunk titv-by-depth-publication" alt="plot of chunk titv-by-depth-publication" style="display: block; margin: auto;" />

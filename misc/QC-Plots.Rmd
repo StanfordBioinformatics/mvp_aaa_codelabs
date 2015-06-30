@@ -30,6 +30,11 @@ chromosomeLengths <- read.table("http://genome.ucsc.edu/goldenpath/help/hg19.chr
 names(chromosomeLengths) = c("reference_name", "length")
 ```
 
+Plot theme
+```{r}
+plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"))
+```
 
 ## QC Plots
 Tables for sample level qc plots
@@ -51,23 +56,17 @@ concordanceResult = cbind(concordanceResult, plate)
 
 ```{r concordance-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(concordanceResult) +
-  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4) +
+  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Concordance") +
   ggtitle("Concordance with Genotyping Data") +
   scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  plot_theme + 
   theme(axis.text.x=element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        axis.ticks = element_blank(),
-        axis.text.x = element_blank(),
-        title=element_text(size=24),
-        legend.text=element_text(size=20)) 
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = c(0.2, 0.8))
 ```
 
 ####Batch Effect PCA
@@ -86,16 +85,12 @@ ggplot(pcaResult, aes(pc1, pc2, color=plate)) +
   xlab("Principal Component 1") + 
   ylab("Principal Component 2") +
   scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  plot_theme +
   theme(axis.text.x=element_blank(),
         axis.text.y=element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.title=element_text(size=22),
-        title=element_text(size=24),
-        legend.text=element_text(size=20)) 
+        axis.ticks=element_blank(),
+        legend.position = c(0.85,0.8))
+
 ```
 
 #### IBS
@@ -155,17 +150,12 @@ ibsDataflowDataSubset <- SampleIBSMatrix(ibsDataflowDataSample)
 
 DrawHeatMap <- function(ibsData) {
   p <- ggplot(data=ibsData, aes(x=sample1, y=sample2)) +
-    theme_bw() +
+    plot_theme +
     theme(axis.ticks=element_blank(), 
           axis.text=element_blank(),
           axis.line = element_line(colour = "black"),
           panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(),
-          axis.title=element_text(size=22),
-          legend.text=element_text(size=20),
-          title=element_text(size=24)) +
+          panel.grid.minor = element_blank()) +
     geom_tile(aes(fill=ibsScore), colour="white") +
     scale_fill_gradient(low="white", high="steelblue", na.value="black",
                         guide=guide_colourbar(title= "IBS Score")) +
@@ -191,24 +181,17 @@ joinedResult <- inner_join(result, sampleInfo)
 
 ```{r sex-inference-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(joinedResult) +
-  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=4) +
+  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Heterozygosity Rate") +
   ggtitle("Heterozygosity Rate on the X Chromosome") +
   scale_colour_brewer(palette="Set1", name="Gender") +
-  theme(axis.text.x=if(nrow(result) <= 20)
-    {element_text(angle = 90, hjust = 1)} else {element_blank()},
-    axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    axis.text=element_text(size=20),
-    axis.ticks = element_blank(),
+  plot_theme +
+  theme(axis.ticks.x = element_blank(),
     axis.text.x = element_blank(),
-    axis.title=element_text(size=22),
-    title=element_text(size=24),
-    legend.text=element_text(size=20)) 
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend.position = c(0.85, 0.55))
 ```
 
 
@@ -232,20 +215,11 @@ titvWindowResults <- DisplayAndDispatchQuery("../sql/ti-tv-ratio.sql",
 ```{r titv-by-genomic-window-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(titvWindowResults, aes(x=window_start, y=titv)) +
   geom_point() +
-  stat_smooth() +
   xlab("Genomic Position") +
   ylab("Ti/Tv") +
   scale_x_continuous(expand = c(0, 0), labels=comma) +
-  ggtitle("Ti/Tv by 100,000 base pair windows\non Chromosome 1") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        title=element_text(size=24))
+  ggtitle("Ti/Tv by 100,000 base pair\nwindows on Chromosome 1") +
+  plot_theme
 ```
 
 #### Ti/Tv By Depth
@@ -264,15 +238,8 @@ ggplot(titv, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) +
   ylab("Ti/Tv") +
   theme_bw() +
   scale_x_continuous(expand = c(0, 0)) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        title=element_text(size=24))
+  plot_theme + 
+  theme(legend.position="none")
 ```
 
 

@@ -3,6 +3,12 @@
 ## Setup
 
 
+Plot theme
+
+```r
+plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"))
+```
 
 ## Biological Query Plots
 Tables for biological queries
@@ -13,6 +19,8 @@ queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc"
                           "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
                           "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
 ```
+
+
 
 #### Genotype Counts
 
@@ -68,15 +76,8 @@ ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
   ylab("SNV Count") + 
-  scale_y_continuous(labels=comma, expand = c(0, 0)) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  scale_y_continuous(labels=comma, expand = c(0, 0)) + 
+  plot_theme
 ```
 
 <img src="figure/genotype-counts-publication-1.png" title="plot of chunk genotype-counts-publication" alt="plot of chunk genotype-counts-publication" style="display: block; margin: auto;" />
@@ -145,42 +146,26 @@ indels <- indels[complete.cases(indels),]
 
 
 ```r
-ggplot(data=snps, aes(y=scaled_count, x=reference_name)) + 
-  geom_point() + 
-  ylab("Scaled SNV Count") +
+ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
+  geom_point(size=4) + 
+  ylab("SNV Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
-  theme(text = element_text(size=12), 
-        axis.text.x = element_text(angle=90, vjust=1),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=24)) 
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=1)) 
 ```
 
 <img src="figure/snv-counts-publication-1.png" title="plot of chunk snv-counts-publication" alt="plot of chunk snv-counts-publication" style="display: block; margin: auto;" />
 
 
 ```r
-ggplot(data=indels, aes(y=scaled_count, x=reference_name)) + 
-  geom_point() + 
-  ylab("Scaled Indel Count") +
+ggplot(data=indels, aes(y=Cnt, x=reference_name)) + 
+  geom_point(size=4) + 
+  ylab("Indel Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
-  theme(text = element_text(size=12), 
-        axis.text.x = element_text(angle=90, vjust=1),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=1)) 
 ```
 
 <img src="figure/indel-counts-publication-1.png" title="plot of chunk indel-counts-publication" alt="plot of chunk indel-counts-publication" style="display: block; margin: auto;" />
@@ -203,14 +188,7 @@ ggplot(saturation_rate) +
   xlab("Number of Genomes") +
   ylab("Unique SNVs") +
   scale_y_continuous(label=comma) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  plot_theme
 ```
 
 <img src="figure/saturation-publication-1.png" title="plot of chunk saturation-publication" alt="plot of chunk saturation-publication" style="display: block; margin: auto;" />

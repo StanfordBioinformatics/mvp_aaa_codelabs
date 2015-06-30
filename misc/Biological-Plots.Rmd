@@ -30,6 +30,11 @@ chromosomeLengths <- read.table("http://genome.ucsc.edu/goldenpath/help/hg19.chr
 names(chromosomeLengths) = c("reference_name", "length")
 ```
 
+Plot theme
+```{r}
+plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"))
+```
 
 ## Biological Query Plots
 Tables for biological queries
@@ -39,6 +44,8 @@ queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc"
                           "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
                           "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
 ```
+
+
 
 #### Genotype Counts
 ```{r message=FALSE, warning=FALSE, comment=NA}
@@ -53,15 +60,8 @@ ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
   ylab("SNV Count") + 
-  scale_y_continuous(labels=comma, expand = c(0, 0)) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  scale_y_continuous(labels=comma, expand = c(0, 0)) + 
+  plot_theme
 ```
 
 #### Variant Counts By Chromosome
@@ -87,39 +87,23 @@ indels <- indels[complete.cases(indels),]
 ```
 
 ```{r snv-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(data=snps, aes(y=scaled_count, x=reference_name)) + 
-  geom_point() + 
-  ylab("Scaled SNV Count") +
+ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
+  geom_point(size=4) + 
+  ylab("SNV Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
-  theme(text = element_text(size=12), 
-        axis.text.x = element_text(angle=90, vjust=1),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=24)) 
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=1)) 
 ```
 
 ```{r indel-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(data=indels, aes(y=scaled_count, x=reference_name)) + 
-  geom_point() + 
-  ylab("Scaled Indel Count") +
+ggplot(data=indels, aes(y=Cnt, x=reference_name)) + 
+  geom_point(size=4) + 
+  ylab("Indel Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
-  theme(text = element_text(size=12), 
-        axis.text.x = element_text(angle=90, vjust=1),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=1)) 
 ```
 
 #### Saturation Rate
@@ -139,12 +123,5 @@ ggplot(saturation_rate) +
   xlab("Number of Genomes") +
   ylab("Unique SNVs") +
   scale_y_continuous(label=comma) +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.text=element_text(size=20),
-        axis.title=element_text(size=22),
-        legend.text=element_text(size=20)) 
+  plot_theme
 ```
