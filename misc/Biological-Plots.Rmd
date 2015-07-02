@@ -15,12 +15,7 @@ project <- "gbsc-gcp-project-mvp"
 
 # Set up for BigQuery access.
 source("../rHelpers/setup.R")
-
-# Define Query Substitutions
-queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs",
-                          "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java2",
-                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
-                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
+source("../rHelpers/multiplot.R")
 
 # Read in sample information
 sampleData <- read.csv("../data/patient_info.csv")
@@ -42,7 +37,9 @@ Tables for biological queries
 queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc",
                           "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.multi_sample_variants_full_qc",
                           "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
-                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data")
+                          "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data",
+                          "_ANNOVAR_TABLE_"="resources.annovar_hg19_aaa",
+                          "_CHR_LENGTHS_"="stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns")
 ```
 
 
@@ -56,12 +53,13 @@ genotypeCountResult <- genotypeCountResult[complete.cases(genotypeCountResult),]
 ```
 
 ```{r genotype-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(genotypeCountResult) +
+counts = ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
   ylab("SNV Count") + 
   scale_y_continuous(labels=comma, expand = c(0, 0)) + 
   plot_theme
+counts
 ```
 
 #### Variant Counts By Chromosome
@@ -87,41 +85,242 @@ indels <- indels[complete.cases(indels),]
 ```
 
 ```{r snv-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
+snvs = ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
   geom_point(size=4) + 
   ylab("SNV Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
   plot_theme +
   theme(axis.text.x = element_text(angle=90, vjust=1)) 
+snvs
 ```
 
 ```{r indel-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(data=indels, aes(y=Cnt, x=reference_name)) + 
+indels = ggplot(data=indels, aes(y=Cnt, x=reference_name)) + 
   geom_point(size=4) + 
   ylab("Indel Count") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
   plot_theme +
   theme(axis.text.x = element_text(angle=90, vjust=1)) 
+indels
 ```
 
 #### Saturation Rate
 ```{r message=FALSE, warning=FALSE, comment=NA}
 # Need to redo queries for this
-genome_count = c(1,2,3,4,5,10,50,100,200,300,400,478)
-snv_count = c(3590360,4847512,5627244,6158953,6616457,
+genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,478)
+snvCount = c(3590360,4847512,5627244,6158953,6616457,
               8014799,11841547,14387937,18693833,21567571,23638061,25890797)
-saturation_rate = data_frame(genome_count, snv_count)
-
+saturationRate = data_frame(genomeCount, snvCount)
 ```
 
 
 ```{r saturation-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(saturation_rate) +
-  geom_point(aes(x=genome_count, y=snv_count), size=4) +
+saturation = ggplot(saturationRate) +
+  geom_point(aes(x=genomeCount, y=snvCount), size=4) +
   xlab("Number of Genomes") +
   ylab("Unique SNVs") +
   scale_y_continuous(label=comma) +
   plot_theme
+saturation
+```
+
+## Multiplot
+```{r variant-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+multiplot(snvs,indels, counts, saturation, cols=2)
+```
+
+#### Ti/Tv for SNVs
+```{r message=FALSE, warning=FALSE, comment=NA}
+titvBySample <- DisplayAndDispatchQuery("../sql/titv-by-sample.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```{r titv-by-sample, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+titv = ggplot(titvBySample) +
+  geom_boxplot(aes(x="SNV", y=titv)) +
+  xlab("Sample") +
+  ylab("ti/tv") +
+  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.text.x=element_blank())
+titv
+```
+
+#### Het/Hom for SNVs
+```{r message=FALSE, warning=FALSE, comment=NA}
+hetHomSnv <- DisplayAndDispatchQuery("../sql/hethom-snv.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```{r hethom-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+hethom= ggplot(hetHomSnv) +
+  geom_boxplot(aes(x="SNV", y=Het_Hom_ratio)) +
+  xlab("Sample") +
+  ylab("het/hom") +
+  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.text.x=element_blank())
+hethom
+```
+
+#### SNVs in dbSNP
+```{r message=FALSE, warning=FALSE, comment=NA}
+dbSNPcount <- DisplayAndDispatchQuery("../sql/dbsnp-count.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+dbSNPcount$proportion = dbSNPcount$num_VAR_dbSNP/dbSNPcount$num_VAR
+```
+
+```{r dbsnp-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+dbSNP = ggplot(dbSNPcount) +
+  geom_boxplot(aes(x=VAR_type, y=proportion)) +
+  xlab("Sample") +
+  ylab("Proportion of Variants in dbSNP") +
+  scale_y_continuous(label=comma) +
+  theme_minimal(base_size = 18, base_family = "Helvetica") 
+dbSNP
+```
+
+#### Private SNV Counts
+```{r message=FALSE, warning=FALSE, comment=NA}
+privateSNVs <- DisplayAndDispatchQuery("../sql/private-snv-counts.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```{r private-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+privateVariants = ggplot(privateSNVs) +
+  geom_boxplot(aes(x="SNV", y=private_SNVs_count)) +
+  xlab("Sample") +
+  ylab("Private Variants") +
+  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(axis.text.x=element_blank())
+privateVariants 
+```
+
+## Multiplot
+```{r boxplots-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
+```
+
+#### Variant Rarity
+```{r message=FALSE, warning=FALSE, comment=NA}
+rarity <- DisplayAndDispatchQuery("../sql/variant-rarity.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+
+rarity$total = sapply(1:nrow(rarity), function(x){
+  chr = rarity[x,]$reference_name
+  variantCount = sum(rarity[rarity$reference_name == chr,]$count)
+  variantCount
+})
+rarity$proportion = rarity$count/rarity$total
+rarity$reference_name <- factor(rarity$reference_name, levels=chromosomes)
+rarity$rarity <- factor(rarity$rarity, levels = c("very_rare", "rare", "relatively_common", "common"), ordered=TRUE)
+```
+
+```{r variant-rarity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(rarity) +
+  geom_bar(aes(factor(reference_name), proportion, fill=rarity, order=rarity), stat='identity', position='stack') +
+  guides(fill = guide_legend(reverse=TRUE)) +
+  xlab("Chromosome") +
+  ylab("Proportion") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_brewer(palette=6) +
+  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  theme(panel.grid=element_blank(),
+        axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        legend.title=element_blank())
+
+rarityPlot
+```
+
+#### Regional Variant Count
+```{r message=FALSE, warning=FALSE, comment=NA}
+regionalCounts <- DisplayAndDispatchQuery("../sql/regional-variant-count.sql",
+                                              project=project,
+                                              replacements=queryReplacements,
+                                              max=Inf)
+regionalCounts$Chromosome <- factor(regionalCounts$Chromosome, levels=chromosomes)
+regionalCounts$scaled <- regionalCounts$cnt/regionalCounts$chromosome_length
+regionalCounts <- regionalCounts[complete.cases(regionalCounts),]
+```
+
+```{r exonic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+exonic = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="exonic"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in Exonic Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+exonic
+```
+
+```{r intronic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+intronic = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="intronic"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in Intronic Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+intronic
+```
+
+```{r utr3, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+utr3 = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="UTR3"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in UTR3 Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+utr3
+```
+
+```{r utr5, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+utr5 = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="UTR5"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in UTR5 Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+utr5
+```
+
+```{r intergenic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+intergenic = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="intergenic"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in Intergenic Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+intergenic
+```
+
+```{r splicing, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+splicing = ggplot(regionalCounts) +
+  geom_boxplot(data=subset(regionalCounts,region=="splicing"), aes(Chromosome,scaled)) +
+  ggtitle("Variants in Splicing Regions") +
+  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title=element_blank())
+splicing
+```
+
+#### Multiplot
+```{r regional-counts, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
