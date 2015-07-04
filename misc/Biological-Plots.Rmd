@@ -1,4 +1,13 @@
-# Publication Plots - Biological
+# Biological Plots
+
+* [Setup](#setup)
+* [Genotype Distribution](#genotype-distribution)
+* [Callability](#callability)
+* [WGS Statistics](#wgs-statistics)
+* [Allele Frequency Distribution](#allele-frequency)
+* [BRCA1 Mutation Spectrum](#brca1-mutation-spectrum)
+* [Variant Distribution](#variant-distribution)
+* [Pathogenic Variants on ACMG Genes](#acgm-genes)
 
 ## Setup
 ```{r echo=FALSE, eval=FALSE}
@@ -27,11 +36,10 @@ names(chromosomeLengths) = c("reference_name", "length")
 
 Plot theme
 ```{r}
-plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
   theme(axis.line = element_line(colour = "black"))
 ```
 
-## Biological Query Plots
 Tables for biological queries
 ```{r}
 queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc",
@@ -39,12 +47,15 @@ queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc"
                           "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
                           "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data",
                           "_ANNOVAR_TABLE_"="resources.annovar_hg19_aaa",
-                          "_CHR_LENGTHS_"="stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns")
+                          "_CHR_LENGTHS_"="stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns",
+                          "_PATIENT_INFO_"="va_aaa_pilot_data.patient_info",
+                          "_ACMG_GENES_"="stanford.edu:gbsc-stanford-google:resources.56ACMGgenes_Tx")
 ```
 
 
 
-#### Genotype Counts
+## Genotype Distribution
+#### Genotype Counts per Chromosome
 ```{r message=FALSE, warning=FALSE, comment=NA}
 genotypeCountResult <- DisplayAndDispatchQuery("../sql/genotype-counts.sql",
                                                project=project,
@@ -126,11 +137,42 @@ saturation = ggplot(saturationRate) +
 saturation
 ```
 
-## Multiplot
+#### Multiplot
 ```{r variant-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(snvs,indels, counts, saturation, cols=2)
 ```
 
+#### Callability
+```{r message=FALSE, warning=FALSE, comment=NA}
+callability <- DisplayAndDispatchQuery("../sql/callability.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+Setup
+```{r}
+sample = 'LP6005038-DNA_A01'
+selection = callability[callability$call_call_set_name == sample,]
+selection$reference_name <- factor(selection$reference_name, levels=chromosomes)
+selection <- selection[complete.cases(selection),]
+
+faceted = melt(selection, id.vars="reference_name",measure.vars=c("prop_w_point_ino","pos_no_point_info"))
+
+levels(faceted$variable) <- c("Proportion of Positions Called", "Number of Missing Positions")
+```
+
+```{r callability, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(faceted) + 
+  geom_bar(aes(reference_name,value), stat="identity") +
+  facet_grid(variable ~ ., scales="free_y") +
+  scale_y_continuous(labels=comma, expand=c(0,0)) +
+  plot_theme +
+  xlab("Chromosome") +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  axis.title.y=element_blank())
+```
+
+## WGS Statistics
 #### Ti/Tv for SNVs
 ```{r message=FALSE, warning=FALSE, comment=NA}
 titvBySample <- DisplayAndDispatchQuery("../sql/titv-by-sample.sql",
@@ -200,12 +242,12 @@ privateVariants = ggplot(privateSNVs) +
 privateVariants 
 ```
 
-## Multiplot
+#### Multiplot
 ```{r boxplots-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 ```
 
-#### Variant Rarity
+## Allele Frequency Distribution
 ```{r message=FALSE, warning=FALSE, comment=NA}
 rarity <- DisplayAndDispatchQuery("../sql/variant-rarity.sql",
                                               project=project,
@@ -233,11 +275,73 @@ ggplot(rarity) +
   theme(panel.grid=element_blank(),
         axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         legend.title=element_blank())
-
-rarityPlot
 ```
 
-#### Regional Variant Count
+## BRCA1 Mutation Spectrum
+```{r}
+require(NMF)
+require(RColorBrewer)
+```
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-brca1.sql",
+                                              project=project,
+                                              replacements=queryReplacements,
+                                              max=Inf)
+```
+
+Get Patient Info
+```{r message=FALSE, warning=FALSE, comment=NA}
+patientInfo <- DisplayAndDispatchQuery("../sql/patient-info.sql",
+                                              project=project,
+                                              replacements=queryReplacements,
+                                              max=Inf)
+```
+
+Get z scores
+```{r}
+mutationSpectrum$zscores = sapply(1:nrow(mutationSpectrum), function(x){
+  count = mutationSpectrum[x,]$num_variants_in_window
+  sample = mutationSpectrum[x,]$call_call_set_name
+  mean = mean(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window)
+  sd = sd(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window) 
+  
+  z = (count-mean)/sd
+  z
+})
+```
+
+Convert mutation information to matrix 
+```{r}
+spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
+spectrum[is.na(spectrum)] <- 0
+
+annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
+annotations = annotations[order(annotations$COHORT),]
+spectrum = spectrum[annotations$sample_id,]
+
+spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
+rownames(spectrumMatrix) = spectrum$call_call_set_name
+```
+
+Set up for plot
+```{r}
+sampleIds = data.frame(rownames(spectrumMatrix))
+names(sampleIds) = 'sample_id'
+
+colors = c("blue", "red")
+names(colors) = c("CASE", "CONTROL")
+annotationColors = list(Cohort=colors)
+
+cohort = data.frame(annotations$COHORT)
+names(cohort) = "Cohort"
+```
+
+```{r mutation-spectrum, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+aheatmap(t(spectrumMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Mutation Spectrum in BRCA1", annColors="Set2", fontsize=14)
+```
+
+## Variant Distribution
 ```{r message=FALSE, warning=FALSE, comment=NA}
 regionalCounts <- DisplayAndDispatchQuery("../sql/regional-variant-count.sql",
                                               project=project,
@@ -248,6 +352,7 @@ regionalCounts$scaled <- regionalCounts$cnt/regionalCounts$chromosome_length
 regionalCounts <- regionalCounts[complete.cases(regionalCounts),]
 ```
 
+#### Exonic
 ```{r exonic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 exonic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="exonic"), aes(Chromosome,scaled)) +
@@ -260,6 +365,7 @@ exonic = ggplot(regionalCounts) +
 exonic
 ```
 
+#### Intronic
 ```{r intronic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 intronic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intronic"), aes(Chromosome,scaled)) +
@@ -272,6 +378,7 @@ intronic = ggplot(regionalCounts) +
 intronic
 ```
 
+#### UTR3
 ```{r utr3, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 utr3 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR3"), aes(Chromosome,scaled)) +
@@ -284,6 +391,7 @@ utr3 = ggplot(regionalCounts) +
 utr3
 ```
 
+#### UTR5
 ```{r utr5, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 utr5 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR5"), aes(Chromosome,scaled)) +
@@ -296,6 +404,7 @@ utr5 = ggplot(regionalCounts) +
 utr5
 ```
 
+#### Intergenic
 ```{r intergenic, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 intergenic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intergenic"), aes(Chromosome,scaled)) +
@@ -308,6 +417,7 @@ intergenic = ggplot(regionalCounts) +
 intergenic
 ```
 
+#### Splicing
 ```{r splicing, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 splicing = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="splicing"), aes(Chromosome,scaled)) +
@@ -324,3 +434,55 @@ splicing
 ```{r regional-counts, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
+
+## Pathogenic Variants on ACMG Genes
+```{r message=FALSE, warning=FALSE, comment=NA}
+acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-variants.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+#### Setup
+Get z scores
+```{r}
+acmgVariants$zscores = sapply(1:nrow(acmgVariants), function(x){
+  count = acmgVariants[x,]$Cnt_var
+  sample = acmgVariants[x,]$Sample_id
+  mean = mean(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var)
+  sd = sd(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var) 
+  z = (count-mean)/sd
+  z
+})
+```
+
+```{r}
+acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "zscores", na.rm=TRUE)
+sampleIds = data.frame(acmgExpanded$Sample_id)
+names(sampleIds) = "sample_id"
+annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
+annotations = annotations[order(annotations$COHORT),]
+acmgExpanded = acmgExpanded[annotations$sample_id,]
+acmgExpanded[is.na(acmgExpanded)] <- 0
+acmgMatrix = as.matrix(acmgExpanded[,!colnames(acmgExpanded) %in% c("Sample_id")])
+rownames(acmgMatrix) = acmgExpanded$Sample_id
+```
+
+Set up for plot
+```{r}
+sampleIds = data.frame(rownames(acmgMatrix))
+names(sampleIds) = 'sample_id'
+
+colors = c("blue", "red")
+names(colors) = c("CASE", "CONTROL")
+annotationColors = list(Cohort=colors)
+
+cohort = data.frame(annotations$COHORT)
+names(cohort) = "Cohort"
+```
+
+```{r acmg-variants, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+aheatmap(t(acmgMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic Variants Within ACMG Genes", annColors="Set2", fontsize=14, breaks=0)
+```
+
+
+

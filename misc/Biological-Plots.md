@@ -1,4 +1,13 @@
-# Publication Plots - Biological
+# Biological Plots
+
+* [Setup](#setup)
+* [Genotype Distribution](#genotype-distribution)
+* [Callability](#callability)
+* [WGS Statistics](#wgs-statistics)
+* [Allele Frequency Distribution](#allele-frequency)
+* [BRCA1 Mutation Spectrum](#brca1-mutation-spectrum)
+* [Variant Distribution](#variant-distribution)
+* [Pathogenic Variants on ACMG Genes](#acgm-genes)
 
 ## Setup
 
@@ -6,11 +15,10 @@
 Plot theme
 
 ```r
-plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
   theme(axis.line = element_line(colour = "black"))
 ```
 
-## Biological Query Plots
 Tables for biological queries
 
 ```r
@@ -19,12 +27,15 @@ queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc"
                           "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
                           "_GENOTYPING_TABLE_"="va_aaa_pilot_data.genotyping_data",
                           "_ANNOVAR_TABLE_"="resources.annovar_hg19_aaa",
-                          "_CHR_LENGTHS_"="stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns")
+                          "_CHR_LENGTHS_"="stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns",
+                          "_PATIENT_INFO_"="va_aaa_pilot_data.patient_info",
+                          "_ACMG_GENES_"="stanford.edu:gbsc-stanford-google:resources.56ACMGgenes_Tx")
 ```
 
 
 
-#### Genotype Counts
+## Genotype Distribution
+#### Genotype Counts per Chromosome
 
 ```r
 genotypeCountResult <- DisplayAndDispatchQuery("../sql/genotype-counts.sql",
@@ -70,6 +81,68 @@ GROUP BY
 Genotype
 ORDER BY
 Genotype
+Running query:   RUNNING  2.6s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.9s
+Running query:   RUNNING  4.5s
+Running query:   RUNNING  5.2s
+Running query:   RUNNING  5.8s
+Running query:   RUNNING  6.4s
+Running query:   RUNNING  7.1s
+Running query:   RUNNING  7.7s
+Running query:   RUNNING  8.4s
+Running query:   RUNNING  9.0s
+Running query:   RUNNING  9.6s
+Running query:   RUNNING 10.3s
+Running query:   RUNNING 11.0s
+Running query:   RUNNING 11.6s
+Running query:   RUNNING 12.3s
+Running query:   RUNNING 12.9s
+Running query:   RUNNING 13.5s
+Running query:   RUNNING 14.2s
+Running query:   RUNNING 14.8s
+Running query:   RUNNING 15.5s
+Running query:   RUNNING 16.1s
+Running query:   RUNNING 16.7s
+Running query:   RUNNING 17.4s
+Running query:   RUNNING 18.1s
+Running query:   RUNNING 18.7s
+Running query:   RUNNING 19.3s
+Running query:   RUNNING 19.9s
+Running query:   RUNNING 20.6s
+Running query:   RUNNING 21.2s
+Running query:   RUNNING 21.8s
+Running query:   RUNNING 22.4s
+Running query:   RUNNING 23.1s
+Running query:   RUNNING 23.7s
+Running query:   RUNNING 24.3s
+Running query:   RUNNING 24.9s
+Running query:   RUNNING 25.6s
+Running query:   RUNNING 26.3s
+Running query:   RUNNING 26.9s
+Running query:   RUNNING 27.5s
+Running query:   RUNNING 28.2s
+Running query:   RUNNING 28.8s
+Running query:   RUNNING 29.5s
+Running query:   RUNNING 30.1s
+Running query:   RUNNING 30.8s
+Running query:   RUNNING 31.4s
+Running query:   RUNNING 32.0s
+Running query:   RUNNING 32.7s
+Running query:   RUNNING 33.3s
+Running query:   RUNNING 33.9s
+Running query:   RUNNING 34.6s
+Running query:   RUNNING 35.2s
+Running query:   RUNNING 35.8s
+Running query:   RUNNING 36.4s
+Running query:   RUNNING 37.1s
+Running query:   RUNNING 37.7s
+Running query:   RUNNING 38.4s
+Running query:   RUNNING 39.0s
+Running query:   RUNNING 39.6s
+Running query:   RUNNING 40.2s
+Running query:   RUNNING 40.9s
+Running query:   RUNNING 41.5s
 ```
 
 ```r
@@ -139,6 +212,24 @@ VAR_type
 ORDER BY
 reference_name,
 VAR_type
+
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.5s
+Running query:   RUNNING  5.2s
+Running query:   RUNNING  5.8s
+Running query:   RUNNING  6.4s
+Running query:   RUNNING  7.1s
+Running query:   RUNNING  7.7s
+Running query:   RUNNING  8.3s
+Running query:   RUNNING  9.0s
+Running query:   RUNNING  9.6s
+Running query:   RUNNING 10.2s
+Running query:   RUNNING 10.8s
+Running query:   RUNNING 11.5s
+Running query:   RUNNING 12.1s
+Running query:   RUNNING 12.7s
 ```
 
 ```r
@@ -207,7 +298,7 @@ saturation
 
 <img src="figure/saturation-publication-1.png" title="plot of chunk saturation-publication" alt="plot of chunk saturation-publication" style="display: block; margin: auto;" />
 
-## Multiplot
+#### Multiplot
 
 ```r
 multiplot(snvs,indels, counts, saturation, cols=2)
@@ -215,6 +306,132 @@ multiplot(snvs,indels, counts, saturation, cols=2)
 
 <img src="figure/variant-multiplot-publication-1.png" title="plot of chunk variant-multiplot-publication" alt="plot of chunk variant-multiplot-publication" style="display: block; margin: auto;" />
 
+#### Callability
+
+```r
+callability <- DisplayAndDispatchQuery("../sql/callability.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```
+SELECT
+call.call_set_name,
+reference_name,
+contig.len,
+num_SNVs,
+num_REFs,
+(num_SNVs + num_REFs) AS num_called_point_pos,
+ROUND((num_SNVs + num_REFs) / contig.len, 3) AS prop_w_point_ino,
+(contig.len - (num_SNVs + num_REFs)) AS pos_no_point_info,
+ROUND((contig.len - (num_SNVs + num_REFs)) / contig.len, 3) prop_no_point_info
+FROM
+(
+  SELECT
+  call.call_set_name,
+  reference_name,
+  assembly.LENGTH AS contig.len,
+  SUM(call.FILTER="PASS" AND (LENGTH(reference_bases)=1 AND (LENGTH(alternates)=1 OR (LENGTH(alternates)=3 AND alternates CONTAINS ",")))) AS num_SNVs,
+  SUM(IF (genotypes=="0/0", (end - start), 0)) AS num_REFs
+  FROM (
+    SELECT
+    call.call_set_name,
+    reference_name,
+    start,
+    end,
+    reference_bases,
+    GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
+    GROUP_CONCAT(STRING(call.genotype), "/") WITHIN call AS genotypes,
+    GROUP_CONCAT(call.QC) WITHIN call AS call_qc,
+    GROUP_CONCAT(QC) WITHIN RECORD AS cohort_qc,
+    call.FILTER
+    FROM 
+    [va_aaa_pilot_data.genome_calls_full_qc]
+    OMIT
+    call IF SOME(call.QC IS NOT NULL)
+    HAVING
+    cohort_qc IS NULL
+  ) AS geno
+  JOIN 
+  [stanford.edu:gbsc-stanford-google:resources.hg19_Assembly_BinaRuns] AS assembly
+  ON
+  geno.reference_name = assembly.CHR
+  GROUP BY
+  call.call_set_name,
+  reference_name,
+  contig.len
+)
+ORDER BY
+call.call_set_name,
+reference_name,
+Running query:   RUNNING  2.6s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.4s
+Running query:   RUNNING  5.0s
+Running query:   RUNNING  5.7s
+Running query:   RUNNING  6.3s
+Running query:   RUNNING  6.9s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.1s
+Running query:   RUNNING  8.8s
+Running query:   RUNNING  9.4s
+Running query:   RUNNING 10.0s
+Running query:   RUNNING 10.7s
+Running query:   RUNNING 11.3s
+Running query:   RUNNING 11.9s
+Running query:   RUNNING 12.5s
+Running query:   RUNNING 13.2s
+Running query:   RUNNING 13.8s
+Running query:   RUNNING 14.4s
+Running query:   RUNNING 15.0s
+Running query:   RUNNING 15.7s
+Running query:   RUNNING 16.3s
+Running query:   RUNNING 16.9s
+Running query:   RUNNING 17.5s
+Running query:   RUNNING 18.2s
+Running query:   RUNNING 18.8s
+Running query:   RUNNING 19.4s
+Running query:   RUNNING 20.0s
+Running query:   RUNNING 20.7s
+Running query:   RUNNING 21.3s
+Running query:   RUNNING 21.9s
+Running query:   RUNNING 22.5s
+
+Retrieving data:  2.6s
+Retrieving data:  4.6s
+Retrieving data:  6.6s
+Retrieving data:  8.4s
+```
+
+Setup
+
+```r
+sample = 'LP6005038-DNA_A01'
+selection = callability[callability$call_call_set_name == sample,]
+selection$reference_name <- factor(selection$reference_name, levels=chromosomes)
+selection <- selection[complete.cases(selection),]
+
+faceted = melt(selection, id.vars="reference_name",measure.vars=c("prop_w_point_ino","pos_no_point_info"))
+
+levels(faceted$variable) <- c("Proportion of Positions Called", "Number of Missing Positions")
+```
+
+
+```r
+ggplot(faceted) + 
+  geom_bar(aes(reference_name,value), stat="identity") +
+  facet_grid(variable ~ ., scales="free_y") +
+  scale_y_continuous(labels=comma, expand=c(0,0)) +
+  plot_theme +
+  xlab("Chromosome") +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  axis.title.y=element_blank())
+```
+
+<img src="figure/callability-1.png" title="plot of chunk callability" alt="plot of chunk callability" style="display: block; margin: auto;" />
+
+## WGS Statistics
 #### Ti/Tv for SNVs
 
 ```r
@@ -257,6 +474,18 @@ FROM
   GROUP BY
   call.call_set_name
 )
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.9s
+Running query:   RUNNING  5.5s
+Running query:   RUNNING  6.2s
+Running query:   RUNNING  6.8s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.1s
+Running query:   RUNNING  8.7s
+Running query:   RUNNING  9.4s
+Running query:   RUNNING 10.0s
 ```
 
 
@@ -323,6 +552,56 @@ all_SNV_count,
 Het_Hom_ratio
 ORDER BY
 sample.id;
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.1s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.4s
+Running query:   RUNNING  5.0s
+Running query:   RUNNING  5.7s
+Running query:   RUNNING  6.3s
+Running query:   RUNNING  6.9s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.2s
+Running query:   RUNNING  8.8s
+Running query:   RUNNING  9.4s
+Running query:   RUNNING 10.0s
+Running query:   RUNNING 10.6s
+Running query:   RUNNING 11.3s
+Running query:   RUNNING 11.9s
+Running query:   RUNNING 12.5s
+Running query:   RUNNING 13.2s
+Running query:   RUNNING 13.8s
+Running query:   RUNNING 14.4s
+Running query:   RUNNING 15.0s
+Running query:   RUNNING 15.7s
+Running query:   RUNNING 16.3s
+Running query:   RUNNING 16.9s
+Running query:   RUNNING 17.5s
+Running query:   RUNNING 18.2s
+Running query:   RUNNING 18.8s
+Running query:   RUNNING 19.4s
+Running query:   RUNNING 20.0s
+Running query:   RUNNING 20.6s
+Running query:   RUNNING 21.3s
+Running query:   RUNNING 21.9s
+Running query:   RUNNING 22.5s
+Running query:   RUNNING 23.1s
+Running query:   RUNNING 23.7s
+Running query:   RUNNING 24.4s
+Running query:   RUNNING 25.0s
+Running query:   RUNNING 25.6s
+Running query:   RUNNING 26.2s
+Running query:   RUNNING 26.9s
+Running query:   RUNNING 27.5s
+Running query:   RUNNING 28.1s
+Running query:   RUNNING 28.7s
+Running query:   RUNNING 29.3s
+Running query:   RUNNING 30.0s
+Running query:   RUNNING 30.6s
+Running query:   RUNNING 31.2s
+Running query:   RUNNING 31.8s
+Running query:   RUNNING 32.4s
+Running query:   RUNNING 33.1s
 ```
 
 
@@ -381,6 +660,27 @@ VAR_type
 ORDER BY
 sample_id,
 VAR_type
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.2s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.5s
+Running query:   RUNNING  5.1s
+Running query:   RUNNING  5.7s
+Running query:   RUNNING  6.3s
+Running query:   RUNNING  6.9s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.2s
+Running query:   RUNNING  8.8s
+Running query:   RUNNING  9.4s
+Running query:   RUNNING 10.0s
+Running query:   RUNNING 10.6s
+Running query:   RUNNING 11.3s
+Running query:   RUNNING 11.9s
+Running query:   RUNNING 12.5s
+Running query:   RUNNING 13.1s
+Running query:   RUNNING 13.7s
+Running query:   RUNNING 14.4s
+Running query:   RUNNING 15.0s
 ```
 
 ```r
@@ -432,6 +732,13 @@ GROUP EACH BY
 sample_id
 ORDER BY
 sample_id ASC;
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.1s
+Running query:   RUNNING  3.7s
+Running query:   RUNNING  4.3s
+Running query:   RUNNING  5.0s
+Running query:   RUNNING  5.6s
+Running query:   RUNNING  6.2s
 ```
 
 
@@ -447,7 +754,7 @@ privateVariants
 
 <img src="figure/private-snv-1.png" title="plot of chunk private-snv" alt="plot of chunk private-snv" style="display: block; margin: auto;" />
 
-## Multiplot
+#### Multiplot
 
 ```r
 multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
@@ -455,7 +762,7 @@ multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 
 <img src="figure/boxplots-multiplot-publication-1.png" title="plot of chunk boxplots-multiplot-publication" alt="plot of chunk boxplots-multiplot-publication" style="display: block; margin: auto;" />
 
-#### Variant Rarity
+## Allele Frequency Distribution
 
 ```r
 rarity <- DisplayAndDispatchQuery("../sql/variant-rarity.sql",
@@ -524,6 +831,27 @@ rarity
 ORDER BY
 reference_name,
 rarity
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.1s
+Running query:   RUNNING  3.7s
+Running query:   RUNNING  4.3s
+Running query:   RUNNING  5.0s
+Running query:   RUNNING  5.6s
+Running query:   RUNNING  6.2s
+Running query:   RUNNING  6.8s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.1s
+Running query:   RUNNING  8.7s
+Running query:   RUNNING  9.3s
+Running query:   RUNNING  9.9s
+Running query:   RUNNING 10.5s
+Running query:   RUNNING 11.1s
+Running query:   RUNNING 11.8s
+Running query:   RUNNING 12.4s
+Running query:   RUNNING 13.0s
+Running query:   RUNNING 13.6s
+Running query:   RUNNING 14.2s
+Running query:   RUNNING 14.8s
 ```
 
 ```r
@@ -554,15 +882,148 @@ ggplot(rarity) +
 
 <img src="figure/variant-rarity-1.png" title="plot of chunk variant-rarity" alt="plot of chunk variant-rarity" style="display: block; margin: auto;" />
 
+
+## BRCA1 Mutation Spectrum
+
 ```r
-rarityPlot
+require(NMF)
+require(RColorBrewer)
+```
+
+
+```r
+mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-brca1.sql",
+                                              project=project,
+                                              replacements=queryReplacements,
+                                              max=Inf)
 ```
 
 ```
-Error in data.frame(x = c("chr12", "chr9", "chrX", "chr9", "chr6", "chr19", : arguments imply differing number of rows: 96, 0
+SELECT
+call.call_set_name,
+reference_name,
+window,
+window * 5000 AS window_start,
+((window * 5000) + 4999) AS window_end,
+MIN(start) AS min_variant_position,
+MAX(start) AS max_variant_position,
+COUNT(call.call_set_name) AS num_variants_in_window
+FROM (
+  SELECT
+  call.call_set_name,
+  reference_name,
+  start,
+  end,
+  INTEGER(FLOOR(start / 5000)) AS window,
+  reference_bases,
+  GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
+  GROUP_CONCAT(call.QC) WITHIN call AS call_qc,
+  GROUP_CONCAT(QC) WITHIN RECORD AS cohort_qc,
+  call.FILTER
+  FROM
+  [va_aaa_pilot_data.multi_sample_variants_full_qc]
+  OMIT 
+  call IF EVERY(call.FILTER != "PASS")
+  OR SOME(call.QC IS NOT NULL)
+  HAVING
+  cohort_qc IS NULL
+  AND reference_name = "chr17"
+  AND ((start <= 41196311 AND end >= 41277500) OR (start >= 41196311 AND start <= 41277500))
+)
+GROUP BY
+call.call_set_name,
+reference_name,
+window,
+window_start,
+window_end,
+ORDER BY
+window ASC,
+call.call_set_name ASC;
+
+Running query:   RUNNING  2.0s
+Running query:   RUNNING  2.7s
+Running query:   RUNNING  3.3s
+Running query:   RUNNING  3.9s
+Running query:   RUNNING  4.5s
+Running query:   RUNNING  5.1s
+Running query:   RUNNING  5.7s
+Running query:   RUNNING  6.4s
+Running query:   RUNNING  7.0s
 ```
 
-#### Regional Variant Count
+Get Patient Info
+
+```r
+patientInfo <- DisplayAndDispatchQuery("../sql/patient-info.sql",
+                                              project=project,
+                                              replacements=queryReplacements,
+                                              max=Inf)
+```
+
+```
+SELECT 
+  IlluminaID AS sample_id,
+  AAA_SIZE,
+  CASE WHEN AAA_SIZE >= 3 
+      THEN 'CASE'
+    WHEN AAA_SIZE < 3 
+      THEN 'CONTROL'
+    ELSE 'NONE'
+  END AS COHORT,
+FROM
+  [va_aaa_pilot_data.patient_info]
+```
+
+Get z scores
+
+```r
+mutationSpectrum$zscores = sapply(1:nrow(mutationSpectrum), function(x){
+  count = mutationSpectrum[x,]$num_variants_in_window
+  sample = mutationSpectrum[x,]$call_call_set_name
+  mean = mean(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window)
+  sd = sd(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window) 
+  
+  z = (count-mean)/sd
+  z
+})
+```
+
+Convert mutation information to matrix 
+
+```r
+spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
+spectrum[is.na(spectrum)] <- 0
+
+annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
+annotations = annotations[order(annotations$COHORT),]
+spectrum = spectrum[annotations$sample_id,]
+
+spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
+rownames(spectrumMatrix) = spectrum$call_call_set_name
+```
+
+Set up for plot
+
+```r
+sampleIds = data.frame(rownames(spectrumMatrix))
+names(sampleIds) = 'sample_id'
+
+colors = c("blue", "red")
+names(colors) = c("CASE", "CONTROL")
+annotationColors = list(Cohort=colors)
+
+cohort = data.frame(annotations$COHORT)
+names(cohort) = "Cohort"
+```
+
+
+```r
+aheatmap(t(spectrumMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Mutation Spectrum in BRCA1", annColors="Set2", fontsize=14)
+```
+
+<img src="figure/mutation-spectrum-1.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
+
+## Variant Distribution
 
 ```r
 regionalCounts <- DisplayAndDispatchQuery("../sql/regional-variant-count.sql",
@@ -624,7 +1085,53 @@ ORDER BY
 Sample_id,
 region,
 Chromosome;
-Retrieving data:  3.2sRetrieving data:  4.6sRetrieving data:  6.3sRetrieving data:  7.6sRetrieving data:  8.9sRetrieving data: 10.3sRetrieving data: 11.6sRetrieving data: 13.2sRetrieving data: 14.6sRetrieving data: 15.8sRetrieving data: 17.0sRetrieving data: 18.2sRetrieving data: 19.6sRetrieving data: 21.1sRetrieving data: 22.8sRetrieving data: 24.1s
+
+Running query:   RUNNING  2.5s
+Running query:   RUNNING  3.1s
+Running query:   RUNNING  3.8s
+Running query:   RUNNING  4.4s
+Running query:   RUNNING  5.0s
+Running query:   RUNNING  5.6s
+Running query:   RUNNING  6.2s
+Running query:   RUNNING  6.8s
+Running query:   RUNNING  7.4s
+Running query:   RUNNING  8.1s
+Running query:   RUNNING  8.7s
+Running query:   RUNNING  9.3s
+Running query:   RUNNING  9.9s
+Running query:   RUNNING 10.5s
+Running query:   RUNNING 11.1s
+Running query:   RUNNING 11.7s
+Running query:   RUNNING 12.4s
+Running query:   RUNNING 13.0s
+Running query:   RUNNING 13.6s
+Running query:   RUNNING 14.2s
+Running query:   RUNNING 14.9s
+Running query:   RUNNING 15.5s
+Running query:   RUNNING 16.1s
+Running query:   RUNNING 16.7s
+Running query:   RUNNING 17.4s
+Running query:   RUNNING 18.0s
+Running query:   RUNNING 18.6s
+Running query:   RUNNING 19.2s
+Running query:   RUNNING 19.8s
+
+Retrieving data:  2.8s
+Retrieving data:  4.1s
+Retrieving data:  5.6s
+Retrieving data:  6.8s
+Retrieving data:  8.3s
+Retrieving data:  9.7s
+Retrieving data: 11.1s
+Retrieving data: 12.7s
+Retrieving data: 14.1s
+Retrieving data: 15.5s
+Retrieving data: 16.7s
+Retrieving data: 18.4s
+Retrieving data: 19.6s
+Retrieving data: 20.8s
+Retrieving data: 22.2s
+Retrieving data: 23.7s
 ```
 
 ```r
@@ -633,6 +1140,7 @@ regionalCounts$scaled <- regionalCounts$cnt/regionalCounts$chromosome_length
 regionalCounts <- regionalCounts[complete.cases(regionalCounts),]
 ```
 
+#### Exonic
 
 ```r
 exonic = ggplot(regionalCounts) +
@@ -648,6 +1156,7 @@ exonic
 
 <img src="figure/exonic-1.png" title="plot of chunk exonic" alt="plot of chunk exonic" style="display: block; margin: auto;" />
 
+#### Intronic
 
 ```r
 intronic = ggplot(regionalCounts) +
@@ -663,6 +1172,7 @@ intronic
 
 <img src="figure/intronic-1.png" title="plot of chunk intronic" alt="plot of chunk intronic" style="display: block; margin: auto;" />
 
+#### UTR3
 
 ```r
 utr3 = ggplot(regionalCounts) +
@@ -678,6 +1188,7 @@ utr3
 
 <img src="figure/utr3-1.png" title="plot of chunk utr3" alt="plot of chunk utr3" style="display: block; margin: auto;" />
 
+#### UTR5
 
 ```r
 utr5 = ggplot(regionalCounts) +
@@ -693,6 +1204,7 @@ utr5
 
 <img src="figure/utr5-1.png" title="plot of chunk utr5" alt="plot of chunk utr5" style="display: block; margin: auto;" />
 
+#### Intergenic
 
 ```r
 intergenic = ggplot(regionalCounts) +
@@ -708,6 +1220,7 @@ intergenic
 
 <img src="figure/intergenic-1.png" title="plot of chunk intergenic" alt="plot of chunk intergenic" style="display: block; margin: auto;" />
 
+#### Splicing
 
 ```r
 splicing = ggplot(regionalCounts) +
@@ -730,3 +1243,111 @@ multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
 
 <img src="figure/regional-counts-1.png" title="plot of chunk regional-counts" alt="plot of chunk regional-counts" style="display: block; margin: auto;" />
+
+## Pathogenic Variants on ACMG Genes
+
+```r
+acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-variants.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```
+SELECT
+refseq_GENE AS Gene,
+refseq_CHR AS Chr,
+refseq_Tx_START As Transcript_start,
+refseq_Tx_END AS Transcript_end,
+(refseq_Tx_END - refseq_Tx_START) AS Length_gene,
+call.call_set_name AS Sample_id,
+COUNT(start) AS Cnt_var
+FROM
+(
+  SELECT
+  call.call_set_name,
+  reference_name,
+  start,
+  end,
+  reference_bases,
+  GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
+  GROUP_CONCAT(call.QC) WITHIN call AS call_qc,
+  GROUP_CONCAT(QC) WITHIN RECORD AS cohort_qc,
+  call.FILTER
+  FROM
+  [va_aaa_pilot_data.multi_sample_variants_full_qc]
+  OMIT 
+  call IF EVERY(call.FILTER != "PASS")
+  OR SOME(call.QC IS NOT NULL)
+  HAVING
+  cohort_qc IS NULL
+) as geno
+CROSS JOIN
+[stanford.edu:gbsc-stanford-google:resources.56ACMGgenes_Tx] AS Acmg 
+WHERE
+geno.reference_name = Acmg.refseq_CHR
+AND geno.end <= Acmg.refseq_Tx_END
+AND geno.start >= Acmg.refseq_Tx_START
+GROUP BY
+Gene,
+Chr,
+Transcript_start,
+Transcript_end,
+Length_gene,
+Sample_id
+ORDER BY
+Gene,
+Sample_id
+
+Retrieving data:  3.2s
+```
+
+#### Setup
+Get z scores
+
+```r
+acmgVariants$zscores = sapply(1:nrow(acmgVariants), function(x){
+  count = acmgVariants[x,]$Cnt_var
+  sample = acmgVariants[x,]$Sample_id
+  mean = mean(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var)
+  sd = sd(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var) 
+  z = (count-mean)/sd
+  z
+})
+```
+
+
+```r
+acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "zscores", na.rm=TRUE)
+sampleIds = data.frame(acmgExpanded$Sample_id)
+names(sampleIds) = "sample_id"
+annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
+annotations = annotations[order(annotations$COHORT),]
+acmgExpanded = acmgExpanded[annotations$sample_id,]
+acmgExpanded[is.na(acmgExpanded)] <- 0
+acmgMatrix = as.matrix(acmgExpanded[,!colnames(acmgExpanded) %in% c("Sample_id")])
+rownames(acmgMatrix) = acmgExpanded$Sample_id
+```
+
+Set up for plot
+
+```r
+sampleIds = data.frame(rownames(acmgMatrix))
+names(sampleIds) = 'sample_id'
+
+colors = c("blue", "red")
+names(colors) = c("CASE", "CONTROL")
+annotationColors = list(Cohort=colors)
+
+cohort = data.frame(annotations$COHORT)
+names(cohort) = "Cohort"
+```
+
+
+```r
+aheatmap(t(acmgMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic Variants Within ACMG Genes", annColors="Set2", fontsize=14, breaks=0)
+```
+
+<img src="figure/acmg-variants-1.png" title="plot of chunk acmg-variants" alt="plot of chunk acmg-variants" style="display: block; margin: auto;" />
+
+
+
