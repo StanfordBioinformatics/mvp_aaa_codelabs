@@ -8,6 +8,7 @@
 * [BRCA1 Mutation Spectrum](#brca1-mutation-spectrum)
 * [Variant Distribution](#variant-distribution)
 * [Pathogenic Variants on ACMG Genes](#acgm-genes)
+* [Allele Frequency Distributions vs 1000 Genomes](#af-1kg)
 
 ## Setup
 
@@ -16,7 +17,14 @@ Plot theme
 
 ```r
 plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
-  theme(axis.line = element_line(colour = "black"))
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+```
+
+
+```r
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
 ```
 
 Tables for biological queries
@@ -81,68 +89,6 @@ GROUP BY
 Genotype
 ORDER BY
 Genotype
-Running query:   RUNNING  2.6s
-Running query:   RUNNING  3.2s
-Running query:   RUNNING  3.9s
-Running query:   RUNNING  4.5s
-Running query:   RUNNING  5.2s
-Running query:   RUNNING  5.8s
-Running query:   RUNNING  6.4s
-Running query:   RUNNING  7.1s
-Running query:   RUNNING  7.7s
-Running query:   RUNNING  8.4s
-Running query:   RUNNING  9.0s
-Running query:   RUNNING  9.6s
-Running query:   RUNNING 10.3s
-Running query:   RUNNING 11.0s
-Running query:   RUNNING 11.6s
-Running query:   RUNNING 12.3s
-Running query:   RUNNING 12.9s
-Running query:   RUNNING 13.5s
-Running query:   RUNNING 14.2s
-Running query:   RUNNING 14.8s
-Running query:   RUNNING 15.5s
-Running query:   RUNNING 16.1s
-Running query:   RUNNING 16.7s
-Running query:   RUNNING 17.4s
-Running query:   RUNNING 18.1s
-Running query:   RUNNING 18.7s
-Running query:   RUNNING 19.3s
-Running query:   RUNNING 19.9s
-Running query:   RUNNING 20.6s
-Running query:   RUNNING 21.2s
-Running query:   RUNNING 21.8s
-Running query:   RUNNING 22.4s
-Running query:   RUNNING 23.1s
-Running query:   RUNNING 23.7s
-Running query:   RUNNING 24.3s
-Running query:   RUNNING 24.9s
-Running query:   RUNNING 25.6s
-Running query:   RUNNING 26.3s
-Running query:   RUNNING 26.9s
-Running query:   RUNNING 27.5s
-Running query:   RUNNING 28.2s
-Running query:   RUNNING 28.8s
-Running query:   RUNNING 29.5s
-Running query:   RUNNING 30.1s
-Running query:   RUNNING 30.8s
-Running query:   RUNNING 31.4s
-Running query:   RUNNING 32.0s
-Running query:   RUNNING 32.7s
-Running query:   RUNNING 33.3s
-Running query:   RUNNING 33.9s
-Running query:   RUNNING 34.6s
-Running query:   RUNNING 35.2s
-Running query:   RUNNING 35.8s
-Running query:   RUNNING 36.4s
-Running query:   RUNNING 37.1s
-Running query:   RUNNING 37.7s
-Running query:   RUNNING 38.4s
-Running query:   RUNNING 39.0s
-Running query:   RUNNING 39.6s
-Running query:   RUNNING 40.2s
-Running query:   RUNNING 40.9s
-Running query:   RUNNING 41.5s
 ```
 
 ```r
@@ -212,24 +158,6 @@ VAR_type
 ORDER BY
 reference_name,
 VAR_type
-
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.2s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.5s
-Running query:   RUNNING  5.2s
-Running query:   RUNNING  5.8s
-Running query:   RUNNING  6.4s
-Running query:   RUNNING  7.1s
-Running query:   RUNNING  7.7s
-Running query:   RUNNING  8.3s
-Running query:   RUNNING  9.0s
-Running query:   RUNNING  9.6s
-Running query:   RUNNING 10.2s
-Running query:   RUNNING 10.8s
-Running query:   RUNNING 11.5s
-Running query:   RUNNING 12.1s
-Running query:   RUNNING 12.7s
 ```
 
 ```r
@@ -306,7 +234,8 @@ multiplot(snvs,indels, counts, saturation, cols=2)
 
 <img src="figure/variant-multiplot-publication-1.png" title="plot of chunk variant-multiplot-publication" alt="plot of chunk variant-multiplot-publication" style="display: block; margin: auto;" />
 
-#### Callability
+
+## Callability
 
 ```r
 callability <- DisplayAndDispatchQuery("../sql/callability.sql",
@@ -364,44 +293,10 @@ FROM
 ORDER BY
 call.call_set_name,
 reference_name,
-Running query:   RUNNING  2.6s
-Running query:   RUNNING  3.2s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.4s
-Running query:   RUNNING  5.0s
-Running query:   RUNNING  5.7s
-Running query:   RUNNING  6.3s
-Running query:   RUNNING  6.9s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.1s
-Running query:   RUNNING  8.8s
-Running query:   RUNNING  9.4s
-Running query:   RUNNING 10.0s
-Running query:   RUNNING 10.7s
-Running query:   RUNNING 11.3s
-Running query:   RUNNING 11.9s
-Running query:   RUNNING 12.5s
-Running query:   RUNNING 13.2s
-Running query:   RUNNING 13.8s
-Running query:   RUNNING 14.4s
-Running query:   RUNNING 15.0s
-Running query:   RUNNING 15.7s
-Running query:   RUNNING 16.3s
-Running query:   RUNNING 16.9s
-Running query:   RUNNING 17.5s
-Running query:   RUNNING 18.2s
-Running query:   RUNNING 18.8s
-Running query:   RUNNING 19.4s
-Running query:   RUNNING 20.0s
-Running query:   RUNNING 20.7s
-Running query:   RUNNING 21.3s
-Running query:   RUNNING 21.9s
-Running query:   RUNNING 22.5s
-
-Retrieving data:  2.6s
-Retrieving data:  4.6s
-Retrieving data:  6.6s
-Retrieving data:  8.4s
+Retrieving data: 17.1s
+Retrieving data: 29.6s
+Retrieving data: 41.4s
+Retrieving data: 52.7s
 ```
 
 Setup
@@ -431,7 +326,9 @@ ggplot(faceted) +
 
 <img src="figure/callability-1.png" title="plot of chunk callability" alt="plot of chunk callability" style="display: block; margin: auto;" />
 
+
 ## WGS Statistics
+
 #### Ti/Tv for SNVs
 
 ```r
@@ -474,27 +371,16 @@ FROM
   GROUP BY
   call.call_set_name
 )
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.2s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.9s
-Running query:   RUNNING  5.5s
-Running query:   RUNNING  6.2s
-Running query:   RUNNING  6.8s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.1s
-Running query:   RUNNING  8.7s
-Running query:   RUNNING  9.4s
-Running query:   RUNNING 10.0s
 ```
 
 
 ```r
 titv = ggplot(titvBySample) +
   geom_boxplot(aes(x="SNV", y=titv)) +
-  xlab("Sample") +
-  ylab("ti/tv") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  xlab("SNVs") +
+  ylab("Ti/Tv") +
+  ggtitle("Ti/Tv for SNVs in each genome") +
+  boxPlotTheme +
   theme(axis.text.x=element_blank())
 titv
 ```
@@ -552,56 +438,6 @@ all_SNV_count,
 Het_Hom_ratio
 ORDER BY
 sample.id;
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.1s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.4s
-Running query:   RUNNING  5.0s
-Running query:   RUNNING  5.7s
-Running query:   RUNNING  6.3s
-Running query:   RUNNING  6.9s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.2s
-Running query:   RUNNING  8.8s
-Running query:   RUNNING  9.4s
-Running query:   RUNNING 10.0s
-Running query:   RUNNING 10.6s
-Running query:   RUNNING 11.3s
-Running query:   RUNNING 11.9s
-Running query:   RUNNING 12.5s
-Running query:   RUNNING 13.2s
-Running query:   RUNNING 13.8s
-Running query:   RUNNING 14.4s
-Running query:   RUNNING 15.0s
-Running query:   RUNNING 15.7s
-Running query:   RUNNING 16.3s
-Running query:   RUNNING 16.9s
-Running query:   RUNNING 17.5s
-Running query:   RUNNING 18.2s
-Running query:   RUNNING 18.8s
-Running query:   RUNNING 19.4s
-Running query:   RUNNING 20.0s
-Running query:   RUNNING 20.6s
-Running query:   RUNNING 21.3s
-Running query:   RUNNING 21.9s
-Running query:   RUNNING 22.5s
-Running query:   RUNNING 23.1s
-Running query:   RUNNING 23.7s
-Running query:   RUNNING 24.4s
-Running query:   RUNNING 25.0s
-Running query:   RUNNING 25.6s
-Running query:   RUNNING 26.2s
-Running query:   RUNNING 26.9s
-Running query:   RUNNING 27.5s
-Running query:   RUNNING 28.1s
-Running query:   RUNNING 28.7s
-Running query:   RUNNING 29.3s
-Running query:   RUNNING 30.0s
-Running query:   RUNNING 30.6s
-Running query:   RUNNING 31.2s
-Running query:   RUNNING 31.8s
-Running query:   RUNNING 32.4s
-Running query:   RUNNING 33.1s
 ```
 
 
@@ -609,8 +445,9 @@ Running query:   RUNNING 33.1s
 hethom= ggplot(hetHomSnv) +
   geom_boxplot(aes(x="SNV", y=Het_Hom_ratio)) +
   xlab("Sample") +
-  ylab("het/hom") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  ylab("Het/Hom") +
+  ggtitle("Het/Hom for SNVs in each genome") +
+  boxPlotTheme + 
   theme(axis.text.x=element_blank())
 hethom
 ```
@@ -660,27 +497,6 @@ VAR_type
 ORDER BY
 sample_id,
 VAR_type
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.2s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.5s
-Running query:   RUNNING  5.1s
-Running query:   RUNNING  5.7s
-Running query:   RUNNING  6.3s
-Running query:   RUNNING  6.9s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.2s
-Running query:   RUNNING  8.8s
-Running query:   RUNNING  9.4s
-Running query:   RUNNING 10.0s
-Running query:   RUNNING 10.6s
-Running query:   RUNNING 11.3s
-Running query:   RUNNING 11.9s
-Running query:   RUNNING 12.5s
-Running query:   RUNNING 13.1s
-Running query:   RUNNING 13.7s
-Running query:   RUNNING 14.4s
-Running query:   RUNNING 15.0s
 ```
 
 ```r
@@ -691,10 +507,11 @@ dbSNPcount$proportion = dbSNPcount$num_VAR_dbSNP/dbSNPcount$num_VAR
 ```r
 dbSNP = ggplot(dbSNPcount) +
   geom_boxplot(aes(x=VAR_type, y=proportion)) +
-  xlab("Sample") +
+  xlab("Variant type") +
   ylab("Proportion of Variants in dbSNP") +
+  ggtitle("Proportion of variants in dbSNP by variant type") +
   scale_y_continuous(label=comma) +
-  theme_minimal(base_size = 18, base_family = "Helvetica") 
+  boxPlotTheme 
 dbSNP
 ```
 
@@ -732,13 +549,6 @@ GROUP EACH BY
 sample_id
 ORDER BY
 sample_id ASC;
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.1s
-Running query:   RUNNING  3.7s
-Running query:   RUNNING  4.3s
-Running query:   RUNNING  5.0s
-Running query:   RUNNING  5.6s
-Running query:   RUNNING  6.2s
 ```
 
 
@@ -747,7 +557,8 @@ privateVariants = ggplot(privateSNVs) +
   geom_boxplot(aes(x="SNV", y=private_SNVs_count)) +
   xlab("Sample") +
   ylab("Private Variants") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  ggtitle("Number of private variants per genome") +
+  boxPlotTheme + 
   theme(axis.text.x=element_blank())
 privateVariants 
 ```
@@ -761,6 +572,7 @@ multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 ```
 
 <img src="figure/boxplots-multiplot-publication-1.png" title="plot of chunk boxplots-multiplot-publication" alt="plot of chunk boxplots-multiplot-publication" style="display: block; margin: auto;" />
+
 
 ## Allele Frequency Distribution
 
@@ -831,27 +643,6 @@ rarity
 ORDER BY
 reference_name,
 rarity
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.1s
-Running query:   RUNNING  3.7s
-Running query:   RUNNING  4.3s
-Running query:   RUNNING  5.0s
-Running query:   RUNNING  5.6s
-Running query:   RUNNING  6.2s
-Running query:   RUNNING  6.8s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.1s
-Running query:   RUNNING  8.7s
-Running query:   RUNNING  9.3s
-Running query:   RUNNING  9.9s
-Running query:   RUNNING 10.5s
-Running query:   RUNNING 11.1s
-Running query:   RUNNING 11.8s
-Running query:   RUNNING 12.4s
-Running query:   RUNNING 13.0s
-Running query:   RUNNING 13.6s
-Running query:   RUNNING 14.2s
-Running query:   RUNNING 14.8s
 ```
 
 ```r
@@ -869,14 +660,14 @@ rarity$rarity <- factor(rarity$rarity, levels = c("very_rare", "rare", "relative
 ```r
 ggplot(rarity) +
   geom_bar(aes(factor(reference_name), proportion, fill=rarity, order=rarity), stat='identity', position='stack') +
-  guides(fill = guide_legend(reverse=TRUE)) +
   xlab("Chromosome") +
   ylab("Proportion") +
+  ggtitle("Allele frequency distribution") +
   scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_brewer(palette=6) +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
-  theme(panel.grid=element_blank(),
-        axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+  scale_fill_brewer(palette=1, breaks=c("common","relatively_common","rare", "very_rare"),
+                    labels=c("Common", "Relatively common", "Rare", "Very rare")) +
+  boxPlotTheme + 
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         legend.title=element_blank())
 ```
 
@@ -939,16 +730,6 @@ window_end,
 ORDER BY
 window ASC,
 call.call_set_name ASC;
-
-Running query:   RUNNING  2.0s
-Running query:   RUNNING  2.7s
-Running query:   RUNNING  3.3s
-Running query:   RUNNING  3.9s
-Running query:   RUNNING  4.5s
-Running query:   RUNNING  5.1s
-Running query:   RUNNING  5.7s
-Running query:   RUNNING  6.4s
-Running query:   RUNNING  7.0s
 ```
 
 Get Patient Info
@@ -994,6 +775,9 @@ Convert mutation information to matrix
 spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
 spectrum[is.na(spectrum)] <- 0
 
+sampleIds = data.frame(rownames(spectrumMatrix))
+names(sampleIds) = 'sample_id'
+
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
 annotations = annotations[order(annotations$COHORT),]
 spectrum = spectrum[annotations$sample_id,]
@@ -1005,9 +789,6 @@ rownames(spectrumMatrix) = spectrum$call_call_set_name
 Set up for plot
 
 ```r
-sampleIds = data.frame(rownames(spectrumMatrix))
-names(sampleIds) = 'sample_id'
-
 colors = c("blue", "red")
 names(colors) = c("CASE", "CONTROL")
 annotationColors = list(Cohort=colors)
@@ -1018,10 +799,11 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(spectrumMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Mutation Spectrum in BRCA1", annColors="Set2", fontsize=14)
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="BRCA1 mutation spectrum in 5kb windows", fontsize=14)
 ```
 
 <img src="figure/mutation-spectrum-1.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
+
 
 ## Variant Distribution
 
@@ -1086,52 +868,23 @@ Sample_id,
 region,
 Chromosome;
 
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.1s
-Running query:   RUNNING  3.8s
-Running query:   RUNNING  4.4s
-Running query:   RUNNING  5.0s
-Running query:   RUNNING  5.6s
-Running query:   RUNNING  6.2s
-Running query:   RUNNING  6.8s
-Running query:   RUNNING  7.4s
-Running query:   RUNNING  8.1s
-Running query:   RUNNING  8.7s
-Running query:   RUNNING  9.3s
-Running query:   RUNNING  9.9s
-Running query:   RUNNING 10.5s
-Running query:   RUNNING 11.1s
-Running query:   RUNNING 11.7s
-Running query:   RUNNING 12.4s
-Running query:   RUNNING 13.0s
-Running query:   RUNNING 13.6s
-Running query:   RUNNING 14.2s
-Running query:   RUNNING 14.9s
-Running query:   RUNNING 15.5s
-Running query:   RUNNING 16.1s
-Running query:   RUNNING 16.7s
-Running query:   RUNNING 17.4s
-Running query:   RUNNING 18.0s
-Running query:   RUNNING 18.6s
-Running query:   RUNNING 19.2s
-Running query:   RUNNING 19.8s
-
-Retrieving data:  2.8s
-Retrieving data:  4.1s
-Retrieving data:  5.6s
-Retrieving data:  6.8s
-Retrieving data:  8.3s
-Retrieving data:  9.7s
-Retrieving data: 11.1s
-Retrieving data: 12.7s
-Retrieving data: 14.1s
-Retrieving data: 15.5s
-Retrieving data: 16.7s
-Retrieving data: 18.4s
-Retrieving data: 19.6s
-Retrieving data: 20.8s
-Retrieving data: 22.2s
-Retrieving data: 23.7s
+Retrieving data:  8.2s
+Retrieving data: 14.6s
+Retrieving data: 21.3s
+Retrieving data: 30.2s
+Retrieving data: 38.8s
+Retrieving data: 46.3s
+Retrieving data: 53.1s
+Retrieving data: 59.0s
+Retrieving data: 66.3s
+Retrieving data: 73.8s
+Retrieving data: 81.6s
+Retrieving data: 88.7s
+Retrieving data: 96.0s
+Retrieving data: 101.9s
+Retrieving data: 109.8s
+Retrieving data: 116.7s
+Retrieving data: 151.7s
 ```
 
 ```r
@@ -1146,7 +899,7 @@ regionalCounts <- regionalCounts[complete.cases(regionalCounts),]
 exonic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="exonic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Exonic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1162,7 +915,7 @@ exonic
 intronic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intronic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Intronic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1178,7 +931,7 @@ intronic
 utr3 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR3"), aes(Chromosome,scaled)) +
   ggtitle("Variants in UTR3 Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1194,7 +947,7 @@ utr3
 utr5 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR5"), aes(Chromosome,scaled)) +
   ggtitle("Variants in UTR5 Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1210,7 +963,7 @@ utr5
 intergenic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intergenic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Intergenic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1226,7 +979,7 @@ intergenic
 splicing = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="splicing"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Splicing Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -1237,12 +990,14 @@ splicing
 <img src="figure/splicing-1.png" title="plot of chunk splicing" alt="plot of chunk splicing" style="display: block; margin: auto;" />
 
 #### Multiplot
+#### Normalized variant counts by genomic region
 
 ```r
 multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
 
 <img src="figure/regional-counts-1.png" title="plot of chunk regional-counts" alt="plot of chunk regional-counts" style="display: block; margin: auto;" />
+
 
 ## Pathogenic Variants on ACMG Genes
 
@@ -1298,7 +1053,8 @@ ORDER BY
 Gene,
 Sample_id
 
-Retrieving data:  3.2s
+Retrieving data:  9.2s
+Retrieving data: 19.2s
 ```
 
 #### Setup
@@ -1328,7 +1084,7 @@ acmgMatrix = as.matrix(acmgExpanded[,!colnames(acmgExpanded) %in% c("Sample_id")
 rownames(acmgMatrix) = acmgExpanded$Sample_id
 ```
 
-Set up for plot
+Setup for plot
 
 ```r
 sampleIds = data.frame(rownames(acmgMatrix))
@@ -1344,10 +1100,117 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(acmgMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic Variants Within ACMG Genes", annColors="Set2", fontsize=14, breaks=0)
+aheatmap(t(acmgMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14, breaks=0)
 ```
 
 <img src="figure/acmg-variants-1.png" title="plot of chunk acmg-variants" alt="plot of chunk acmg-variants" style="display: block; margin: auto;" />
 
 
+## Allele Frequency Distributions vs 1000 Genomes
+
+```r
+alleleFrequencies <- DisplayAndDispatchQuery("../sql/1kg-AAA-variant-overlap.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```
+SELECT 
+AGREEMENT,
+AAA,
+K1G,
+COUNT(*) AS COUNT
+
+FROM (
+SELECT 
+
+CASE
+  WHEN aaaChr22_allele_frequency >= 0.05 AND k1gChr22_k1000g2012apr_EUR >= 0.05
+    THEN "HIGH"
+  WHEN aaaChr22_allele_frequency >= 0.005 AND aaaChr22_allele_frequency < 0.05 
+    AND k1gChr22_k1000g2012apr_EUR >= 0.005 AND k1gChr22_k1000g2012apr_EUR < 0.05 
+    THEN "MODERATE"
+  WHEN aaaChr22_allele_frequency >= 0.001 AND aaaChr22_allele_frequency < 0.005 
+    AND k1gChr22_k1000g2012apr_EUR >= 0.001 AND k1gChr22_k1000g2012apr_EUR < 0.005 
+    THEN "LOW"
+  WHEN aaaChr22_allele_frequency IS NULL AND k1gChr22_k1000g2012apr_EUR IS NULL
+    THEN "NONE"
+  ELSE "DISAGREEMENT"
+END AS AGREEMENT,
+
+CASE
+  WHEN aaaChr22_allele_frequency >= 0.05
+    THEN "HIGH"
+  WHEN aaaChr22_allele_frequency >= 0.005 AND aaaChr22_allele_frequency < 0.05 
+    THEN "MODERATE"
+  WHEN aaaChr22_allele_frequency >= 0.001 AND aaaChr22_allele_frequency < 0.005 
+    THEN "LOW"  
+END AS AAA,
+
+CASE
+  WHEN k1gChr22_k1000g2012apr_EUR >= 0.05
+    THEN "HIGH"
+  WHEN k1gChr22_k1000g2012apr_EUR >= 0.005 AND k1gChr22_k1000g2012apr_EUR < 0.05 
+    THEN "MODERATE"
+  WHEN k1gChr22_k1000g2012apr_EUR >= 0.001 AND k1gChr22_k1000g2012apr_EUR < 0.005 
+    THEN "LOW"  
+END AS K1G,
+
+CASE 
+  WHEN aaaChr22_allele_frequency IS NOT NULL AND k1gChr22_k1000g2012apr_EUR IS NOT NULL
+    THEN "BOTH"
+  WHEN aaaChr22_allele_frequency IS NOT NULL AND k1gChr22_k1000g2012apr_EUR IS NULL 
+    THEN "AAA"
+  WHEN aaaChr22_allele_frequency IS NULL AND k1gChr22_k1000g2012apr_EUR IS NOT NULL
+    THEN "1KG"
+END AS population,
+*
+FROM 
+  [analysis.aaa_1000g_chr22_AF_full])
+WHERE AGREEMENT != "NONE"
+#WHERE
+#  aaaChr22_allele_frequency IS NOT NULL
+#  AND k1gChr22_k1000g2012apr_EUR IS NOT NULL
+GROUP BY 
+  AGREEMENT,
+  AAA,
+  K1G
+LIMIT 1000
+```
+
+Setup
+
+```r
+frequencies = melt(alleleFrequencies, id=c("AGREEMENT","COUNT"))
+frequencies = frequencies[complete.cases(frequencies),]
+frequencies = frequencies[!(frequencies$AGREEMENT != "DISAGREEMENT" & frequencies$variable == "AAA"),]
+frequencies$variable <- factor(frequencies$variable, levels=c("AAA","K1G","BOTH"))
+frequencies[frequencies$AGREEMENT != "DISAGREEMENT",]$variable = "BOTH"
+names(frequencies) = c("agreement", "count", "population", "frequency")
+frequencies$frequency <- factor(frequencies$frequency, levels=c("HIGH","MODERATE","LOW"))
+frequencies$normalized = sapply(1:nrow(frequencies), function(x){
+  freq = frequencies[x,]$frequency
+  freqTotal = sum(frequencies[frequencies$frequency == freq,]$count)
+  normalized = frequencies[x,]$count/freqTotal
+  normalized
+})
+```
+
+
+```r
+ggplot(frequencies) +
+  geom_bar(aes(frequency, normalized, fill=population, order=population), stat="identity") +
+  xlab("Allele frequency") +
+  ylab("Proportion of total count") +
+  ggtitle("Allele frequency overlap between\ndeeply sequenced genomes and the\nEuropean subpopulation in 1000 Genomes") +
+  plot_theme + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
+                    labels=c("Deeply sequenced\ngenomes specific", "1000 Genomes specific", "Overlapping alleles")) +
+  theme(legend.title=element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_x_discrete(breaks = c("HIGH", "MODERATE", "LOW"), labels=c(">0.05", "0.005-0.05","0.001-0.005"))
+```
+
+<img src="figure/allele-frequencies-1kg-1.png" title="plot of chunk allele-frequencies-1kg" alt="plot of chunk allele-frequencies-1kg" style="display: block; margin: auto;" />
 

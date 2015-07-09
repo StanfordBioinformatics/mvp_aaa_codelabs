@@ -8,6 +8,7 @@
 * [BRCA1 Mutation Spectrum](#brca1-mutation-spectrum)
 * [Variant Distribution](#variant-distribution)
 * [Pathogenic Variants on ACMG Genes](#acgm-genes)
+* [Allele Frequency Distributions vs 1000 Genomes](#af-1kg)
 
 ## Setup
 ```{r echo=FALSE, eval=FALSE}
@@ -37,7 +38,13 @@ names(chromosomeLengths) = c("reference_name", "length")
 Plot theme
 ```{r}
 plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
-  theme(axis.line = element_line(colour = "black"))
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+```
+
+```{r}
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
 ```
 
 Tables for biological queries
@@ -142,7 +149,8 @@ saturation
 multiplot(snvs,indels, counts, saturation, cols=2)
 ```
 
-#### Callability
+
+## Callability
 ```{r message=FALSE, warning=FALSE, comment=NA}
 callability <- DisplayAndDispatchQuery("../sql/callability.sql",
                                               project=project,
@@ -172,7 +180,9 @@ ggplot(faceted) +
   axis.title.y=element_blank())
 ```
 
+
 ## WGS Statistics
+
 #### Ti/Tv for SNVs
 ```{r message=FALSE, warning=FALSE, comment=NA}
 titvBySample <- DisplayAndDispatchQuery("../sql/titv-by-sample.sql",
@@ -183,9 +193,10 @@ titvBySample <- DisplayAndDispatchQuery("../sql/titv-by-sample.sql",
 ```{r titv-by-sample, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 titv = ggplot(titvBySample) +
   geom_boxplot(aes(x="SNV", y=titv)) +
-  xlab("Sample") +
-  ylab("ti/tv") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  xlab("SNVs") +
+  ylab("Ti/Tv") +
+  ggtitle("Ti/Tv for SNVs in each genome") +
+  boxPlotTheme +
   theme(axis.text.x=element_blank())
 titv
 ```
@@ -201,8 +212,9 @@ hetHomSnv <- DisplayAndDispatchQuery("../sql/hethom-snv.sql",
 hethom= ggplot(hetHomSnv) +
   geom_boxplot(aes(x="SNV", y=Het_Hom_ratio)) +
   xlab("Sample") +
-  ylab("het/hom") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  ylab("Het/Hom") +
+  ggtitle("Het/Hom for SNVs in each genome") +
+  boxPlotTheme + 
   theme(axis.text.x=element_blank())
 hethom
 ```
@@ -218,10 +230,11 @@ dbSNPcount$proportion = dbSNPcount$num_VAR_dbSNP/dbSNPcount$num_VAR
 ```{r dbsnp-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 dbSNP = ggplot(dbSNPcount) +
   geom_boxplot(aes(x=VAR_type, y=proportion)) +
-  xlab("Sample") +
+  xlab("Variant type") +
   ylab("Proportion of Variants in dbSNP") +
+  ggtitle("Proportion of variants in dbSNP by variant type") +
   scale_y_continuous(label=comma) +
-  theme_minimal(base_size = 18, base_family = "Helvetica") 
+  boxPlotTheme 
 dbSNP
 ```
 
@@ -237,7 +250,8 @@ privateVariants = ggplot(privateSNVs) +
   geom_boxplot(aes(x="SNV", y=private_SNVs_count)) +
   xlab("Sample") +
   ylab("Private Variants") +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
+  ggtitle("Number of private variants per genome") +
+  boxPlotTheme + 
   theme(axis.text.x=element_blank())
 privateVariants 
 ```
@@ -246,6 +260,7 @@ privateVariants
 ```{r boxplots-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 ```
+
 
 ## Allele Frequency Distribution
 ```{r message=FALSE, warning=FALSE, comment=NA}
@@ -266,16 +281,17 @@ rarity$rarity <- factor(rarity$rarity, levels = c("very_rare", "rare", "relative
 ```{r variant-rarity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(rarity) +
   geom_bar(aes(factor(reference_name), proportion, fill=rarity, order=rarity), stat='identity', position='stack') +
-  guides(fill = guide_legend(reverse=TRUE)) +
   xlab("Chromosome") +
   ylab("Proportion") +
+  ggtitle("Allele frequency distribution") +
   scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_brewer(palette=6) +
-  theme_minimal(base_size = 18, base_family = "Helvetica") + 
-  theme(panel.grid=element_blank(),
-        axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
+  scale_fill_brewer(palette=1, breaks=c("common","relatively_common","rare", "very_rare"),
+                    labels=c("Common", "Relatively common", "Rare", "Very rare")) +
+  boxPlotTheme + 
+  theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         legend.title=element_blank())
 ```
+
 
 ## BRCA1 Mutation Spectrum
 ```{r}
@@ -316,6 +332,9 @@ Convert mutation information to matrix
 spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
 spectrum[is.na(spectrum)] <- 0
 
+sampleIds = data.frame(rownames(spectrumMatrix))
+names(sampleIds) = 'sample_id'
+
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
 annotations = annotations[order(annotations$COHORT),]
 spectrum = spectrum[annotations$sample_id,]
@@ -326,9 +345,6 @@ rownames(spectrumMatrix) = spectrum$call_call_set_name
 
 Set up for plot
 ```{r}
-sampleIds = data.frame(rownames(spectrumMatrix))
-names(sampleIds) = 'sample_id'
-
 colors = c("blue", "red")
 names(colors) = c("CASE", "CONTROL")
 annotationColors = list(Cohort=colors)
@@ -337,9 +353,10 @@ cohort = data.frame(annotations$COHORT)
 names(cohort) = "Cohort"
 ```
 
-```{r mutation-spectrum, fig.align="center", fig.width=14, message=FALSE, comment=NA}
-aheatmap(t(spectrumMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Mutation Spectrum in BRCA1", annColors="Set2", fontsize=14)
+```{r mutation-spectrum, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="BRCA1 mutation spectrum in 5kb windows", fontsize=14)
 ```
+
 
 ## Variant Distribution
 ```{r message=FALSE, warning=FALSE, comment=NA}
@@ -357,7 +374,7 @@ regionalCounts <- regionalCounts[complete.cases(regionalCounts),]
 exonic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="exonic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Exonic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -370,7 +387,7 @@ exonic
 intronic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intronic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Intronic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -383,7 +400,7 @@ intronic
 utr3 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR3"), aes(Chromosome,scaled)) +
   ggtitle("Variants in UTR3 Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -396,7 +413,7 @@ utr3
 utr5 = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="UTR5"), aes(Chromosome,scaled)) +
   ggtitle("Variants in UTR5 Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -409,7 +426,7 @@ utr5
 intergenic = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="intergenic"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Intergenic Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -422,7 +439,7 @@ intergenic
 splicing = ggplot(regionalCounts) +
   geom_boxplot(data=subset(regionalCounts,region=="splicing"), aes(Chromosome,scaled)) +
   ggtitle("Variants in Splicing Regions") +
-  theme_minimal(base_size = 14, base_family = "Helvetica") +
+  boxPlotTheme + 
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5),
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
@@ -431,9 +448,11 @@ splicing
 ```
 
 #### Multiplot
+#### Normalized variant counts by genomic region
 ```{r regional-counts, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
+
 
 ## Pathogenic Variants on ACMG Genes
 ```{r message=FALSE, warning=FALSE, comment=NA}
@@ -467,7 +486,7 @@ acmgMatrix = as.matrix(acmgExpanded[,!colnames(acmgExpanded) %in% c("Sample_id")
 rownames(acmgMatrix) = acmgExpanded$Sample_id
 ```
 
-Set up for plot
+Setup for plot
 ```{r}
 sampleIds = data.frame(rownames(acmgMatrix))
 names(sampleIds) = 'sample_id'
@@ -480,9 +499,47 @@ cohort = data.frame(annotations$COHORT)
 names(cohort) = "Cohort"
 ```
 
-```{r acmg-variants, fig.align="center", fig.width=14, message=FALSE, comment=NA}
-aheatmap(t(acmgMatrix), annCol = cohort, Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic Variants Within ACMG Genes", annColors="Set2", fontsize=14, breaks=0)
+```{r acmg-variants, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+aheatmap(t(acmgMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14, breaks=0)
 ```
 
 
+## Allele Frequency Distributions vs 1000 Genomes
+```{r message=FALSE, warning=FALSE, comment=NA}
+alleleFrequencies <- DisplayAndDispatchQuery("../sql/1kg-AAA-variant-overlap.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+Setup
+```{r}
+frequencies = melt(alleleFrequencies, id=c("AGREEMENT","COUNT"))
+frequencies = frequencies[complete.cases(frequencies),]
+frequencies = frequencies[!(frequencies$AGREEMENT != "DISAGREEMENT" & frequencies$variable == "AAA"),]
+frequencies$variable <- factor(frequencies$variable, levels=c("AAA","K1G","BOTH"))
+frequencies[frequencies$AGREEMENT != "DISAGREEMENT",]$variable = "BOTH"
+names(frequencies) = c("agreement", "count", "population", "frequency")
+frequencies$frequency <- factor(frequencies$frequency, levels=c("HIGH","MODERATE","LOW"))
+frequencies$normalized = sapply(1:nrow(frequencies), function(x){
+  freq = frequencies[x,]$frequency
+  freqTotal = sum(frequencies[frequencies$frequency == freq,]$count)
+  normalized = frequencies[x,]$count/freqTotal
+  normalized
+})
+```
+
+```{r allele-frequencies-1kg, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(frequencies) +
+  geom_bar(aes(frequency, normalized, fill=population, order=population), stat="identity") +
+  xlab("Allele frequency") +
+  ylab("Proportion of total count") +
+  ggtitle("Allele frequency overlap between\ndeeply sequenced genomes and the\nEuropean subpopulation in 1000 Genomes") +
+  plot_theme + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
+                    labels=c("Deeply sequenced\ngenomes specific", "1000 Genomes specific", "Overlapping alleles")) +
+  theme(legend.title=element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_x_discrete(breaks = c("HIGH", "MODERATE", "LOW"), labels=c(">0.05", "0.005-0.05","0.001-0.005"))
+```
 
