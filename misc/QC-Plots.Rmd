@@ -32,8 +32,9 @@ names(chromosomeLengths) = c("reference_name", "length")
 
 Plot theme
 ```{r}
-plot_theme = theme_minimal(base_size = 18, base_family = "Helvetica") + 
-  theme(axis.line = element_line(colour = "black"))
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
 ```
 
 ## QC Plots
@@ -60,7 +61,7 @@ ggplot(concordanceResult) +
   xlab("Sample") +
   ylab("Concordance") +
   ggtitle("Concordance with Genotyping Data") +
-  scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  scale_colour_brewer(name="Library Prep Plate", palette="Set1") +
   plot_theme + 
   theme(axis.text.x=element_blank(),
         panel.grid.major.x = element_blank(),
@@ -84,18 +85,18 @@ ggplot(pcaResult, aes(pc1, pc2, color=plate)) +
   ggtitle("Principal Component Analysis") +
   xlab("Principal Component 1") + 
   ylab("Principal Component 2") +
-  scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
+  scale_colour_brewer(name="Library Prep Plate", palette="Set1") +
   plot_theme +
   theme(axis.text.x=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks=element_blank(),
-        legend.position = c(0.85,0.8))
+        legend.position = c(0.85,0.75))
 
 ```
 
 #### IBS
 ```{r message=FALSE, warning=FALSE, comment=NA}
-ibsDataFlowFilename = '/Users/gmcinnes/data/all-genomes-ibs-2.tsv'
+ibsDataFlowFilename = '../data/ibs-460.tsv'
 ReadIBSFile <- function(ibsFilename, header=FALSE, rowNames=NULL) {
   ibsData <- read.table(file=ibsFilename, header=header,
                         row.names=rowNames, stringsAsFactors=FALSE)

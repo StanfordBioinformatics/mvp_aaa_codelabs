@@ -67,14 +67,19 @@ queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_full_qc"
 genotypeCountResult <- DisplayAndDispatchQuery("../sql/genotype-counts.sql",
                                                project=project,
                                                replacements=queryReplacements)
+```
+
+Setup
+```{r}
 genotypeCountResult <- genotypeCountResult[complete.cases(genotypeCountResult),]
+genotypeCountResult$Cnt = genotypeCountResult$Cnt/1000000
 ```
 
 ```{r genotype-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 counts = ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
-  ylab("SNV Count") + 
+  ylab("SNV Count (millions)") + 
   scale_y_continuous(labels=comma, expand = c(0, 0)) + 
   plot_theme
 counts
@@ -85,7 +90,10 @@ counts
 variantCountResult <- DisplayAndDispatchQuery("../sql/variants-by-chromosome.sql",
                                               project=project,
                                               replacements=queryReplacements)
+```
 
+Setup
+```{r}
 variantCountResult <- join(variantCountResult, chromosomeLengths, by = "reference_name")
 variantCountResult$scaled_count <- variantCountResult$Cnt / variantCountResult$length
 
@@ -93,7 +101,7 @@ chromosomes <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8",
 snps <- variantCountResult[grep("SNV", variantCountResult$VAR_type), ]
 snps$reference_name <- factor(snps$reference_name, levels=chromosomes)
 snps <- snps[complete.cases(snps),]
-
+snps$Cnt <- snps$Cnt/1000000
 indels <- variantCountResult[grep("INDEL", variantCountResult$VAR_type), ]
 indels$reference_name <- factor(indels$reference_name, levels=chromosomes)
 indels <- indels[complete.cases(indels),]
@@ -105,7 +113,7 @@ indels <- indels[complete.cases(indels),]
 ```{r snv-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 snvs = ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
   geom_point(size=4) + 
-  ylab("SNV Count") +
+  ylab("SNV Count (millions)") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
   plot_theme +
@@ -131,6 +139,7 @@ genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,478)
 snvCount = c(3590360,4847512,5627244,6158953,6616457,
               8014799,11841547,14387937,18693833,21567571,23638061,25890797)
 saturationRate = data_frame(genomeCount, snvCount)
+saturationRate$snvCount = saturationRate$snvCount/1000000
 ```
 
 
@@ -138,7 +147,7 @@ saturationRate = data_frame(genomeCount, snvCount)
 saturation = ggplot(saturationRate) +
   geom_point(aes(x=genomeCount, y=snvCount), size=4) +
   xlab("Number of Genomes") +
-  ylab("Unique SNVs") +
+  ylab("Unique SNVs (millions)") +
   scale_y_continuous(label=comma) +
   plot_theme
 saturation
@@ -193,11 +202,11 @@ titvBySample <- DisplayAndDispatchQuery("../sql/titv-by-sample.sql",
 ```{r titv-by-sample, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 titv = ggplot(titvBySample) +
   geom_boxplot(aes(x="SNV", y=titv)) +
-  xlab("SNVs") +
   ylab("Ti/Tv") +
   ggtitle("Ti/Tv for SNVs in each genome") +
   boxPlotTheme +
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 titv
 ```
 
@@ -211,11 +220,11 @@ hetHomSnv <- DisplayAndDispatchQuery("../sql/hethom-snv.sql",
 ```{r hethom-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 hethom= ggplot(hetHomSnv) +
   geom_boxplot(aes(x="SNV", y=Het_Hom_ratio)) +
-  xlab("Sample") +
   ylab("Het/Hom") +
   ggtitle("Het/Hom for SNVs in each genome") +
   boxPlotTheme + 
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 hethom
 ```
 
@@ -230,11 +239,11 @@ dbSNPcount$proportion = dbSNPcount$num_VAR_dbSNP/dbSNPcount$num_VAR
 ```{r dbsnp-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 dbSNP = ggplot(dbSNPcount) +
   geom_boxplot(aes(x=VAR_type, y=proportion)) +
-  xlab("Variant type") +
   ylab("Proportion of Variants in dbSNP") +
   ggtitle("Proportion of variants in dbSNP by variant type") +
   scale_y_continuous(label=comma) +
-  boxPlotTheme 
+  boxPlotTheme +
+  theme(axis.title.x=element_blank())
 dbSNP
 ```
 
@@ -248,11 +257,12 @@ privateSNVs <- DisplayAndDispatchQuery("../sql/private-snv-counts.sql",
 ```{r private-snv, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 privateVariants = ggplot(privateSNVs) +
   geom_boxplot(aes(x="SNV", y=private_SNVs_count)) +
-  xlab("Sample") +
   ylab("Private Variants") +
   ggtitle("Number of private variants per genome") +
+  scale_y_continuous(label=comma) +
   boxPlotTheme + 
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 privateVariants 
 ```
 
@@ -329,7 +339,7 @@ mutationSpectrum$zscores = sapply(1:nrow(mutationSpectrum), function(x){
 
 Convert mutation information to matrix 
 ```{r}
-spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
+spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "num_variants_in_window", na.rm=TRUE)
 spectrum[is.na(spectrum)] <- 0
 
 sampleIds = data.frame(rownames(spectrumMatrix))
@@ -475,7 +485,7 @@ acmgVariants$zscores = sapply(1:nrow(acmgVariants), function(x){
 ```
 
 ```{r}
-acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "zscores", na.rm=TRUE)
+acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "Cnt_var", na.rm=TRUE)
 sampleIds = data.frame(acmgExpanded$Sample_id)
 names(sampleIds) = "sample_id"
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
@@ -537,9 +547,42 @@ ggplot(frequencies) +
   plot_theme + 
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
-                    labels=c("Deeply sequenced\ngenomes specific", "1000 Genomes specific", "Overlapping alleles")) +
+                    labels=c("This study", "1000 Genomes specific", "Overlapping alleles")) +
   theme(legend.title=element_blank()) +
   guides(fill = guide_legend(reverse = TRUE)) +
   scale_x_discrete(breaks = c("HIGH", "MODERATE", "LOW"), labels=c(">0.05", "0.005-0.05","0.001-0.005"))
 ```
 
+## Query run times
+```{r message=FALSE, warning=FALSE, comment=NA}
+runtimes = read.csv('../data/query_run_times.csv')
+```
+
+Setup
+```{r}
+dataTraversed = melt(runtimes, id.vars = "Query", measure.vars=c("DataTraversed5Genomes","DataTraversed460Genomes"))
+times = melt(runtimes, id.vars = "Query", measure.vars=c("AverageRunTime5Genomes","AverageRunTime460Genomes"))
+times$plot="Average Run Time (seconds)"
+dataTraversed$plot="Data Processed (gigabytes)"
+queryInfo = rbind(times,dataTraversed)
+levels(queryInfo$variable) <- c(levels(queryInfo$variable), "5 Genomes", "460 Genomes")
+queryInfo[queryInfo == "AverageRunTime5Genomes"] <- "5 Genomes"
+queryInfo[queryInfo == "AverageRunTime460Genomes"] <- "460 Genomes"
+queryInfo[queryInfo == "DataTraversed5Genomes"] <- "5 Genomes"
+queryInfo[queryInfo == "DataTraversed460Genomes"] <- "460 Genomes"
+levels(queryInfo$variable) <- c("5 Genomes", "460 Genomes")
+queryInfo$variable <- factor(queryInfo$variable)
+```
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```{r run-time, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(queryInfo) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  facet_grid(plot ~ ., scales="free_y") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  axis.title.y=element_blank(),
+  legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  ggtitle("Query processing information in BigQuery") +
+  scale_y_continuous(labels=comma, expand = c(0, 0))  
+  ```
