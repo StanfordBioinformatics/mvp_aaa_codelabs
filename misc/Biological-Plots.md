@@ -91,8 +91,11 @@ ORDER BY
 Genotype
 ```
 
+Setup
+
 ```r
 genotypeCountResult <- genotypeCountResult[complete.cases(genotypeCountResult),]
+genotypeCountResult$Cnt = genotypeCountResult$Cnt/1000000
 ```
 
 
@@ -100,7 +103,7 @@ genotypeCountResult <- genotypeCountResult[complete.cases(genotypeCountResult),]
 counts = ggplot(genotypeCountResult) +
   geom_bar(aes(x=Genotype, y=Cnt), stat="identity") +
   xlab("Genotypes") + 
-  ylab("SNV Count") + 
+  ylab("SNV Count (millions)") + 
   scale_y_continuous(labels=comma, expand = c(0, 0)) + 
   plot_theme
 counts
@@ -160,6 +163,8 @@ reference_name,
 VAR_type
 ```
 
+Setup
+
 ```r
 variantCountResult <- join(variantCountResult, chromosomeLengths, by = "reference_name")
 variantCountResult$scaled_count <- variantCountResult$Cnt / variantCountResult$length
@@ -168,7 +173,7 @@ chromosomes <- c("chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8",
 snps <- variantCountResult[grep("SNV", variantCountResult$VAR_type), ]
 snps$reference_name <- factor(snps$reference_name, levels=chromosomes)
 snps <- snps[complete.cases(snps),]
-
+snps$Cnt <- snps$Cnt/1000000
 indels <- variantCountResult[grep("INDEL", variantCountResult$VAR_type), ]
 indels$reference_name <- factor(indels$reference_name, levels=chromosomes)
 indels <- indels[complete.cases(indels),]
@@ -178,7 +183,7 @@ indels <- indels[complete.cases(indels),]
 ```r
 snvs = ggplot(data=snps, aes(y=Cnt, x=reference_name)) + 
   geom_point(size=4) + 
-  ylab("SNV Count") +
+  ylab("SNV Count (millions)") +
   xlab("Chromosome") +
   scale_y_continuous(label=comma) +
   plot_theme +
@@ -210,6 +215,7 @@ genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,478)
 snvCount = c(3590360,4847512,5627244,6158953,6616457,
               8014799,11841547,14387937,18693833,21567571,23638061,25890797)
 saturationRate = data_frame(genomeCount, snvCount)
+saturationRate$snvCount = saturationRate$snvCount/1000000
 ```
 
 
@@ -218,7 +224,7 @@ saturationRate = data_frame(genomeCount, snvCount)
 saturation = ggplot(saturationRate) +
   geom_point(aes(x=genomeCount, y=snvCount), size=4) +
   xlab("Number of Genomes") +
-  ylab("Unique SNVs") +
+  ylab("Unique SNVs (millions)") +
   scale_y_continuous(label=comma) +
   plot_theme
 saturation
@@ -292,11 +298,7 @@ FROM
 )
 ORDER BY
 call.call_set_name,
-reference_name,
-Retrieving data: 17.1s
-Retrieving data: 29.6s
-Retrieving data: 41.4s
-Retrieving data: 52.7s
+reference_name,Retrieving data:  3.7sRetrieving data: 10.4sRetrieving data: 13.7sRetrieving data: 17.1s
 ```
 
 Setup
@@ -306,22 +308,28 @@ sample = 'LP6005038-DNA_A01'
 selection = callability[callability$call_call_set_name == sample,]
 selection$reference_name <- factor(selection$reference_name, levels=chromosomes)
 selection <- selection[complete.cases(selection),]
+selection$remainder <- selection$contig_len - selection$pos_no_point_info 
 
-faceted = melt(selection, id.vars="reference_name",measure.vars=c("prop_w_point_ino","pos_no_point_info"))
-
-levels(faceted$variable) <- c("Proportion of Positions Called", "Number of Missing Positions")
+faceted = melt(selection, id.vars=c("reference_name"),measure.vars=c("prop_w_point_ino","pos_no_point_info","remainder"))
+faceted$color = faceted$variable
+faceted[faceted$variable=="remainder",]$variable <- 'pos_no_point_info'
+faceted$variable <- factor(faceted$variable)
+levels(faceted$variable) <- c("Proportion of positions called", "Number of missing positions")
+levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Chromosome length")
 ```
 
 
 ```r
 ggplot(faceted) + 
-  geom_bar(aes(reference_name,value), stat="identity") +
+  geom_bar(aes(reference_name,value, fill=color), stat="identity") +
   facet_grid(variable ~ ., scales="free_y") +
   scale_y_continuous(labels=comma, expand=c(0,0)) +
   plot_theme +
   xlab("Chromosome") +
+  scale_fill_brewer(palette=1) +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
-  axis.title.y=element_blank())
+    axis.title.y=element_blank(),
+    legend.title=element_blank())
 ```
 
 <img src="figure/callability-1.png" title="plot of chunk callability" alt="plot of chunk callability" style="display: block; margin: auto;" />
@@ -377,11 +385,11 @@ FROM
 ```r
 titv = ggplot(titvBySample) +
   geom_boxplot(aes(x="SNV", y=titv)) +
-  xlab("SNVs") +
   ylab("Ti/Tv") +
   ggtitle("Ti/Tv for SNVs in each genome") +
   boxPlotTheme +
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 titv
 ```
 
@@ -444,11 +452,11 @@ sample.id;
 ```r
 hethom= ggplot(hetHomSnv) +
   geom_boxplot(aes(x="SNV", y=Het_Hom_ratio)) +
-  xlab("Sample") +
   ylab("Het/Hom") +
   ggtitle("Het/Hom for SNVs in each genome") +
   boxPlotTheme + 
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 hethom
 ```
 
@@ -507,11 +515,11 @@ dbSNPcount$proportion = dbSNPcount$num_VAR_dbSNP/dbSNPcount$num_VAR
 ```r
 dbSNP = ggplot(dbSNPcount) +
   geom_boxplot(aes(x=VAR_type, y=proportion)) +
-  xlab("Variant type") +
   ylab("Proportion of Variants in dbSNP") +
   ggtitle("Proportion of variants in dbSNP by variant type") +
   scale_y_continuous(label=comma) +
-  boxPlotTheme 
+  boxPlotTheme +
+  theme(axis.title.x=element_blank())
 dbSNP
 ```
 
@@ -555,11 +563,12 @@ sample_id ASC;
 ```r
 privateVariants = ggplot(privateSNVs) +
   geom_boxplot(aes(x="SNV", y=private_SNVs_count)) +
-  xlab("Sample") +
   ylab("Private Variants") +
   ggtitle("Number of private variants per genome") +
+  scale_y_continuous(label=comma) +
   boxPlotTheme + 
-  theme(axis.text.x=element_blank())
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank())
 privateVariants 
 ```
 
@@ -674,7 +683,7 @@ ggplot(rarity) +
 <img src="figure/variant-rarity-1.png" title="plot of chunk variant-rarity" alt="plot of chunk variant-rarity" style="display: block; margin: auto;" />
 
 
-## BRCA1 Mutation Spectrum
+## P53 Mutation Spectrum
 
 ```r
 require(NMF)
@@ -683,7 +692,7 @@ require(RColorBrewer)
 
 
 ```r
-mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-brca1.sql",
+mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-p53.sql",
                                               project=project,
                                               replacements=queryReplacements,
                                               max=Inf)
@@ -694,8 +703,8 @@ SELECT
 call.call_set_name,
 reference_name,
 window,
-window * 5000 AS window_start,
-((window * 5000) + 4999) AS window_end,
+window * 1000 AS window_start,
+((window * 1000) + 999) AS window_end,
 MIN(start) AS min_variant_position,
 MAX(start) AS max_variant_position,
 COUNT(call.call_set_name) AS num_variants_in_window
@@ -705,7 +714,7 @@ FROM (
   reference_name,
   start,
   end,
-  INTEGER(FLOOR(start / 5000)) AS window,
+  INTEGER(FLOOR(start / 1000)) AS window,
   reference_bases,
   GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
   GROUP_CONCAT(call.QC) WITHIN call AS call_qc,
@@ -719,7 +728,7 @@ FROM (
   HAVING
   cohort_qc IS NULL
   AND reference_name = "chr17"
-  AND ((start <= 41196311 AND end >= 41277500) OR (start >= 41196311 AND start <= 41277500))
+  AND ((start <= 7661779 AND end >= 7687550) OR (start >= 7661779 AND start <= 7687550))
 )
 GROUP BY
 call.call_set_name,
@@ -755,25 +764,14 @@ FROM
   [va_aaa_pilot_data.patient_info]
 ```
 
-Get z scores
-
-```r
-mutationSpectrum$zscores = sapply(1:nrow(mutationSpectrum), function(x){
-  count = mutationSpectrum[x,]$num_variants_in_window
-  sample = mutationSpectrum[x,]$call_call_set_name
-  mean = mean(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window)
-  sd = sd(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window) 
-  
-  z = (count-mean)/sd
-  z
-})
-```
-
 Convert mutation information to matrix 
 
 ```r
-spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "zscores", na.rm=TRUE)
+spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "num_variants_in_window", na.rm=TRUE)
 spectrum[is.na(spectrum)] <- 0
+
+spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
+rownames(spectrumMatrix) = spectrum$call_call_set_name
 
 sampleIds = data.frame(rownames(spectrumMatrix))
 names(sampleIds) = 'sample_id'
@@ -781,9 +779,6 @@ names(sampleIds) = 'sample_id'
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
 annotations = annotations[order(annotations$COHORT),]
 spectrum = spectrum[annotations$sample_id,]
-
-spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
-rownames(spectrumMatrix) = spectrum$call_call_set_name
 ```
 
 Set up for plot
@@ -799,10 +794,16 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="BRCA1 mutation spectrum in 5kb windows", fontsize=14)
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
 ```
 
 <img src="figure/mutation-spectrum-1.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
+
+```r
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=FALSE, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
+```
+
+<img src="figure/mutation-spectrum-2.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
 
 
 ## Variant Distribution
@@ -867,24 +868,7 @@ ORDER BY
 Sample_id,
 region,
 Chromosome;
-
-Retrieving data:  8.2s
-Retrieving data: 14.6s
-Retrieving data: 21.3s
-Retrieving data: 30.2s
-Retrieving data: 38.8s
-Retrieving data: 46.3s
-Retrieving data: 53.1s
-Retrieving data: 59.0s
-Retrieving data: 66.3s
-Retrieving data: 73.8s
-Retrieving data: 81.6s
-Retrieving data: 88.7s
-Retrieving data: 96.0s
-Retrieving data: 101.9s
-Retrieving data: 109.8s
-Retrieving data: 116.7s
-Retrieving data: 151.7s
+Retrieving data:  3.2sRetrieving data:  4.8sRetrieving data:  6.2sRetrieving data:  7.7sRetrieving data: 10.3sRetrieving data: 11.8sRetrieving data: 13.4sRetrieving data: 15.2sRetrieving data: 17.8sRetrieving data: 19.3sRetrieving data: 20.6sRetrieving data: 22.5sRetrieving data: 24.3sRetrieving data: 26.2sRetrieving data: 27.9sRetrieving data: 29.9sRetrieving data: 31.4s
 ```
 
 ```r
@@ -1002,78 +986,62 @@ multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ## Pathogenic Variants on ACMG Genes
 
 ```r
-acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-variants.sql",
+acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-pathogenic-variants-counts.sql",
                                               project=project,
                                               replacements=queryReplacements)
 ```
 
 ```
 SELECT
-refseq_GENE AS Gene,
-refseq_CHR AS Chr,
-refseq_Tx_START As Transcript_start,
-refseq_Tx_END AS Transcript_end,
-(refseq_Tx_END - refseq_Tx_START) AS Length_gene,
-call.call_set_name AS Sample_id,
-COUNT(start) AS Cnt_var
-FROM
-(
+Gene,
+Sample_id,
+COUNT(Tx_Start) AS count
+FROM(
   SELECT
-  call.call_set_name,
-  reference_name,
-  start,
-  end,
-  reference_bases,
-  GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternates,
-  GROUP_CONCAT(call.QC) WITHIN call AS call_qc,
-  GROUP_CONCAT(QC) WITHIN RECORD AS cohort_qc,
-  call.FILTER
+  Gene,
+  Chr,
+  Tx_Start,
+  Tx_End,
+  Pos,
+  Sample_id,
+  REF,
+  ALT,
+  Genotype,
+  type AS var_type,
+  clinicalsignificance AS Clin_Significance,
+  acmg_Phenotype,
+  ACMG_age_onset
   FROM
-  [va_aaa_pilot_data.multi_sample_variants_full_qc]
-  OMIT 
-  call IF EVERY(call.FILTER != "PASS")
-  OR SOME(call.QC IS NOT NULL)
-  HAVING
-  cohort_qc IS NULL
-) as geno
-CROSS JOIN
-[stanford.edu:gbsc-stanford-google:resources.56ACMGgenes_Tx] AS Acmg 
-WHERE
-geno.reference_name = Acmg.refseq_CHR
-AND geno.end <= Acmg.refseq_Tx_END
-AND geno.start >= Acmg.refseq_Tx_START
+  [gbsc-gcp-project-mvp:va_aaa_pilot_data.56_acmg_variants] AS var_acmg
+  JOIN 
+  (
+    SELECT 
+    CONCAT(STRING("chr"),
+           STRING(chromosome)) AS contig,
+    start,
+    type,
+    clinicalsignificance
+    FROM
+    [google.com:biggene:annotations.clinvar] 
+    WHERE
+    type = 'single nucleotide variant'
+    AND clinicalsignificance = 'Pathogenic'
+  ) AS clin
+  ON
+  var_acmg.Chr = clin.contig
+  AND var_acmg.Pos = clin.start)
 GROUP BY
 Gene,
-Chr,
-Transcript_start,
-Transcript_end,
-Length_gene,
 Sample_id
-ORDER BY
-Gene,
-Sample_id
-
-Retrieving data:  9.2s
-Retrieving data: 19.2s
+#ORDER BY
+#  Gene ASC,
+#  Sample_id ASC;
 ```
 
 #### Setup
-Get z scores
 
 ```r
-acmgVariants$zscores = sapply(1:nrow(acmgVariants), function(x){
-  count = acmgVariants[x,]$Cnt_var
-  sample = acmgVariants[x,]$Sample_id
-  mean = mean(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var)
-  sd = sd(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var) 
-  z = (count-mean)/sd
-  z
-})
-```
-
-
-```r
-acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "zscores", na.rm=TRUE)
+acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "count", na.rm=TRUE)
 sampleIds = data.frame(acmgExpanded$Sample_id)
 names(sampleIds) = "sample_id"
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
@@ -1100,10 +1068,11 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(acmgMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14, breaks=0)
+aheatmap(t(acmgMatrix), Rowv=FALSE, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
 ```
 
 <img src="figure/acmg-variants-1.png" title="plot of chunk acmg-variants" alt="plot of chunk acmg-variants" style="display: block; margin: auto;" />
+
 
 
 ## Allele Frequency Distributions vs 1000 Genomes
@@ -1206,7 +1175,7 @@ ggplot(frequencies) +
   plot_theme + 
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
-                    labels=c("Deeply sequenced\ngenomes specific", "1000 Genomes specific", "Overlapping alleles")) +
+                    labels=c("This study", "1000 Genomes specific", "Overlapping alleles")) +
   theme(legend.title=element_blank()) +
   guides(fill = guide_legend(reverse = TRUE)) +
   scale_x_discrete(breaks = c("HIGH", "MODERATE", "LOW"), labels=c(">0.05", "0.005-0.05","0.001-0.005"))
@@ -1214,3 +1183,145 @@ ggplot(frequencies) +
 
 <img src="figure/allele-frequencies-1kg-1.png" title="plot of chunk allele-frequencies-1kg" alt="plot of chunk allele-frequencies-1kg" style="display: block; margin: auto;" />
 
+## Query run times
+
+```r
+runtimes = read.csv('../data/query_run_times.csv')
+```
+
+Setup
+
+```r
+dataTraversed = melt(runtimes, id.vars = "Query", measure.vars=c("DataTraversed5Genomes","DataTraversed460Genomes"))
+times = melt(runtimes, id.vars = "Query", measure.vars=c("AverageRunTime5Genomes","AverageRunTime460Genomes"))
+times$plot="Average Run Time (seconds)"
+dataTraversed$plot="Data Processed (gigabytes)"
+queryInfo = rbind(times,dataTraversed)
+levels(queryInfo$variable) <- c(levels(queryInfo$variable), "5 Genomes", "460 Genomes")
+queryInfo[queryInfo == "AverageRunTime5Genomes"] <- "5 Genomes"
+queryInfo[queryInfo == "AverageRunTime460Genomes"] <- "460 Genomes"
+queryInfo[queryInfo == "DataTraversed5Genomes"] <- "5 Genomes"
+queryInfo[queryInfo == "DataTraversed460Genomes"] <- "460 Genomes"
+levels(queryInfo$variable) <- c("5 Genomes", "460 Genomes")
+```
+
+```
+## Error in `levels<-.factor`(`*tmp*`, value = c("5 Genomes", "460 Genomes": number of levels differs
+```
+
+```r
+queryInfo$variable <- factor(queryInfo$variable)
+```
+cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+```r
+ggplot(queryInfo) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  facet_grid(plot ~ ., scales="free_y") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  axis.title.y=element_blank(),
+  legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  ggtitle("Query processing information in BigQuery") +
+  scale_y_continuous(labels=comma, expand = c(0, 0))  
+```
+
+<img src="figure/run-time-1.png" title="plot of chunk run-time" alt="plot of chunk run-time" style="display: block; margin: auto;" />
+
+## Warfarin Dosage
+
+```r
+warfarin <- DisplayAndDispatchQuery("../sql/warfarin-dosage.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```
+SELECT
+  dosage,
+  COUNT(*) AS count
+FROM (
+SELECT 
+  call.call_set_name,
+  snps,
+  CASE
+    WHEN (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:ref%') THEN '5-7'
+    WHEN (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:ref%') THEN '5-7' 
+    WHEN (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:ref%') THEN '3-4'
+    
+    WHEN (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1057910:ref%' AND snps LIKE '%rs1799853:het%') THEN '5-7'
+    WHEN (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1057910:ref%' AND snps LIKE '%rs1799853:het%') THEN '3-4'
+    WHEN (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1057910:ref%' AND snps LIKE '%rs1799853:het%') THEN '3-4' 
+    
+    WHEN (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:het%') THEN '3-4'
+    WHEN (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:het%') THEN '3-4' 
+    WHEN (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:het%') THEN '0.5-2' 
+
+    WHEN (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:ref%') THEN '3-4'
+    WHEN (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:ref%') THEN '3-4' 
+    WHEN (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:ref%') THEN '0.5-2' 
+    
+    WHEN ((snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:het%' AND snps LIKE '%rs1057910:het%')
+      OR (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:hom%')) THEN '3-4'
+    WHEN ((snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:het%' AND snps LIKE '%rs1057910:het%')
+      OR (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:hom%')) THEN '0.5-2'
+    WHEN ((snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:het%' AND snps LIKE '%rs1057910:het%')
+      OR (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:hom%' AND snps LIKE '%rs1057910:hom%')) THEN '0.5-2'
+    
+    WHEN (snps LIKE '%rs9923231:ref%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:hom%') THEN '0.5-2'
+    WHEN (snps LIKE '%rs9923231:het%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:hom%') THEN '0.5-2' 
+    WHEN (snps LIKE '%rs9923231:hom%' AND snps LIKE '%rs1799853:ref%' AND snps LIKE '%rs1057910:hom%') THEN '0.5-2'
+    ELSE 'undeterminable'
+  END AS dosage
+FROM (
+SELECT
+  call.call_set_name,
+  GROUP_CONCAT(geno) AS snps
+FROM (
+SELECT
+  call.call_set_name,
+  names,
+  genotype,
+  CASE 
+    WHEN (genotype = '0,0') THEN CONCAT(names, ':ref')
+    WHEN (genotype = '0,1') THEN CONCAT(names, ':het')
+    WHEN (genotype = '1,1') THEN CONCAT(names, ':hom')
+    ELSE NULL
+  END AS geno
+FROM (
+SELECT
+  call.call_set_name,
+  names,
+  GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
+FROM
+  (FLATTEN((va_aaa_pilot_data.multi_sample_variants_full_qc),call.call_set_name))
+HAVING
+  names in ('rs1057910', 'rs1799853', 'rs9923231')
+)
+GROUP BY
+  call.call_set_name,
+  names,
+  genotype,
+  geno)
+GROUP BY
+  call.call_set_name))
+GROUP BY
+  dosage
+```
+
+
+```r
+ggplot(warfarin) +
+  geom_bar(aes('dosage',count, fill=dosage), width=1, stat="identity") +
+  coord_polar(theta='y') +
+  boxPlotTheme +
+  ggtitle("Recommended daily warfarin dosage") +
+  theme(axis.ticks=element_blank(),
+            axis.text=element_blank(),
+            axis.title=element_blank(),
+            panel.border=element_blank(),
+            plot.title = element_text(vjust=-2)) 
+```
+
+<img src="figure/warfarin-1.png" title="plot of chunk warfarin" alt="plot of chunk warfarin" style="display: block; margin: auto;" />

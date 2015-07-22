@@ -172,21 +172,27 @@ sample = 'LP6005038-DNA_A01'
 selection = callability[callability$call_call_set_name == sample,]
 selection$reference_name <- factor(selection$reference_name, levels=chromosomes)
 selection <- selection[complete.cases(selection),]
+selection$remainder <- selection$contig_len - selection$pos_no_point_info 
 
-faceted = melt(selection, id.vars="reference_name",measure.vars=c("prop_w_point_ino","pos_no_point_info"))
-
-levels(faceted$variable) <- c("Proportion of Positions Called", "Number of Missing Positions")
+faceted = melt(selection, id.vars=c("reference_name"),measure.vars=c("prop_w_point_ino","pos_no_point_info","remainder"))
+faceted$color = faceted$variable
+faceted[faceted$variable=="remainder",]$variable <- 'pos_no_point_info'
+faceted$variable <- factor(faceted$variable)
+levels(faceted$variable) <- c("Proportion of positions called", "Number of missing positions")
+levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Chromosome length")
 ```
 
 ```{r callability, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(faceted) + 
-  geom_bar(aes(reference_name,value), stat="identity") +
+  geom_bar(aes(reference_name,value, fill=color), stat="identity") +
   facet_grid(variable ~ ., scales="free_y") +
   scale_y_continuous(labels=comma, expand=c(0,0)) +
   plot_theme +
   xlab("Chromosome") +
+  scale_fill_brewer(palette=1) +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
-  axis.title.y=element_blank())
+    axis.title.y=element_blank(),
+    legend.title=element_blank())
 ```
 
 
@@ -303,14 +309,14 @@ ggplot(rarity) +
 ```
 
 
-## BRCA1 Mutation Spectrum
+## P53 Mutation Spectrum
 ```{r}
 require(NMF)
 require(RColorBrewer)
 ```
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
-mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-brca1.sql",
+mutationSpectrum <- DisplayAndDispatchQuery("../sql/mutation-spectrum-p53.sql",
                                               project=project,
                                               replacements=queryReplacements,
                                               max=Inf)
@@ -324,23 +330,13 @@ patientInfo <- DisplayAndDispatchQuery("../sql/patient-info.sql",
                                               max=Inf)
 ```
 
-Get z scores
-```{r}
-mutationSpectrum$zscores = sapply(1:nrow(mutationSpectrum), function(x){
-  count = mutationSpectrum[x,]$num_variants_in_window
-  sample = mutationSpectrum[x,]$call_call_set_name
-  mean = mean(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window)
-  sd = sd(mutationSpectrum[mutationSpectrum$call_call_set_name == sample,]$num_variants_in_window) 
-  
-  z = (count-mean)/sd
-  z
-})
-```
-
 Convert mutation information to matrix 
 ```{r}
 spectrum <- dcast(mutationSpectrum, call_call_set_name ~ window_start, value.var = "num_variants_in_window", na.rm=TRUE)
 spectrum[is.na(spectrum)] <- 0
+
+spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
+rownames(spectrumMatrix) = spectrum$call_call_set_name
 
 sampleIds = data.frame(rownames(spectrumMatrix))
 names(sampleIds) = 'sample_id'
@@ -349,8 +345,6 @@ annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TR
 annotations = annotations[order(annotations$COHORT),]
 spectrum = spectrum[annotations$sample_id,]
 
-spectrumMatrix = as.matrix(spectrum[,!colnames(spectrum) %in% c("call_call_set_name")])
-rownames(spectrumMatrix) = spectrum$call_call_set_name
 ```
 
 Set up for plot
@@ -364,7 +358,9 @@ names(cohort) = "Cohort"
 ```
 
 ```{r mutation-spectrum, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="BRCA1 mutation spectrum in 5kb windows", fontsize=14)
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
+
+aheatmap(t(spectrumMatrix), Rowv=NA, Colv=FALSE, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
 ```
 
 
@@ -466,26 +462,14 @@ multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 
 ## Pathogenic Variants on ACMG Genes
 ```{r message=FALSE, warning=FALSE, comment=NA}
-acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-variants.sql",
+acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-pathogenic-variants-counts.sql",
                                               project=project,
                                               replacements=queryReplacements)
 ```
 
 #### Setup
-Get z scores
 ```{r}
-acmgVariants$zscores = sapply(1:nrow(acmgVariants), function(x){
-  count = acmgVariants[x,]$Cnt_var
-  sample = acmgVariants[x,]$Sample_id
-  mean = mean(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var)
-  sd = sd(acmgVariants[acmgVariants$Sample_id == sample,]$Cnt_var) 
-  z = (count-mean)/sd
-  z
-})
-```
-
-```{r}
-acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "Cnt_var", na.rm=TRUE)
+acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "count", na.rm=TRUE)
 sampleIds = data.frame(acmgExpanded$Sample_id)
 names(sampleIds) = "sample_id"
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
@@ -510,8 +494,9 @@ names(cohort) = "Cohort"
 ```
 
 ```{r acmg-variants, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-aheatmap(t(acmgMatrix), Rowv=NA, Colv=NA, color="-RdBu:50",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14, breaks=0)
+aheatmap(t(acmgMatrix), Rowv=FALSE, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
 ```
+
 
 
 ## Allele Frequency Distributions vs 1000 Genomes
@@ -585,4 +570,24 @@ ggplot(queryInfo) +
   scale_fill_hue(l=40) +
   ggtitle("Query processing information in BigQuery") +
   scale_y_continuous(labels=comma, expand = c(0, 0))  
-  ```
+```
+
+## Warfarin Dosage
+```{r message=FALSE, warning=FALSE, comment=NA}
+warfarin <- DisplayAndDispatchQuery("../sql/warfarin-dosage.sql",
+                                              project=project,
+                                              replacements=queryReplacements)
+```
+
+```{r warfarin, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ggplot(warfarin) +
+  geom_bar(aes('dosage',count, fill=dosage), width=1, stat="identity") +
+  coord_polar(theta='y') +
+  boxPlotTheme +
+  ggtitle("Recommended daily warfarin dosage") +
+  theme(axis.ticks=element_blank(),
+            axis.text=element_blank(),
+            axis.title=element_blank(),
+            panel.border=element_blank(),
+            plot.title = element_text(vjust=-2)) 
+```

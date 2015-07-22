@@ -53,7 +53,7 @@ gcloud compute copy-files /Users/gmcinnes/src/googva/CustomMultiOutputFormat.jav
 
 Now we can ssh into the cluster and set things up from there.
 ```r
-gcloud compute ssh haddop-m
+gcloud compute ssh hadoop-m
 
 sudo apt-get install -y openjdk-7-jdk screen less vim
 
@@ -68,9 +68,6 @@ cd /home/hadoop/hadoop-install
 screen
 
 ./bin/hadoop jar contrib/streaming/hadoop-streaming-1.2.1.jar \
-  -D mapred.max.map.failures.percent=25 \
-  -D mapred.max.reduce.failures.percent=25 \
-  -D mapred.map.max.attempts=6 \
   -libjars /home/gmcinnes/custom.jar \
   -outputformat com.custom.CustomMultiOutputFormat \
   -input  gs://gbsc-gcp-project-mvp-va_aaa/data/LP*/*/vcfs/* \
