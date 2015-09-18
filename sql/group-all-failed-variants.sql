@@ -1,3 +1,5 @@
+# Group the tables containing failed variants together.
+
 SELECT 
 variant_id,
 failure_reason,
