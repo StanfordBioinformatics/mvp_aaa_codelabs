@@ -1,3 +1,5 @@
+# Identify genomes where the missingness value is above a defined cutoff (0.9 recommended).
+
 SELECT
   sample_id,
   missingness
