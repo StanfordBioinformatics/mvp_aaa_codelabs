@@ -1,3 +1,8 @@
+# Count the number of pathogenic variants within ACMG genes.
+# This query joins a precomputed table with only ACMG variants with
+# an Annovar annotation table and selects variants that have been
+# determined to be pathogenic by ClinVar.
+
 SELECT
 Gene,
 Sample_id,
