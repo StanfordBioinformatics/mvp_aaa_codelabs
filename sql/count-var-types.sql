@@ -1,3 +1,5 @@
+# Count the number of variant types (SNVs or INDELs) for 5 genome test genome calls table.
+
 SELECT
   "5 test genomes" AS sample_id,
   VAR_type,
