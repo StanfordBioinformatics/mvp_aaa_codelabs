@@ -1,3 +1,5 @@
+# Calculate genome callability for each genome in the genome calls table.
+
 SELECT
 call.call_set_name,
 reference_name,
