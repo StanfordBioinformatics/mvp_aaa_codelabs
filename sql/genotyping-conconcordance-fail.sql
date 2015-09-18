@@ -1,3 +1,5 @@
+# Identify genomes whose concordance with genotyping data is below a defined cutoff.  
+
 SELECT
   sample_id,
   concordance,
