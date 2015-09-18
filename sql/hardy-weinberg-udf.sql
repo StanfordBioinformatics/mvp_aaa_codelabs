@@ -1,3 +1,5 @@
+# Calculate Hardy-Weinberg equilibrium for each variant using a user-defined function.
+
 SELECT
 reference_name,
 start,
