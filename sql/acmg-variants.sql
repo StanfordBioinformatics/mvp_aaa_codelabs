@@ -1,3 +1,6 @@
+# Select variants within ACMG genes.  This query joins the multi sample variants
+# table with a table listing the ACMG genes.
+
 SELECT
 refseq_GENE AS Gene,
 refseq_CHR AS Chr,
