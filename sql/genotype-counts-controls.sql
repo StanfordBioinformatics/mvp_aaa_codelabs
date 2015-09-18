@@ -1,3 +1,7 @@
+# Count the number of homozygous negative, heterozygous, homozygous positive, and multiallelic positions
+# in genomes NOT associated with AAA (aaa size < 3.0).  Output format is based on requirements from
+# recipient (Dana).
+
 SELECT
 chromosome,
 start,
