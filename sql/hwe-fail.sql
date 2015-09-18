@@ -1,4 +1,4 @@
-# Get all variants that have a chi squared value above a definited limit
+# Get all variants that have a chi squared value for Hardy-Weinberg equilibrium above a definited limit
 SELECT
   variant_id,
   chisq,
