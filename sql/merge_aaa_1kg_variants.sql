@@ -1,3 +1,6 @@
+# Merge variants from the AAA dataset and the 1000 Genomes dataset.
+# NOTE: some counts are hard-coded in this query.  Use with caution.
+
 SELECT *
   FROM
 (
