@@ -1,4 +1,5 @@
-# Get chisq quantile cutoff
+# Determine the value of the Nth quantile for Hardy-Weinberg equilibrium across all variants.
+
 SELECT 
   quantile AS cutoff,
   row_num,
