@@ -1,3 +1,5 @@
+  # Count the number of heterozygous calls for each genome in the multi sample variants table.
+  
   SELECT
     call.call_set_name,
     SUM(first_allele != second_allele) AS O_HET
