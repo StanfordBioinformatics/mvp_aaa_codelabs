@@ -1,3 +1,6 @@
+# Select variants that are found within blacklisted genes.
+# https://sites.google.com/site/anshulkundaje/projects/blacklists
+
 SELECT
   seq.variant_id AS variant_id,
   "blacklisted" AS failure_reason,
