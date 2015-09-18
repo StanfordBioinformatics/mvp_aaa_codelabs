@@ -1,3 +1,7 @@
+# Identify genomes whose reported gender does not match the calculated gender.  The
+# calculated gender is determined by the frequency of heterozygous calls on the X
+# chromosome.
+
 SELECT 
   sample_id,
   gender,
