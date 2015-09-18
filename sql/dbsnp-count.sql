@@ -1,3 +1,7 @@
+# Count the number of SNPs found in dbSNP with the multi sample variants table.
+# A position is considered to be in dbSNP only if there is an rsid in the 'names'
+# column.
+
 SELECT
 call.call_set_name AS sample_id,
 VAR_type,
