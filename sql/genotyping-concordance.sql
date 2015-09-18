@@ -1,3 +1,5 @@
+# Calculate the concordance between sequencing data and genotyping data.
+
 SELECT
   sample_id,
   calls_in_common,
