@@ -1,3 +1,5 @@
+# Count the number of SNVs and INDELs within the multi sample variants table.
+
 SELECT
 Genotype,
 COUNT(genotype) AS Cnt
