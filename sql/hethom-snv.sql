@@ -1,3 +1,5 @@
+# Calculate the het/hom ratio for SNVs within the multi sample variants table.
+
 SELECT
 sample.id,
 (hom_AA_count + het_RA_count) AS all_SNV_count,
