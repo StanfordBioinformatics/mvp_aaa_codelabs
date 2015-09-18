@@ -1,11 +1,15 @@
+# Count the number of homozygous negative, heterozygous, homozygous positive, and multiallelic positions
+# in genomes associated with AAA (aaa size >= 3.0).  Output format is based on requirements from
+# recipient (Dana).
+
 SELECT
 chromosome,
 start,
 # Genotype counts
-SUM(CASE WHEN genotype = "[0,1]" AND aaa_size > 3 THEN 1 ELSE 0 END) AS nr_sample_het01_SNV,
-SUM(CASE WHEN genotype = "[1,2]" AND aaa_size > 3 THEN 1 ELSE 0 END) AS nr_sample_het12_SNV,
-SUM(CASE WHEN genotype = "[1,1]" AND aaa_size > 3 THEN 1 ELSE 0 END) AS nr_sample_hom11_SNV,
-SUM(CASE WHEN genotype = "[0,0]" AND aaa_size > 3 THEN 1 ELSE 0 END) AS nr_sample_hom00_REF,
+SUM(CASE WHEN genotype = "[0,1]" AND aaa_size >= 3 THEN 1 ELSE 0 END) AS nr_sample_het01_SNV,
+SUM(CASE WHEN genotype = "[1,2]" AND aaa_size >= 3 THEN 1 ELSE 0 END) AS nr_sample_het12_SNV,
+SUM(CASE WHEN genotype = "[1,1]" AND aaa_size >= 3 THEN 1 ELSE 0 END) AS nr_sample_hom11_SNV,
+SUM(CASE WHEN genotype = "[0,0]" AND aaa_size >= 3 THEN 1 ELSE 0 END) AS nr_sample_hom00_REF,
 FROM (
   
   SELECT
@@ -46,10 +50,10 @@ FROM (
       call.call_set_name, reference_name, start, end, call.genotype,
       // Output Schema
       "[{name: 'sample_id', type: 'string'},
-{name: 'reference_name', type: 'string'},
-{name: 'start', type: 'integer'},
-{name: 'end', type: 'integer'},
-{name: 'genotype', type: 'string'}]",
+      {name: 'reference_name', type: 'string'},
+      {name: 'start', type: 'integer'},
+      {name: 'end', type: 'integer'},
+      {name: 'genotype', type: 'string'}]",
       // Function
       "function(r, emit) {
       for (c of r.call) {
