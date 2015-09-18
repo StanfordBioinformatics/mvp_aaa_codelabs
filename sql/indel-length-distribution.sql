@@ -24,7 +24,7 @@ FROM(
       end,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN RECORD AS genotype,
     FROM
-      FLATTEN([va_aaa_pilot_data.5_genome_test_gvcfs_2], call.call_set_name)
+      FLATTEN([_THE_TABLE_], call.call_set_name)
     OMIT RECORD IF EVERY (call.genotype <= 0)
     HAVING
       num_alts = 1
