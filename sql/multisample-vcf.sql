@@ -1,3 +1,5 @@
+# Convert the multi sample variant table to something that resembles a multi sample VCF as much as possible.
+
 SELECT
   CHROM,
   POS,
@@ -21,7 +23,7 @@ FROM js(
      call.FILTER, 
      call.QUAL
    FROM
-     [va_aaa_pilot_data.all_genomes_expanded_vcfs_java3]
+     [_THE_EXPANDED_TABLE_]
    OMIT RECORD IF EVERY(call.genotype <= 0)
    #LIMIT 1000
   ),
