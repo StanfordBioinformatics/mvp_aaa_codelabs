@@ -1,3 +1,6 @@
+# Select genomes that are outside a defined range for the number of heterozygous calls.  
+# This query requires that _MAIN_QUERY_ be substituted with the contents of heterozygous-call-counts.sql
+
 SELECT
 call.call_set_name AS sample_id,
 O_HET
