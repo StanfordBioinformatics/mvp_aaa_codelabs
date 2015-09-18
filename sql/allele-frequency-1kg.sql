@@ -1,3 +1,7 @@
+# Compare allele frequencies between two datasets.  In this case, a table
+# has been precomputed for allele frequencies between the AAA dataset and
+# the thousand genomes dataset.
+
 SELECT
   frequency,
   population,
