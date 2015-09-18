@@ -1,4 +1,5 @@
-# Determine the value of the Nth quantile for Hardy-Weinberg equilibrium across all variants.
+# Determine the value of the Nth quantile for Hardy-Weinberg equilibrium across all variants. 
+# 1999th quantile suggested.
 
 SELECT 
   quantile AS cutoff,
