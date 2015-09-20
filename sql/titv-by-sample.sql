@@ -1,3 +1,5 @@
+# Calculate the ti/tv ratio for each sample.
+
 SELECT
 call.call_set_name AS sample.id,
 transitions,
