@@ -1,3 +1,5 @@
+# Select variant ids for which the ti/tv ratio for a given window is outside a defined range.
+
 SELECT
 var.variant_id AS variant_id,
 titv,
