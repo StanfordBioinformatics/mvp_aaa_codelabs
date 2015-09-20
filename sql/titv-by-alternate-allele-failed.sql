@@ -1,4 +1,4 @@
-# Compute the Ti/Tv ratio for variants binned by alternate allele count.
+# Identify the alternate allele counts for which the Ti/Tv ratio is outside a defined range.
 SELECT
   *
 FROM (
