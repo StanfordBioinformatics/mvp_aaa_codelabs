@@ -1,3 +1,5 @@
+# Count variant counts for each gene
+
 SELECT
 Sample_id,
 Chromosome,
