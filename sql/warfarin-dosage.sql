@@ -1,3 +1,5 @@
+# Determine the number of samples that require each Warfarin dosage recommmendation based on their genotypes.
+
 SELECT
   dosage,
   COUNT(*) AS count
