@@ -1,3 +1,5 @@
+# Select variant ids for samples at a specified depth
+
 SELECT
   variant_id,
   call.call_set_name AS sample_id,
