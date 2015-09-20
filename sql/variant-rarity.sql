@@ -1,3 +1,5 @@
+# Bin variants by the number of samples that contain that variant.
+
 SELECT 
 reference_name,
 rarity,
