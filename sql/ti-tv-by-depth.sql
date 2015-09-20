@@ -1,3 +1,5 @@
+# Calculate ti/tv ratio for all SNPs for each sample grouped by depth of coverage.
+
 SELECT
   call.call_set_name,
   (transitions/transversions) AS titv_ratio,
