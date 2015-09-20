@@ -1,3 +1,6 @@
+# Calculate the frequency of mutations in 1kb windows on P53 for each sample in the
+# multi sample variants table.
+
 SELECT
 call.call_set_name,
 reference_name,
