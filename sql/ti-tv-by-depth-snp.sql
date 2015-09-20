@@ -1,4 +1,4 @@
-# Compute the ti/tv ratio for snps grouped by depth of coverage.
+# Compute the ti/tv ratio for known snps grouped by depth of coverage.
 
 SELECT
   call.call_set_name,
