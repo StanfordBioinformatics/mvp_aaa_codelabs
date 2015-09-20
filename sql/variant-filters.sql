@@ -1,3 +1,4 @@
+# Select contents of the FILTER field for variants.
 SELECT
   call.call_set_name AS sample_name,
   call.FILTER AS filter,
