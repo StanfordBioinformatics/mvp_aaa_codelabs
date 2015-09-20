@@ -1,3 +1,5 @@
+# Count the number of variants on each chromsome for the entire cohort.
+
 SELECT
 reference_name,
 VAR_type,
