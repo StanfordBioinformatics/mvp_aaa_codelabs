@@ -1,4 +1,4 @@
-# overly complicated but does the job
+# Count the total number of mutations within a cohort.
 
 SELECT
   COUNT(mutation) AS count,
