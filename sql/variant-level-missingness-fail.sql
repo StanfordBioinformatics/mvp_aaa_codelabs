@@ -1,3 +1,5 @@
+# Select positions where the missingness rate across all samples is above a defined cutoff.
+
 SELECT 
 variant_id,
 "variant_missingness" AS failure_reason,
