@@ -1,3 +1,5 @@
+# Identify samples as cases or controls based on AAA size
+
 SELECT 
   IlluminaID AS sample_id,
   AAA_SIZE,
