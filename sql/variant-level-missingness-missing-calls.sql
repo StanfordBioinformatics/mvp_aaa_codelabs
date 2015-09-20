@@ -1,5 +1,4 @@
-#SELECT  FROM [va_aaa_pilot_data.5_genome_test_vcfs_no_calls] LIMIT 1000
-# Compute the ratio no-calls for each variant.
+# Compute the ratio of no-calls for each variant.
 SELECT
   reference_name,
   start,
