@@ -1,3 +1,6 @@
+# Select varaiant ids for which the ti/tv ratio is outside a specifed range when variants are grouped by
+# depth of coverage for each sample.
+
 SELECT 
   variant_id,
   titv.titv_ratio,
