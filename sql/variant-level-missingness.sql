@@ -1,4 +1,5 @@
 # Compute the ratio no-calls for each variant.
+# Note: this query does not account for samples for which no record is reported at a given position.
 SELECT
   reference_name,
   start,
