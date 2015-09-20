@@ -1,3 +1,5 @@
+# Select the genotypes for the SNPs known to impact Warfarin dosage recommendations.
+
 SELECT
 call.call_set_name,
 names,
