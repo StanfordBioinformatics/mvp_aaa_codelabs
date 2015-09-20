@@ -1,3 +1,6 @@
+# Calculate the frequency of mutations in 5kb windows on BRCA1 for each sample in the
+# multi sample variants table.
+
 SELECT
 call.call_set_name,
 reference_name,
