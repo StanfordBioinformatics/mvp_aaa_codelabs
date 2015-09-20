@@ -1,3 +1,5 @@
+# Compute the ti/tv ratio for snps grouped by depth of coverage.
+
 SELECT
   call.call_set_name,
   (transitions/transversions) AS titv_ratio,
