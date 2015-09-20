@@ -1,3 +1,5 @@
+# Calculate quality metrics (MQ, MQ0, QUAL) for each sample.
+
 SELECT
   call.call_set_name AS sample_name,
   MIN(call.QUAL) AS min_QUAL,
