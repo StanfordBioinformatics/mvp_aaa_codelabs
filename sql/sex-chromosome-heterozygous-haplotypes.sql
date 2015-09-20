@@ -1,3 +1,5 @@
+# Identify heterozygous variants on the sex chromosomes for reportedly male samples. 
+
 SELECT
   variant_id,
   sample_id,
