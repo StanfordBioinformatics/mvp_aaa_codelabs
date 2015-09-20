@@ -1,3 +1,5 @@
+# Select only the sample names from a table
+
 SELECT
   call.call_set_name AS sample_name,
 FROM 
