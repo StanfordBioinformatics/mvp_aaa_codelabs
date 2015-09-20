@@ -1,3 +1,6 @@
+# Count the number of private variants within each sample in the multi
+# sample variants table.
+
 SELECT
 call.call_set_name AS sample_id,
 COUNT(call.call_set_name) AS private_SNVs_count
