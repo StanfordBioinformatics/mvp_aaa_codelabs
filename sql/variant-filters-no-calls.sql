@@ -1,3 +1,5 @@
+# Select the contents of the FILTER field for positions in which there is a no-call.
+
 SELECT
   call.call_set_name AS sample_name,
   call.FILTER AS filter,
