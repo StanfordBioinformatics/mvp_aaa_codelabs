@@ -105,9 +105,6 @@ snps$Cnt <- snps$Cnt/1000000
 indels <- variantCountResult[grep("INDEL", variantCountResult$VAR_type), ]
 indels$reference_name <- factor(indels$reference_name, levels=chromosomes)
 indels <- indels[complete.cases(indels),]
-
-
-
 ```
 
 ```{r snv-counts-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
@@ -135,9 +132,9 @@ indels
 #### Saturation Rate
 ```{r message=FALSE, warning=FALSE, comment=NA}
 # Need to redo queries for this
-genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,478)
+genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,460)
 snvCount = c(3590360,4847512,5627244,6158953,6616457,
-              8014799,11841547,14387937,18693833,21567571,23638061,25890797)
+              8014799,11841547,14387937,18693833,21567571,23638061,25763436)
 saturationRate = data_frame(genomeCount, snvCount)
 saturationRate$snvCount = saturationRate$snvCount/1000000
 ```
@@ -154,7 +151,7 @@ saturation
 ```
 
 #### Multiplot
-```{r variant-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure3, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(snvs,indels, counts, saturation, cols=2)
 ```
 
@@ -178,16 +175,17 @@ faceted = melt(selection, id.vars=c("reference_name"),measure.vars=c("prop_w_poi
 faceted$color = faceted$variable
 faceted[faceted$variable=="remainder",]$variable <- 'pos_no_point_info'
 faceted$variable <- factor(faceted$variable)
-levels(faceted$variable) <- c("Proportion of positions called", "Number of missing positions")
-levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Chromosome length")
+levels(faceted$variable) <- c("Proportion of positions called", "Number of positions")
+levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Remainder of hg19 callable positions")
 ```
 
-```{r callability, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure4, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(faceted) + 
   geom_bar(aes(reference_name,value, fill=color), stat="identity") +
   facet_grid(variable ~ ., scales="free_y") +
   scale_y_continuous(labels=comma, expand=c(0,0)) +
   plot_theme +
+  ggtitle("LP6005038-DNA_A01 callability") +
   xlab("Chromosome") +
   scale_fill_brewer(palette=1) +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
@@ -273,7 +271,7 @@ privateVariants
 ```
 
 #### Multiplot
-```{r boxplots-multiplot-publication, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure5, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 ```
 
@@ -294,7 +292,7 @@ rarity$reference_name <- factor(rarity$reference_name, levels=chromosomes)
 rarity$rarity <- factor(rarity$rarity, levels = c("very_rare", "rare", "relatively_common", "common"), ordered=TRUE)
 ```
 
-```{r variant-rarity, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure6, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(rarity) +
   geom_bar(aes(factor(reference_name), proportion, fill=rarity, order=rarity), stat='identity', position='stack') +
   xlab("Chromosome") +
@@ -357,9 +355,7 @@ cohort = data.frame(annotations$COHORT)
 names(cohort) = "Cohort"
 ```
 
-```{r mutation-spectrum, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
-
+```{r Tsao-SupplementaryFigure7, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 aheatmap(t(spectrumMatrix), Rowv=NA, Colv=FALSE, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
 ```
 
@@ -455,7 +451,7 @@ splicing
 
 #### Multiplot
 #### Normalized variant counts by genomic region
-```{r regional-counts, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure8, fig.align="center", fig.width=14, message=FALSE, comment=NA}
 multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
 
@@ -470,6 +466,11 @@ acmgVariants <- DisplayAndDispatchQuery("../sql/acmg-pathogenic-variants-counts.
 #### Setup
 ```{r}
 acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "count", na.rm=TRUE)
+missing = subset(x, !(sample_id %in% acmgExpanded$Sample_id))
+genes = names(acmgExpanded)[2:ncol(acmgExpanded)]
+missing[,genes] <- NA
+names(missing) <- names(acmgExpanded)
+acmgExpanded <- rbind(acmgExpanded, missing)
 sampleIds = data.frame(acmgExpanded$Sample_id)
 names(sampleIds) = "sample_id"
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
@@ -494,9 +495,8 @@ names(cohort) = "Cohort"
 ```
 
 ```{r acmg-variants, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-aheatmap(t(acmgMatrix), Rowv=FALSE, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
+aheatmap(t(acmgMatrix), Rowv=NA, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
 ```
-
 
 
 ## Allele Frequency Distributions vs 1000 Genomes
@@ -528,7 +528,7 @@ ggplot(frequencies) +
   geom_bar(aes(frequency, normalized, fill=population, order=population), stat="identity") +
   xlab("Allele frequency") +
   ylab("Proportion of total count") +
-  ggtitle("Allele frequency overlap between\ndeeply sequenced genomes and the\nEuropean subpopulation in 1000 Genomes") +
+  ggtitle("Allele frequency overlap\nbetween genomes from this study and the\nEuropean subpopulation in 1000 Genomes") +
   plot_theme + 
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
@@ -548,7 +548,7 @@ Setup
 dataTraversed = melt(runtimes, id.vars = "Query", measure.vars=c("DataTraversed5Genomes","DataTraversed460Genomes"))
 times = melt(runtimes, id.vars = "Query", measure.vars=c("AverageRunTime5Genomes","AverageRunTime460Genomes"))
 times$plot="Average Run Time (seconds)"
-dataTraversed$plot="Data Processed (gigabytes)"
+dataTraversed$plot="Estimated cost (dollars)"
 queryInfo = rbind(times,dataTraversed)
 levels(queryInfo$variable) <- c(levels(queryInfo$variable), "5 Genomes", "460 Genomes")
 queryInfo[queryInfo == "AverageRunTime5Genomes"] <- "5 Genomes"
@@ -558,9 +558,9 @@ queryInfo[queryInfo == "DataTraversed460Genomes"] <- "460 Genomes"
 levels(queryInfo$variable) <- c("5 Genomes", "460 Genomes")
 queryInfo$variable <- factor(queryInfo$variable)
 ```
-cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 ```{r run-time, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(queryInfo) +
+runTimeFacet = ggplot(queryInfo) +
   geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
   facet_grid(plot ~ ., scales="free_y") +
   plot_theme +
@@ -570,6 +570,41 @@ ggplot(queryInfo) +
   scale_fill_hue(l=40) +
   ggtitle("Query processing information in BigQuery") +
   scale_y_continuous(labels=comma, expand = c(0, 0))  
+runTimeFacet
+```
+
+Same plot with the bottom plot on log scale
+
+Setup
+```{r}
+avgRunTime = queryInfo[queryInfo$plot == "Average Run Time (seconds)",]
+p1 = ggplot(avgRunTime) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  ylab("Average Run Time\n(seconds)\n") +
+  ggtitle("Query processing information in BigQuery") +
+  scale_y_continuous(labels=comma, expand = c(0, 0)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank())
+
+
+dataProcessed = queryInfo[queryInfo$plot == "Estimated cost (dollars)",]
+dataProcessed$value = 50000 * dataProcessed$value / 1024 # Converting mb to cost.  $5/TB
+p2 = ggplot(dataProcessed) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  ylab("Estimated cost\n(dollars)") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+    legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  scale_y_continuous(expand = c(0, 0), trans='log', breaks=c(100,1000,10000,100000), labels= c("$0.01", "$0.10", "$1.00", "$10")) 
+```
+
+```{r run-time-log, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+multiplot(p1, p2)
 ```
 
 ## Warfarin Dosage
@@ -579,15 +614,105 @@ warfarin <- DisplayAndDispatchQuery("../sql/warfarin-dosage.sql",
                                               replacements=queryReplacements)
 ```
 
-```{r warfarin, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+```{r Tsao-SupplementaryFigure9, fig.align="center", fig.width=10, message=FALSE, comment=NA}
 ggplot(warfarin) +
   geom_bar(aes('dosage',count, fill=dosage), width=1, stat="identity") +
   coord_polar(theta='y') +
+  geom_text(aes(x=1.25,y = count/3 + c(0, cumsum(count)[-length(count)]), 
+            label = count), size=5) +
   boxPlotTheme +
   ggtitle("Recommended daily warfarin dosage") +
+  guides(fill=guide_legend(title="Recommended\ndosage (mg)")) +
+  scale_fill_brewer(palette=1) +
   theme(axis.ticks=element_blank(),
             axis.text=element_blank(),
             axis.title=element_blank(),
             panel.border=element_blank(),
             plot.title = element_text(vjust=-2)) 
 ```
+
+## Variant Counts Per Genome
+```{r message=FALSE, warning=FALSE, comment=NA}
+noQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_no_qc")
+noqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=noQcTable)
+noqc[noqc$VAR_type=="REF",]$Cnt <- noqc[noqc$VAR_type=="REF",]$Length
+noqc$Group = "No QC"
+```
+
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+seqQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_seq_qc")
+seqqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=seqQcTable)
+seqqc[seqqc$VAR_type=="REF",]$Cnt <- seqqc[seqqc$VAR_type=="REF",]$Length
+seqqc$Group = "Seq QC"
+```
+
+```{r message=FALSE, warning=FALSE, comment=NA}
+fullQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_full_qc",
+                   "#_QC_"="OR SOME(call.QC IS NOT NULL) HAVING QC IS NULL",
+                   "#_QCSELECT_"="GROUP_CONCAT(QC) WITHIN RECORD AS qc")
+fullqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=fullQcTable)
+fullqc[fullqc$VAR_type=="REF",]$Cnt <- fullqc[fullqc$VAR_type=="REF",]$Length
+fullqc$Group = "Full QC"
+```
+
+```{r}
+refs = rbind(noqc[noqc$VAR_type=="REF",],seqqc[seqqc$VAR_type=="REF",],fullqc[fullqc$VAR_type=="REF",])
+refs$Group = factor(refs$Group, levels = c("No QC", "Seq QC", "Full QC"))
+refs$Cnt = refs$Cnt/1000000000
+```
+
+```{r ref_counts, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+refCounts = ggplot(refs) +
+  geom_boxplot(aes(Group, Cnt)) +
+  boxPlotTheme +
+  ylab("Count (billions)") + 
+  ggtitle("Reference calls per genome") +
+  xlab("QC level") +
+  theme(axis.title.x=element_blank())
+refCounts
+```
+
+```{r}
+snvs = rbind(noqc[noqc$VAR_type=="SNV",],seqqc[seqqc$VAR_type=="SNV",],fullqc[fullqc$VAR_type=="SNV",])
+snvs$Group = factor(snvs$Group, levels = c("No QC", "Seq QC", "Full QC"))
+snvs$Cnt = snvs$Cnt/1000000
+```
+
+```{r snv_counts, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+snvCounts = ggplot(snvs) +
+  geom_boxplot(aes(Group, Cnt)) +
+  boxPlotTheme +
+  ylab("Count (millions)") +
+  ggtitle("SNVs per genome") +
+  xlab("QC level") +
+  theme(axis.title.x=element_blank())
+snvCounts
+```
+
+```{r}
+indels = rbind(noqc[noqc$VAR_type=="INDEL",],seqqc[seqqc$VAR_type=="INDEL",],fullqc[fullqc$VAR_type=="INDEL",])
+indels$Group = factor(indels$Group, levels = c("No QC", "Seq QC", "Full QC"))
+```
+
+```{r indel_counts, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+indelCounts = ggplot(indels) +
+  geom_boxplot(aes(Group, Cnt)) +
+  scale_y_continuous(labels=comma) +
+  boxPlotTheme +
+  ggtitle("INDELs per genome") +
+  ylab("Count") +
+  theme(axis.title.x=element_blank())
+indelCounts
+```
+
+```{r Tsao-SupplementaryFigure2, fig.align="center", fig.width=14, message=FALSE, comment=NA}
+multiplot(refCounts,snvCounts,indelCounts)
+```
+

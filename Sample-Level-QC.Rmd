@@ -36,19 +36,21 @@ require(scales)
 source("./rHelpers/setup.R")
 ```
 
-ggplot2 themes to use throughout this page.
-```{r}
-plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid = element_blank())
-
-boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
-  theme(panel.grid = element_blank())
-```
-
 In Parts 2 & 3 of the codelab we describe the details of each quality control step implemented on our population of genomes.  In Part 2 we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
 
 To skip the details and jump to the implementation of the quality control methods skip to [Part 4: QC Implementation](./QC-Implementation.md).
+* [Setup](#setup)
+* [Missingness Rate](#missingness-rate)
+* [Singleton Rate](#singleton-rate)
+* [Inbreeding Coefficient](#inbreeding-coefficient)
+* [Heterozygosity Rate](#heterozygosity-rate)
+* [Sex Inference](#sex-inference)
+* [Genotyping Concordance](#genotyping-concordance)
+* [Batch Effect](#batch-effect)
+* [Ethnicity Inference](#ethnicity-inference)
+* [Genome Similarity](#genome-similarity)
+
+## Setup
 
 ```{r}
 tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_seq_qc",
@@ -62,15 +64,17 @@ sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 ```
 
-* [Missingness Rate](#missingness-rate)
-* [Singleton Rate](#singleton-rate)
-* [Inbreeding Coefficient](#inbreeding-coefficient)
-* [Heterozygosity Rate](#heterozygosity-rate)
-* [Sex Inference](#sex-inference)
-* [Genotyping Concordance](#genotyping-concordance)
-* [Batch Effect](#batch-effect)
-* [Ethnicity Inference](#ethnicity-inference)
-* [Genome Similarity](#genome-similarity)
+ggplot2 themes to use throughout this page.
+```{r}
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
+```
+
+
 
 ## Missingness Rate
 

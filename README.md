@@ -10,9 +10,13 @@ This section explains and demonstrates the methods used to perform quality contr
 ### Part 3: [Variant Level Quality Control](./Variant-Level-QC.md) 
 This section explains and demonstrates the methods used to perfrom quality control on each variant in the genomes.
 
-### Part 4: [Final Table Generation](./Final-Table-Generation.md)
-This part of the codelab demonstrates how to create BigQuery tables with samples and variants flagged that did not pass quality control.
+###  Part 4: [QC Implementation](./QC-Implementation.md)
+This part of the codelab demonstrates execution of the QC pipeline, removing low quality samples, and flagging low quality variants.
 
-### Part 5: Analysis
+### Part 5: [Analysis](./Analysis.md)
+This section demonstrates some basic analyses that can be performed using BigQuery including a running basic GWAS and uploading annotation tables.
 
-### Part 6: Biological Significance
+The overall workflow discussed here is visualized in the workflow below.
+
+<img src="figure/bioinformatics_workflow.png" title="bioinformatics workflow" alt="bioinformatics workflow" style="display: block; margin: auto;" />
+

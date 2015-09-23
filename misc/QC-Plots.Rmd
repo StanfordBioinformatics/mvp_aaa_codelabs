@@ -15,6 +15,7 @@ project <- "gbsc-gcp-project-mvp"
 
 # Set up for BigQuery access.
 source("../rHelpers/setup.R")
+source("../rHelpers/multiplot.R")
 
 # Define Query Substitutions
 queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs",
@@ -56,7 +57,7 @@ concordanceResult = cbind(concordanceResult, plate)
 ```
 
 ```{r concordance-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(concordanceResult) +
+concordance <- ggplot(concordanceResult) +
   geom_point(aes(x=sample_id, y=concordance, color=plate), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Concordance") +
@@ -67,7 +68,8 @@ ggplot(concordanceResult) +
         panel.grid.major.x = element_blank(),
         panel.grid.minor.x = element_blank(),
         axis.ticks.x = element_blank(),
-        legend.position = c(0.2, 0.8))
+        legend.position = c(0.2, 0.7))
+concordance
 ```
 
 ####Batch Effect PCA
@@ -80,18 +82,18 @@ pcaResult = cbind(pcaResult, plate)
 ```
 
 ```{r pca-batch-effect-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(pcaResult, aes(pc1, pc2, color=plate)) + 
+batch <- ggplot(pcaResult, aes(pc1, pc2, color=plate)) + 
   geom_point(size=4, alpha=0.5) +
-  ggtitle("Principal Component Analysis") +
-  xlab("Principal Component 1") + 
-  ylab("Principal Component 2") +
+  ggtitle("Batch Effect PCA") +
+  xlab("Principal component 1") + 
+  ylab("Principal component 2") +
   scale_colour_brewer(name="Library Prep Plate", palette="Set1") +
   plot_theme +
   theme(axis.text.x=element_blank(),
         axis.text.y=element_blank(),
         axis.ticks=element_blank(),
         legend.position = c(0.85,0.75))
-
+batch
 ```
 
 #### IBS
@@ -167,7 +169,8 @@ DrawHeatMap <- function(ibsData) {
 ```
 
 ```{r ibs-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-DrawHeatMap(ibsDataflowDataSubset)
+ibs <- DrawHeatMap(ibsDataflowDataSubset)
+ibs
 ```
 
 
@@ -181,7 +184,7 @@ joinedResult <- inner_join(result, sampleInfo)
 ```
 
 ```{r sex-inference-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(joinedResult) +
+sex <- ggplot(joinedResult) +
   geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=4, alpha=0.5) +
   xlab("Sample") +
   ylab("Heterozygosity Rate") +
@@ -193,6 +196,7 @@ ggplot(joinedResult) +
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank(),
     legend.position = c(0.85, 0.55))
+sex
 ```
 
 
@@ -214,13 +218,14 @@ titvWindowResults <- DisplayAndDispatchQuery("../sql/ti-tv-ratio.sql",
 ```
 
 ```{r titv-by-genomic-window-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(titvWindowResults, aes(x=window_start, y=titv)) +
+titv_gw <- ggplot(titvWindowResults, aes(x=window_start, y=titv)) +
   geom_point() +
   xlab("Genomic Position") +
   ylab("Ti/Tv") +
   scale_x_continuous(expand = c(0, 0), labels=comma) +
   ggtitle("Ti/Tv by 100,000 base pair\nwindows on Chromosome 1") +
   plot_theme
+titv_gw
 ```
 
 #### Ti/Tv By Depth
@@ -232,7 +237,7 @@ titv <- DisplayAndDispatchQuery(query,
 ```
 
 ```{r titv-by-depth-publication, fig.align="center", fig.width=10, message=FALSE, comment=NA}
-ggplot(titv, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
+titv_depth <- ggplot(titv, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
   geom_point(size=2) +
   ggtitle("Ti/Tv By Depth") +
   xlab("Coverage Depth") + 
@@ -241,6 +246,55 @@ ggplot(titv, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) +
   scale_x_continuous(expand = c(0, 0)) +
   plot_theme + 
   theme(legend.position="none")
+titv_depth
 ```
 
+## Ethnicity Inference
+```{r message=FALSE, warning=FALSE, comment=NA}
+pca = read.table('../data/aaa-vs-1kg-pca.tsv')
+names(pca) <- c("sample_id","pc1","pc2")
+```
 
+```{r}
+populations = read.csv('../data/1kg_info.csv')
+pca = join(pca, populations, by='sample_id')
+```
+
+```{r ethnicity-inference, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+ethnicity <- ggplot(pca) +
+  geom_point(aes(pc1,pc2, color=Population)) +
+  plot_theme + 
+  ggtitle("Ethnicity inference") +
+  scale_colour_brewer(name="1KG super population", palette="Set1") +
+  xlab("Principal component 1") +
+  ylab("Principal component 2") +
+  theme(axis.ticks=element_blank(),
+        axis.text=element_blank(),
+        legend.position = c(0.85, 0.7))
+ethnicity
+```
+
+## Private Variants
+```{r}
+singletons <- DisplayAndDispatchQuery("../sql/private-variants.sql",
+                                  project=project,
+                                  replacements=queryReplacements)
+```
+
+```{r singletons, fig.align="center", fig.width=10, message=FALSE, comment=NA}
+private <- ggplot(singletons) +
+  geom_point(aes(x=call_call_set_name, y=private_variant_count)) +
+  xlab("Sample") +
+  ylab("Number of Singletons") +
+  ggtitle("Count of Singletons Per Genome") +
+  scale_y_continuous(labels=comma) +
+  plot_theme +
+  theme(axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+private
+```
+
+## Multiplot
+```{r Tsao-SupplementaryFigure1, fig.align="center", fig.width=14, message=FALSE, comment=NA, fig.height=20}
+multiplot(concordance,  batch,  titv_depth,  titv_gw, sex, ethnicity, ibs, private, cols=2)
+```

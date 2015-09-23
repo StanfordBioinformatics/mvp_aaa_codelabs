@@ -14,6 +14,8 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
+*This codelab was made in collaboration with [Google Genomics](https://github.com/googlegenomics)*
+
 # Part 3: Variant-Level QC
 
 ```{r echo=FALSE, eval=FALSE}
@@ -29,10 +31,13 @@ project <- "gbsc-gcp-project-mvp"
 ```{r echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 # Set up for BigQuery access.
 source("./rHelpers/setup.R")
+
+require(scales)
 ```
 
-In Part 4 of the codelab, we perform some quality control analyses that could help to identify any problematic variants which should be excluded from further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+In Part 3 of the codelab, we perform some quality control analyses that could help to identify any problematic variants which should be excluded from further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
 
+* [Setup](#setup)
 * [Ti/Tv by Genomic Window](#titv-by-genomic-window)
 * [Ti/Tv by Alternate Allele Counts](#titv-by-alternate-allele-counts)
 * [Ti/Tv by Depth](#titv-by-depth)
@@ -41,21 +46,32 @@ In Part 4 of the codelab, we perform some quality control analyses that could he
 * [Heterozygous Haplotype](#heterozygous-haplotype)
 * [Blacklisted Variants](#blacklisted-variants)
 
-By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+
+## Setup
+
 ```{r}
 queryReplacements <- list("_THE_TABLE_"="va_aaa_pilot_data.all_genomes_gvcfs",
                           "_THE_EXPANDED_TABLE_"="va_aaa_pilot_data.all_genomes_expanded_vcfs_java2",
-                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions")
+                          "_BLACKLISTED_TABLE_"="resources.blacklisted_positions",
+                          "_PATIENT_INFO_"="va_aaa_pilot_data.patient_info")
 sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
-
-# To run this against other public data, source in one of the dataset helpers.  For example:
-# source("./rHelpers/pgpCGIOnlyDataset.R")
 ```
+
+ggplot2 themes to use throughout this page.
+```{r}
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
+```
+
 
 ## Ti/Tv by Genomic Window
 
-Check whether the ratio of transitions vs. transversions in SNPs appears to be reasonable in each window of genomic positions.  This query may help identify problematic regions.
+We want to check whether either variants are occuring more frequently than random chance at regions across the genome.  One way we can check this is to check whether the ratio of transitions to transversions is within an expected range.  In this analysis we group variants together within 100kb windows accross the entire genome and calculate the ti/tv ratio for each region.  Variants within windows that have a ti/tv ratio outside the expected range will be flagged.
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/ti-tv-ratio.sql",
@@ -80,15 +96,16 @@ Visualizing the results:
 ggplot(result, aes(x=window_start, y=titv)) +
   geom_point() +
   stat_smooth() +
-  scale_x_continuous() +
+  scale_x_continuous(labels=comma) +
   xlab("Genomic Position") +
   ylab("Ti/Tv") +
-  ggtitle("Ti/Tv by 100,000 base pair windows on Chromosome 1")
+  ggtitle("Ti/Tv by 100,000 base pair windows on Chromosome 1") +
+  plot_theme
 ```
 
 ## Ti/Tv by Alternate Allele Counts
 
-Check whether the ratio of transitions vs. transversions in SNPs appears to be resonable across the range of rare variants to common variants.  This query may help to identify problems with rare or common variants.
+Check whether the ratio of transitions vs. transversions in SNPs appears to be resonable across the range of rare variants to common variants.  This query may help to identify problems with rare or common variants.  
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/ti-tv-by-alternate-allele-count.sql",
@@ -114,10 +131,15 @@ ggplot(result, aes(x=alternate_allele_count, y=titv)) +
   scale_x_continuous() +
   xlab("Total Number of Sample Alleles with the Variant") +
   ylab("Ti/Tv") +
-  ggtitle("Ti/Tv by Alternate Allele Count")
+  ggtitle("Ti/Tv by Alternate Allele Count") +
+  plot_theme
 ```
 
 ## Ti/Tv by Depth
+
+We next want to determine whether mutations at a specific depth seem to be occuring at various coverage depths are occuring more often than would be expected by random chance.  We do this by grouping variants from each genome together by coverage depth, e.g. if variant A and variant B both occur in the same sample with 30x coverage they will be grouped for this analysis.  Variants at coverage depths that have ti/tv ratios outside the expected range will be flagged.
+
+
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 query <- "./sql/ti-tv-by-depth.sql"
@@ -133,16 +155,16 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```{r titv-by-depth, fig.align="center", fig.width=10, message=FALSE, comment=NA, warning=FALSE}
 ggplot(result, aes(x=average_depth, y=titv_ratio, color=call_call_set_name)) + 
   geom_point() +
-  #geom_smooth(se=FALSE,    # Don't add shaded confidence region
-  #              fullrange=T) +
   ggtitle("Ti/Tv Ratio By Depth") +
   xlab("Coverage Depth") + 
-  ylab("Ti/Tv")
+  ylab("Ti/Tv") + 
+  plot_theme +
+  theme(legend.position="none")
 ```
 
 ## Missingness Rate
 
-For each variant, compute the missingness rate.  This query can be used to identify variants with a poor call rate.
+We next want to check how frequenctly or infrequenctly a variant is called across all samples.  If a variant has a very low call rate this may mean it is difficult to sequence and even high confidence calls at that position may be suspect.  
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 sortAndLimit <- "ORDER BY missingness_rate DESC, reference_name, start, reference_bases, alternate_bases LIMIT 1000"
@@ -187,7 +209,7 @@ if(is.null(result)) {
 ```
 
 ## Heterozygous Haplotype
-For each variant within the X and Y chromosome, identify heterozygous variants in male genomes.
+For each variant within the X and Y chromosome, identify heterozygous variants in male genomes.  Males should not have any heterozygous calls on the X-chromosome outside of the pseudo-autosomal regions.  If any are found they will be flagged. 
 
 First we use our sample information to determine which genomes are male.  
 ```{r message=FALSE, warning=FALSE, comment=NA}
@@ -214,7 +236,7 @@ if(is.null(result)) {
 ```
 
 ## Blacklisted Variants
-Identify all variants within our cohort that have been blacklisted.  For more information on what variants are blacklisted and why see [here](link)
+Identify all variants within our cohort that have been blacklisted.  For more information on what variants are blacklisted and why see [here](https://sites.google.com/site/anshulkundaje/projects/blacklists).  All variants lccuring within blacklisted regions will be flagged.
 
 ```{r message=FALSE, warning=FALSE, comment=NA}
 result <- DisplayAndDispatchQuery("./sql/blacklisted-variants.sql",
@@ -229,4 +251,4 @@ print(xtable(head(result)), type="html", include.rownames=F)
 ```
 
 --------------------------------------------------------
-_Next_: [Part 4: Final Table Generation](./Final-Table-Generation.md)
+_Next_: [ Part 4: QC Implementation](./QC-Implementation.md)

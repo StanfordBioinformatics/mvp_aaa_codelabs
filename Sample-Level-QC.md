@@ -22,20 +22,21 @@
 
 
 
-ggplot2 themes to use throughout this page.
-
-```r
-plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid = element_blank())
-
-boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
-  theme(panel.grid = element_blank())
-```
-
 In Parts 2 & 3 of the codelab we describe the details of each quality control step implemented on our population of genomes.  In Part 2 we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
 
 To skip the details and jump to the implementation of the quality control methods skip to [Part 4: QC Implementation](./QC-Implementation.md).
+* [Setup](#setup)
+* [Missingness Rate](#missingness-rate)
+* [Singleton Rate](#singleton-rate)
+* [Inbreeding Coefficient](#inbreeding-coefficient)
+* [Heterozygosity Rate](#heterozygosity-rate)
+* [Sex Inference](#sex-inference)
+* [Genotyping Concordance](#genotyping-concordance)
+* [Batch Effect](#batch-effect)
+* [Ethnicity Inference](#ethnicity-inference)
+* [Genome Similarity](#genome-similarity)
+
+## Setup
 
 
 ```r
@@ -50,15 +51,18 @@ sampleData <- read.csv("./data/patient_info.csv")
 sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 ```
 
-* [Missingness Rate](#missingness-rate)
-* [Singleton Rate](#singleton-rate)
-* [Inbreeding Coefficient](#inbreeding-coefficient)
-* [Heterozygosity Rate](#heterozygosity-rate)
-* [Sex Inference](#sex-inference)
-* [Genotyping Concordance](#genotyping-concordance)
-* [Batch Effect](#batch-effect)
-* [Ethnicity Inference](#ethnicity-inference)
-* [Genome Similarity](#genome-similarity)
+ggplot2 themes to use throughout this page.
+
+```r
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
+```
+
+
 
 ## Missingness Rate
 
@@ -112,7 +116,7 @@ Number of rows returned by this query: 459.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:33:26 2015 -->
+<!-- Tue Sep 22 21:49:55 2015 -->
 <table border=1>
 <tr> <th> sample_id </th> <th> missingness </th>  </tr>
   <tr> <td> LP6005038-DNA_C02 </td> <td align="right"> 0.06 </td> </tr>
@@ -215,7 +219,7 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:33:30 2015 -->
+<!-- Tue Sep 22 21:49:58 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> private_variant_count </th>  </tr>
   <tr> <td> LP6005038-DNA_C05 </td> <td align="right"> 67704 </td> </tr>
@@ -306,7 +310,7 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:33:33 2015 -->
+<!-- Tue Sep 22 21:50:01 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
   <tr> <td> LP6005051-DNA_E03 </td> <td align="right"> 24036439 </td> <td align="right"> 23978412.34 </td> <td align="right"> 26185742 </td> <td align="right"> 0.03 </td> </tr>
@@ -380,7 +384,7 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:33:35 2015 -->
+<!-- Tue Sep 22 21:50:03 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HET </th>  </tr>
   <tr> <td> LP6005051-DNA_H06 </td> <td align="right"> 2142264 </td> </tr>
@@ -471,7 +475,7 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:33:39 2015 -->
+<!-- Tue Sep 22 21:50:06 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> all_callable_sites </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th> <th> all_snvs </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 872243 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 798434 </td> <td align="right"> 73809 </td> </tr>
@@ -651,451 +655,21 @@ WHERE
   AND seq.end >= gen.end )
 GROUP BY 
   sample_id)
-
-Running query:   RUNNING  2.2s
-Running query:   RUNNING  2.9s
-Running query:   RUNNING  3.5s
-Running query:   RUNNING  4.2s
-Running query:   RUNNING  4.9s
-Running query:   RUNNING  5.5s
-Running query:   RUNNING  6.2s
-Running query:   RUNNING  6.8s
-Running query:   RUNNING  7.5s
-Running query:   RUNNING  8.2s
-Running query:   RUNNING  8.9s
-Running query:   RUNNING  9.5s
-Running query:   RUNNING 10.2s
-Running query:   RUNNING 10.8s
-Running query:   RUNNING 11.5s
-Running query:   RUNNING 12.2s
-Running query:   RUNNING 12.8s
-Running query:   RUNNING 13.5s
-Running query:   RUNNING 14.2s
-Running query:   RUNNING 14.9s
-Running query:   RUNNING 15.5s
-Running query:   RUNNING 16.2s
-Running query:   RUNNING 16.8s
-Running query:   RUNNING 17.5s
-Running query:   RUNNING 18.1s
-Running query:   RUNNING 19.0s
-Running query:   RUNNING 19.7s
-Running query:   RUNNING 20.4s
-Running query:   RUNNING 21.0s
-Running query:   RUNNING 21.7s
-Running query:   RUNNING 22.3s
-Running query:   RUNNING 23.0s
-Running query:   RUNNING 23.6s
-Running query:   RUNNING 24.4s
-Running query:   RUNNING 25.0s
-Running query:   RUNNING 25.7s
-Running query:   RUNNING 26.4s
-Running query:   RUNNING 27.0s
-Running query:   RUNNING 27.7s
-Running query:   RUNNING 28.4s
-Running query:   RUNNING 29.0s
-Running query:   RUNNING 29.7s
-Running query:   RUNNING 30.4s
-Running query:   RUNNING 31.0s
-Running query:   RUNNING 31.7s
-Running query:   RUNNING 32.3s
-Running query:   RUNNING 33.0s
-Running query:   RUNNING 33.7s
-Running query:   RUNNING 34.4s
-Running query:   RUNNING 35.0s
-Running query:   RUNNING 35.6s
-Running query:   RUNNING 36.3s
-Running query:   RUNNING 36.9s
-Running query:   RUNNING 37.7s
-Running query:   RUNNING 38.3s
-Running query:   RUNNING 38.9s
-Running query:   RUNNING 39.6s
-Running query:   RUNNING 40.3s
-Running query:   RUNNING 40.9s
-Running query:   RUNNING 42.1s
-Running query:   RUNNING 42.7s
-Running query:   RUNNING 43.4s
-Running query:   RUNNING 44.0s
-Running query:   RUNNING 44.7s
-Running query:   RUNNING 45.3s
-Running query:   RUNNING 46.0s
-Running query:   RUNNING 46.7s
-Running query:   RUNNING 47.4s
-Running query:   RUNNING 48.3s
-Running query:   RUNNING 49.0s
-Running query:   RUNNING 49.7s
-Running query:   RUNNING 50.3s
-Running query:   RUNNING 50.9s
-Running query:   RUNNING 51.6s
-Running query:   RUNNING 52.2s
-Running query:   RUNNING 52.9s
-Running query:   RUNNING 53.5s
-Running query:   RUNNING 54.1s
-Running query:   RUNNING 54.8s
-Running query:   RUNNING 55.4s
-Running query:   RUNNING 56.1s
-Running query:   RUNNING 56.7s
-Running query:   RUNNING 57.4s
-Running query:   RUNNING 58.0s
-Running query:   RUNNING 58.7s
-Running query:   RUNNING 59.4s
-Running query:   RUNNING 60.0s
-Running query:   RUNNING 60.7s
-Running query:   RUNNING 61.3s
-Running query:   RUNNING 61.9s
-Running query:   RUNNING 62.6s
-Running query:   RUNNING 63.3s
-Running query:   RUNNING 63.9s
-Running query:   RUNNING 64.6s
-Running query:   RUNNING 65.2s
-Running query:   RUNNING 65.9s
-Running query:   RUNNING 66.7s
-Running query:   RUNNING 67.4s
-Running query:   RUNNING 68.0s
-Running query:   RUNNING 68.7s
-Running query:   RUNNING 69.5s
-Running query:   RUNNING 70.1s
-Running query:   RUNNING 70.8s
-Running query:   RUNNING 71.4s
-Running query:   RUNNING 72.1s
-Running query:   RUNNING 72.8s
-Running query:   RUNNING 73.4s
-Running query:   RUNNING 74.1s
-Running query:   RUNNING 74.8s
-Running query:   RUNNING 75.4s
-Running query:   RUNNING 76.1s
-Running query:   RUNNING 76.7s
-Running query:   RUNNING 77.4s
-Running query:   RUNNING 78.1s
-Running query:   RUNNING 78.8s
-Running query:   RUNNING 79.4s
-Running query:   RUNNING 80.0s
-Running query:   RUNNING 80.7s
-Running query:   RUNNING 81.4s
-Running query:   RUNNING 82.1s
-Running query:   RUNNING 82.7s
-Running query:   RUNNING 83.3s
-Running query:   RUNNING 84.1s
-Running query:   RUNNING 84.7s
-Running query:   RUNNING 85.4s
-Running query:   RUNNING 86.1s
-Running query:   RUNNING 86.8s
-Running query:   RUNNING 87.5s
-Running query:   RUNNING 88.1s
-Running query:   RUNNING 88.8s
-Running query:   RUNNING 89.4s
-Running query:   RUNNING 90.1s
-Running query:   RUNNING 90.8s
-Running query:   RUNNING 91.5s
-Running query:   RUNNING 92.2s
-Running query:   RUNNING 92.8s
-Running query:   RUNNING 93.5s
-Running query:   RUNNING 94.1s
-Running query:   RUNNING 94.8s
-Running query:   RUNNING 95.4s
-Running query:   RUNNING 96.1s
-Running query:   RUNNING 96.7s
-Running query:   RUNNING 97.4s
-Running query:   RUNNING 98.0s
-Running query:   RUNNING 99.0s
-Running query:   RUNNING 100.3s
-Running query:   RUNNING 101.0s
-Running query:   RUNNING 101.7s
-Running query:   RUNNING 102.3s
-Running query:   RUNNING 102.9s
-Running query:   RUNNING 103.6s
-Running query:   RUNNING 104.2s
-Running query:   RUNNING 104.9s
-Running query:   RUNNING 105.5s
-Running query:   RUNNING 106.2s
-Running query:   RUNNING 106.8s
-Running query:   RUNNING 107.5s
-Running query:   RUNNING 108.2s
-Running query:   RUNNING 108.8s
-Running query:   RUNNING 109.5s
-Running query:   RUNNING 110.2s
-Running query:   RUNNING 110.8s
-Running query:   RUNNING 111.5s
-Running query:   RUNNING 112.1s
-Running query:   RUNNING 112.8s
-Running query:   RUNNING 113.8s
-Running query:   RUNNING 114.6s
-Running query:   RUNNING 115.3s
-Running query:   RUNNING 116.1s
-Running query:   RUNNING 117.1s
-Running query:   RUNNING 117.9s
-Running query:   RUNNING 118.8s
-Running query:   RUNNING 119.6s
-Running query:   RUNNING 120.3s
-Running query:   RUNNING 121.0s
-Running query:   RUNNING 121.7s
-Running query:   RUNNING 122.4s
-Running query:   RUNNING 123.1s
-Running query:   RUNNING 124.1s
-Running query:   RUNNING 125.1s
-Running query:   RUNNING 126.1s
-Running query:   RUNNING 127.5s
-Running query:   RUNNING 128.2s
-Running query:   RUNNING 129.0s
-Running query:   RUNNING 129.8s
-Running query:   RUNNING 130.5s
-Running query:   RUNNING 131.3s
-Running query:   RUNNING 131.9s
-Running query:   RUNNING 132.6s
-Running query:   RUNNING 133.2s
-Running query:   RUNNING 133.9s
-Running query:   RUNNING 134.6s
-Running query:   RUNNING 135.3s
-Running query:   RUNNING 135.9s
-Running query:   RUNNING 136.9s
-Running query:   RUNNING 137.6s
-Running query:   RUNNING 138.4s
-Running query:   RUNNING 139.2s
-Running query:   RUNNING 139.9s
-Running query:   RUNNING 140.9s
-Running query:   RUNNING 141.5s
-Running query:   RUNNING 142.2s
-Running query:   RUNNING 142.9s
-Running query:   RUNNING 143.5s
-Running query:   RUNNING 144.2s
-Running query:   RUNNING 144.8s
-Running query:   RUNNING 145.6s
-Running query:   RUNNING 146.3s
-Running query:   RUNNING 147.0s
-Running query:   RUNNING 147.7s
-Running query:   RUNNING 148.5s
-Running query:   RUNNING 149.2s
-Running query:   RUNNING 150.1s
-Running query:   RUNNING 150.9s
-Running query:   RUNNING 151.7s
-Running query:   RUNNING 152.5s
-Running query:   RUNNING 153.3s
-Running query:   RUNNING 154.0s
-Running query:   RUNNING 154.6s
-Running query:   RUNNING 155.2s
-Running query:   RUNNING 155.9s
-Running query:   RUNNING 156.6s
-Running query:   RUNNING 157.2s
-Running query:   RUNNING 157.9s
-Running query:   RUNNING 158.6s
-Running query:   RUNNING 159.2s
-Running query:   RUNNING 159.9s
-Running query:   RUNNING 160.5s
-Running query:   RUNNING 161.2s
-Running query:   RUNNING 161.8s
-Running query:   RUNNING 162.5s
-Running query:   RUNNING 163.1s
-Running query:   RUNNING 163.8s
-Running query:   RUNNING 164.4s
-Running query:   RUNNING 165.1s
-Running query:   RUNNING 165.7s
-Running query:   RUNNING 166.4s
-Running query:   RUNNING 167.4s
-Running query:   RUNNING 168.2s
-Running query:   RUNNING 168.9s
-Running query:   RUNNING 169.7s
-Running query:   RUNNING 170.4s
-Running query:   RUNNING 171.1s
-Running query:   RUNNING 171.8s
-Running query:   RUNNING 172.4s
-Running query:   RUNNING 173.0s
-Running query:   RUNNING 173.9s
-Running query:   RUNNING 174.6s
-Running query:   RUNNING 175.4s
-Running query:   RUNNING 176.1s
-Running query:   RUNNING 176.8s
-Running query:   RUNNING 177.6s
-Running query:   RUNNING 178.2s
-Running query:   RUNNING 179.0s
-Running query:   RUNNING 179.7s
-Running query:   RUNNING 180.4s
-Running query:   RUNNING 181.1s
-Running query:   RUNNING 181.9s
-Running query:   RUNNING 182.5s
-Running query:   RUNNING 183.2s
-Running query:   RUNNING 183.9s
-Running query:   RUNNING 184.6s
-Running query:   RUNNING 185.3s
-Running query:   RUNNING 185.9s
-Running query:   RUNNING 186.6s
-Running query:   RUNNING 187.2s
-Running query:   RUNNING 188.0s
-Running query:   RUNNING 188.6s
-Running query:   RUNNING 189.3s
-Running query:   RUNNING 190.2s
-Running query:   RUNNING 191.0s
-Running query:   RUNNING 191.9s
-Running query:   RUNNING 192.7s
-Running query:   RUNNING 193.4s
-Running query:   RUNNING 194.2s
-Running query:   RUNNING 195.0s
-Running query:   RUNNING 195.7s
-Running query:   RUNNING 196.3s
-Running query:   RUNNING 197.0s
-Running query:   RUNNING 197.7s
-Running query:   RUNNING 198.3s
-Running query:   RUNNING 199.0s
-Running query:   RUNNING 199.7s
-Running query:   RUNNING 200.4s
-Running query:   RUNNING 201.1s
-Running query:   RUNNING 201.7s
-Running query:   RUNNING 202.4s
-Running query:   RUNNING 203.0s
-Running query:   RUNNING 203.7s
-Running query:   RUNNING 204.3s
-Running query:   RUNNING 205.0s
-Running query:   RUNNING 205.6s
-Running query:   RUNNING 206.3s
-Running query:   RUNNING 206.9s
-Running query:   RUNNING 207.6s
-Running query:   RUNNING 208.2s
-Running query:   RUNNING 208.9s
-Running query:   RUNNING 209.5s
-Running query:   RUNNING 210.2s
-Running query:   RUNNING 210.9s
-Running query:   RUNNING 211.6s
-Running query:   RUNNING 212.3s
-Running query:   RUNNING 213.0s
-Running query:   RUNNING 213.7s
-Running query:   RUNNING 214.8s
-Running query:   RUNNING 215.9s
-Running query:   RUNNING 216.7s
-Running query:   RUNNING 217.4s
-Running query:   RUNNING 218.1s
-Running query:   RUNNING 218.8s
-Running query:   RUNNING 219.4s
-Running query:   RUNNING 220.1s
-Running query:   RUNNING 220.9s
-Running query:   RUNNING 221.6s
-Running query:   RUNNING 222.3s
-Running query:   RUNNING 223.0s
-Running query:   RUNNING 223.8s
-Running query:   RUNNING 224.6s
-Running query:   RUNNING 225.2s
-Running query:   RUNNING 226.0s
-Running query:   RUNNING 226.8s
-Running query:   RUNNING 227.5s
-Running query:   RUNNING 228.2s
-Running query:   RUNNING 228.9s
-Running query:   RUNNING 229.5s
-Running query:   RUNNING 230.2s
-Running query:   RUNNING 230.9s
-Running query:   RUNNING 231.5s
-Running query:   RUNNING 232.1s
-Running query:   RUNNING 232.8s
-Running query:   RUNNING 233.5s
-Running query:   RUNNING 234.3s
-Running query:   RUNNING 234.9s
-Running query:   RUNNING 235.6s
-Running query:   RUNNING 236.2s
-Running query:   RUNNING 236.9s
-Running query:   RUNNING 237.6s
-Running query:   RUNNING 238.3s
-Running query:   RUNNING 238.9s
-Running query:   RUNNING 239.6s
-Running query:   RUNNING 240.3s
-Running query:   RUNNING 241.0s
-Running query:   RUNNING 241.7s
-Running query:   RUNNING 242.4s
-Running query:   RUNNING 243.1s
-Running query:   RUNNING 243.8s
-Running query:   RUNNING 244.5s
-Running query:   RUNNING 245.3s
-Running query:   RUNNING 245.9s
-Running query:   RUNNING 246.6s
-Running query:   RUNNING 247.4s
-Running query:   RUNNING 248.1s
-Running query:   RUNNING 248.9s
-Running query:   RUNNING 249.6s
-Running query:   RUNNING 250.4s
-Running query:   RUNNING 251.6s
-Running query:   RUNNING 252.4s
-Running query:   RUNNING 253.3s
-Running query:   RUNNING 254.0s
-Running query:   RUNNING 254.8s
-Running query:   RUNNING 255.6s
-Running query:   RUNNING 256.4s
-Running query:   RUNNING 257.1s
-Running query:   RUNNING 258.3s
-Running query:   RUNNING 259.0s
-Running query:   RUNNING 259.8s
-Running query:   RUNNING 260.4s
-Running query:   RUNNING 261.1s
-Running query:   RUNNING 261.9s
-Running query:   RUNNING 262.6s
-Running query:   RUNNING 263.3s
-Running query:   RUNNING 264.0s
-Running query:   RUNNING 265.0s
-Running query:   RUNNING 265.9s
-Running query:   RUNNING 266.9s
-Running query:   RUNNING 267.7s
-Running query:   RUNNING 268.5s
-Running query:   RUNNING 269.3s
-Running query:   RUNNING 270.0s
-Running query:   RUNNING 270.8s
-Running query:   RUNNING 271.5s
-Running query:   RUNNING 272.2s
-Running query:   RUNNING 272.9s
-Running query:   RUNNING 273.7s
-Running query:   RUNNING 274.5s
-Running query:   RUNNING 275.3s
-Running query:   RUNNING 276.1s
-Running query:   RUNNING 278.2s
-Running query:   RUNNING 280.3s
-Running query:   RUNNING 281.5s
-Running query:   RUNNING 282.2s
-Running query:   RUNNING 283.3s
-Running query:   RUNNING 284.0s
-Running query:   RUNNING 284.7s
-Running query:   RUNNING 285.8s
-Running query:   RUNNING 286.6s
-Running query:   RUNNING 287.3s
-Running query:   RUNNING 288.0s
-Running query:   RUNNING 288.7s
-Running query:   RUNNING 289.4s
-Running query:   RUNNING 290.5s
-Running query:   RUNNING 291.2s
-Running query:   RUNNING 291.9s
-Running query:   RUNNING 292.6s
-Running query:   RUNNING 293.3s
-Running query:   RUNNING 294.0s
-Running query:   RUNNING 294.8s
-Running query:   RUNNING 295.4s
-Running query:   RUNNING 296.2s
-Running query:   RUNNING 296.9s
-Running query:   RUNNING 297.8s
-Running query:   RUNNING 298.9s
-Running query:   RUNNING 299.7s
-Running query:   RUNNING 300.5s
-Running query:   RUNNING 301.3s
-Running query:   RUNNING 302.1s
-Running query:   RUNNING 302.9s
-Running query:   RUNNING 303.6s
-Running query:   RUNNING 304.4s
-Running query:   RUNNING 305.2s
-Running query:   RUNNING 306.0s
-Running query:   RUNNING 307.1s
-Running query:   RUNNING 308.2s
-Running query:   RUNNING 309.0s
-Running query:   RUNNING 310.1s
-Running query:   RUNNING 311.2s
-Running query:   RUNNING 312.0s
-Running query:   RUNNING 312.8s
-Running query:   RUNNING 313.7s
-Running query:   RUNNING 314.5s
+Running query:   RUNNING  2.1sRunning query:   RUNNING  2.7sRunning query:   RUNNING  3.3sRunning query:   RUNNING  4.1sRunning query:   RUNNING  4.8sRunning query:   RUNNING  5.5sRunning query:   RUNNING  6.1sRunning query:   RUNNING  6.8sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.1sRunning query:   RUNNING  8.7sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.1sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.4sRunning query:   RUNNING 12.0sRunning query:   RUNNING 12.7sRunning query:   RUNNING 13.3sRunning query:   RUNNING 14.0sRunning query:   RUNNING 14.6sRunning query:   RUNNING 15.3sRunning query:   RUNNING 16.0sRunning query:   RUNNING 16.7sRunning query:   RUNNING 17.4sRunning query:   RUNNING 18.1sRunning query:   RUNNING 18.7sRunning query:   RUNNING 19.4sRunning query:   RUNNING 20.0sRunning query:   RUNNING 20.7sRunning query:   RUNNING 21.4sRunning query:   RUNNING 22.0sRunning query:   RUNNING 22.7sRunning query:   RUNNING 23.3sRunning query:   RUNNING 24.0sRunning query:   RUNNING 24.6sRunning query:   RUNNING 25.2sRunning query:   RUNNING 25.9sRunning query:   RUNNING 26.6sRunning query:   RUNNING 27.2sRunning query:   RUNNING 27.9sRunning query:   RUNNING 28.6sRunning query:   RUNNING 29.3sRunning query:   RUNNING 29.9sRunning query:   RUNNING 30.5sRunning query:   RUNNING 31.4sRunning query:   RUNNING 32.1sRunning query:   RUNNING 32.8sRunning query:   RUNNING 33.5sRunning query:   RUNNING 34.2sRunning query:   RUNNING 34.8sRunning query:   RUNNING 35.5sRunning query:   RUNNING 36.2sRunning query:   RUNNING 36.8sRunning query:   RUNNING 37.9sRunning query:   RUNNING 38.6sRunning query:   RUNNING 39.3sRunning query:   RUNNING 40.0sRunning query:   RUNNING 40.7sRunning query:   RUNNING 41.4sRunning query:   RUNNING 42.1sRunning query:   RUNNING 42.7sRunning query:   RUNNING 43.3sRunning query:   RUNNING 44.0sRunning query:   RUNNING 45.0sRunning query:   RUNNING 45.6sRunning query:   RUNNING 46.3sRunning query:   RUNNING 47.3sRunning query:   RUNNING 48.0sRunning query:   RUNNING 48.6sRunning query:   RUNNING 49.3sRunning query:   RUNNING 50.1sRunning query:   RUNNING 50.7sRunning query:   RUNNING 51.4sRunning query:   RUNNING 52.0sRunning query:   RUNNING 52.8sRunning query:   RUNNING 53.4sRunning query:   RUNNING 54.1sRunning query:   RUNNING 54.8sRunning query:   RUNNING 55.5sRunning query:   RUNNING 56.1sRunning query:   RUNNING 56.9sRunning query:   RUNNING 57.6sRunning query:   RUNNING 58.3sRunning query:   RUNNING 59.0sRunning query:   RUNNING 59.7sRunning query:   RUNNING 60.4sRunning query:   RUNNING 61.1sRunning query:   RUNNING 61.8sRunning query:   RUNNING 62.4sRunning query:   RUNNING 63.1sRunning query:   RUNNING 63.8sRunning query:   RUNNING 64.4sRunning query:   RUNNING 65.1sRunning query:   RUNNING 65.8sRunning query:   RUNNING 66.4sRunning query:   RUNNING 67.1sRunning query:   RUNNING 67.8sRunning query:   RUNNING 68.5sRunning query:   RUNNING 69.3sRunning query:   RUNNING 70.1sRunning query:   RUNNING 70.7sRunning query:   RUNNING 71.3sRunning query:   RUNNING 72.0sRunning query:   RUNNING 72.7sRunning query:   RUNNING 73.3sRunning query:   RUNNING 74.0sRunning query:   RUNNING 74.6sRunning query:   RUNNING 75.3sRunning query:   RUNNING 76.0sRunning query:   RUNNING 76.7sRunning query:   RUNNING 77.3sRunning query:   RUNNING 78.0sRunning query:   RUNNING 78.7sRunning query:   RUNNING 79.4sRunning query:   RUNNING 80.0sRunning query:   RUNNING 80.8sRunning query:   RUNNING 81.5sRunning query:   RUNNING 82.2sRunning query:   RUNNING 82.9sRunning query:   RUNNING 83.6sRunning query:   RUNNING 84.3sRunning query:   RUNNING 85.0sRunning query:   RUNNING 85.7sRunning query:   RUNNING 86.4sRunning query:   RUNNING 87.0sRunning query:   RUNNING 87.6sRunning query:   RUNNING 88.3sRunning query:   RUNNING 89.0sRunning query:   RUNNING 89.7sRunning query:   RUNNING 90.3sRunning query:   RUNNING 91.0sRunning query:   RUNNING 91.7sRunning query:   RUNNING 92.3sRunning query:   RUNNING 93.0sRunning query:   RUNNING 93.7sRunning query:   RUNNING 94.5sRunning query:   RUNNING 95.2sRunning query:   RUNNING 95.8sRunning query:   RUNNING 96.5sRunning query:   RUNNING 97.1sRunning query:   RUNNING 97.8sRunning query:   RUNNING 98.4sRunning query:   RUNNING 99.2sRunning query:   RUNNING 99.9sRunning query:   RUNNING 100.6sRunning query:   RUNNING 101.3sRunning query:   RUNNING 102.0sRunning query:   RUNNING 102.6sRunning query:   RUNNING 103.3sRunning query:   RUNNING 103.9sRunning query:   RUNNING 104.6sRunning query:   RUNNING 105.3sRunning query:   RUNNING 106.1sRunning query:   RUNNING 106.7sRunning query:   RUNNING 107.3sRunning query:   RUNNING 108.0sRunning query:   RUNNING 108.6sRunning query:   RUNNING 109.3sRunning query:   RUNNING 110.0sRunning query:   RUNNING 110.6sRunning query:   RUNNING 111.3sRunning query:   RUNNING 112.0sRunning query:   RUNNING 112.6sRunning query:   RUNNING 113.3sRunning query:   RUNNING 113.9sRunning query:   RUNNING 114.6sRunning query:   RUNNING 115.2sRunning query:   RUNNING 116.0sRunning query:   RUNNING 116.6sRunning query:   RUNNING 117.3sRunning query:   RUNNING 118.0sRunning query:   RUNNING 118.6sRunning query:   RUNNING 119.3sRunning query:   RUNNING 120.0sRunning query:   RUNNING 120.7sRunning query:   RUNNING 121.4sRunning query:   RUNNING 122.0sRunning query:   RUNNING 122.9sRunning query:   RUNNING 123.6sRunning query:   RUNNING 124.3sRunning query:   RUNNING 125.0sRunning query:   RUNNING 125.7sRunning query:   RUNNING 126.4sRunning query:   RUNNING 127.2sRunning query:   RUNNING 127.9sRunning query:   RUNNING 128.6sRunning query:   RUNNING 129.4sRunning query:   RUNNING 130.1sRunning query:   RUNNING 130.8sRunning query:   RUNNING 131.4sRunning query:   RUNNING 132.1sRunning query:   RUNNING 132.7sRunning query:   RUNNING 133.4sRunning query:   RUNNING 134.1sRunning query:   RUNNING 134.8sRunning query:   RUNNING 135.5sRunning query:   RUNNING 136.2sRunning query:   RUNNING 136.8sRunning query:   RUNNING 137.6sRunning query:   RUNNING 138.3sRunning query:   RUNNING 139.0sRunning query:   RUNNING 139.7sRunning query:   RUNNING 140.4sRunning query:   RUNNING 141.0sRunning query:   RUNNING 141.7sRunning query:   RUNNING 142.4sRunning query:   RUNNING 143.1sRunning query:   RUNNING 143.8sRunning query:   RUNNING 144.5sRunning query:   RUNNING 145.2sRunning query:   RUNNING 145.9sRunning query:   RUNNING 146.6sRunning query:   RUNNING 147.2sRunning query:   RUNNING 147.9sRunning query:   RUNNING 148.5sRunning query:   RUNNING 149.3sRunning query:   RUNNING 150.0sRunning query:   RUNNING 150.6sRunning query:   RUNNING 151.3sRunning query:   RUNNING 152.0sRunning query:   RUNNING 152.7sRunning query:   RUNNING 153.4sRunning query:   RUNNING 154.0sRunning query:   RUNNING 154.7sRunning query:   RUNNING 155.4sRunning query:   RUNNING 156.1sRunning query:   RUNNING 157.0sRunning query:   RUNNING 157.7sRunning query:   RUNNING 158.4sRunning query:   RUNNING 159.1sRunning query:   RUNNING 159.8sRunning query:   RUNNING 160.5sRunning query:   RUNNING 161.2sRunning query:   RUNNING 161.9sRunning query:   RUNNING 162.5sRunning query:   RUNNING 163.2sRunning query:   RUNNING 163.9sRunning query:   RUNNING 164.6sRunning query:   RUNNING 165.3sRunning query:   RUNNING 166.0sRunning query:   RUNNING 166.7sRunning query:   RUNNING 167.4sRunning query:   RUNNING 168.1sRunning query:   RUNNING 168.7sRunning query:   RUNNING 169.4sRunning query:   RUNNING 170.1sRunning query:   RUNNING 170.8sRunning query:   RUNNING 171.5sRunning query:   RUNNING 172.1sRunning query:   RUNNING 172.7sRunning query:   RUNNING 173.4sRunning query:   RUNNING 174.1sRunning query:   RUNNING 174.8sRunning query:   RUNNING 175.4sRunning query:   RUNNING 176.1sRunning query:   RUNNING 176.8sRunning query:   RUNNING 177.4sRunning query:   RUNNING 178.1sRunning query:   RUNNING 178.8sRunning query:   RUNNING 179.5sRunning query:   RUNNING 180.1sRunning query:   RUNNING 180.8sRunning query:   RUNNING 181.5sRunning query:   RUNNING 182.1sRunning query:   RUNNING 182.8sRunning query:   RUNNING 183.4sRunning query:   RUNNING 184.3sRunning query:   RUNNING 185.0sRunning query:   RUNNING 185.7sRunning query:   RUNNING 186.6sRunning query:   RUNNING 187.4sRunning query:   RUNNING 188.1sRunning query:   RUNNING 188.8sRunning query:   RUNNING 189.5sRunning query:   RUNNING 190.2sRunning query:   RUNNING 190.8sRunning query:   RUNNING 192.0sRunning query:   RUNNING 192.6sRunning query:   RUNNING 193.5sRunning query:   RUNNING 194.3sRunning query:   RUNNING 195.0sRunning query:   RUNNING 195.7sRunning query:   RUNNING 196.3sRunning query:   RUNNING 197.1sRunning query:   RUNNING 197.8sRunning query:   RUNNING 198.5sRunning query:   RUNNING 199.2sRunning query:   RUNNING 199.9sRunning query:   RUNNING 200.6sRunning query:   RUNNING 201.3sRunning query:   RUNNING 202.0sRunning query:   RUNNING 202.6sRunning query:   RUNNING 203.3sRunning query:   RUNNING 204.0sRunning query:   RUNNING 204.7sRunning query:   RUNNING 205.3sRunning query:   RUNNING 206.0sRunning query:   RUNNING 206.9sRunning query:   RUNNING 207.7sRunning query:   RUNNING 208.4sRunning query:   RUNNING 209.1sRunning query:   RUNNING 209.8sRunning query:   RUNNING 210.6sRunning query:   RUNNING 211.3sRunning query:   RUNNING 212.0sRunning query:   RUNNING 212.6sRunning query:   RUNNING 213.3sRunning query:   RUNNING 214.0sRunning query:   RUNNING 214.7sRunning query:   RUNNING 215.3sRunning query:   RUNNING 216.0sRunning query:   RUNNING 216.6sRunning query:   RUNNING 217.3sRunning query:   RUNNING 218.0sRunning query:   RUNNING 218.6sRunning query:   RUNNING 219.3sRunning query:   RUNNING 220.0sRunning query:   RUNNING 220.6sRunning query:   RUNNING 221.3sRunning query:   RUNNING 222.0sRunning query:   RUNNING 222.7sRunning query:   RUNNING 223.4sRunning query:   RUNNING 224.1sRunning query:   RUNNING 224.8sRunning query:   RUNNING 225.5sRunning query:   RUNNING 226.1sRunning query:   RUNNING 226.8sRunning query:   RUNNING 227.5sRunning query:   RUNNING 228.1sRunning query:   RUNNING 228.8sRunning query:   RUNNING 229.5sRunning query:   RUNNING 230.1sRunning query:   RUNNING 230.8sRunning query:   RUNNING 231.4sRunning query:   RUNNING 232.1sRunning query:   RUNNING 232.8sRunning query:   RUNNING 233.5sRunning query:   RUNNING 234.1sRunning query:   RUNNING 234.7sRunning query:   RUNNING 235.4sRunning query:   RUNNING 236.0sRunning query:   RUNNING 236.7sRunning query:   RUNNING 237.4sRunning query:   RUNNING 238.1sRunning query:   RUNNING 238.8sRunning query:   RUNNING 239.5sRunning query:   RUNNING 240.2sRunning query:   RUNNING 240.8sRunning query:   RUNNING 242.1sRunning query:   RUNNING 243.6sRunning query:   RUNNING 244.5sRunning query:   RUNNING 245.4sRunning query:   RUNNING 246.3sRunning query:   RUNNING 247.1sRunning query:   RUNNING 247.8sRunning query:   RUNNING 248.7sRunning query:   RUNNING 249.4sRunning query:   RUNNING 250.2sRunning query:   RUNNING 251.0sRunning query:   RUNNING 251.7sRunning query:   RUNNING 253.0sRunning query:   RUNNING 253.8sRunning query:   RUNNING 254.7sRunning query:   RUNNING 255.4sRunning query:   RUNNING 256.2sRunning query:   RUNNING 257.0sRunning query:   RUNNING 257.8sRunning query:   RUNNING 258.6sRunning query:   RUNNING 259.3sRunning query:   RUNNING 259.9sRunning query:   RUNNING 260.7sRunning query:   RUNNING 261.3sRunning query:   RUNNING 262.1sRunning query:   RUNNING 262.7sRunning query:   RUNNING 263.4sRunning query:   RUNNING 264.1sRunning query:   RUNNING 264.8sRunning query:   RUNNING 265.5sRunning query:   RUNNING 266.2sRunning query:   RUNNING 266.9sRunning query:   RUNNING 267.6sRunning query:   RUNNING 268.2sRunning query:   RUNNING 268.9sRunning query:   RUNNING 270.0sRunning query:   RUNNING 270.7sRunning query:   RUNNING 271.4sRunning query:   RUNNING 272.1sRunning query:   RUNNING 272.9sRunning query:   RUNNING 273.6sRunning query:   RUNNING 274.2sRunning query:   RUNNING 275.0sRunning query:   RUNNING 275.8sRunning query:   RUNNING 276.7sRunning query:   RUNNING 277.4sRunning query:   RUNNING 278.0sRunning query:   RUNNING 278.7sRunning query:   RUNNING 279.4sRunning query:   RUNNING 280.0sRunning query:   RUNNING 280.7sRunning query:   RUNNING 281.4sRunning query:   RUNNING 282.2sRunning query:   RUNNING 282.8sRunning query:   RUNNING 283.5sRunning query:   RUNNING 284.1sRunning query:   RUNNING 284.8sRunning query:   RUNNING 285.5sRunning query:   RUNNING 286.2sRunning query:   RUNNING 286.8sRunning query:   RUNNING 287.5sRunning query:   RUNNING 288.2sRunning query:   RUNNING 288.8sRunning query:   RUNNING 289.7sRunning query:   RUNNING 290.6sRunning query:   RUNNING 291.4sRunning query:   RUNNING 292.2sRunning query:   RUNNING 292.9sRunning query:   RUNNING 293.7sRunning query:   RUNNING 294.4sRunning query:   RUNNING 295.1sRunning query:   RUNNING 295.9sRunning query:   RUNNING 296.6sRunning query:   RUNNING 297.3sRunning query:   RUNNING 298.0sRunning query:   RUNNING 298.6sRunning query:   RUNNING 299.4sRunning query:   RUNNING 300.0sRunning query:   RUNNING 300.6sRunning query:   RUNNING 301.3sRunning query:   RUNNING 302.0sRunning query:   RUNNING 302.6sRunning query:   RUNNING 303.3sRunning query:   RUNNING 304.0sRunning query:   RUNNING 304.7sRunning query:   RUNNING 305.4sRunning query:   RUNNING 306.0sRunning query:   RUNNING 306.7sRunning query:   RUNNING 307.4sRunning query:   RUNNING 308.1sRunning query:   RUNNING 308.8sRunning query:   RUNNING 309.5sRunning query:   RUNNING 310.3sRunning query:   RUNNING 311.0sRunning query:   RUNNING 311.6sRunning query:   RUNNING 312.4sRunning query:   RUNNING 313.2sRunning query:   RUNNING 313.9sRunning query:   RUNNING 314.7s
 ```
 Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:38:58 2015 -->
+<!-- Tue Sep 22 21:55:25 2015 -->
 <table border=1>
 <tr> <th> sample_id </th> <th> calls_in_common </th> <th> identical_calls </th> <th> concordance </th>  </tr>
-  <tr> <td> LP6005692-DNA_D05 </td> <td align="right"> 2196434 </td> <td align="right"> 2183554 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005051-DNA_H01 </td> <td align="right"> 2155194 </td> <td align="right"> 2133607 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005693-DNA_D01 </td> <td align="right"> 2197900 </td> <td align="right"> 2185663 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005144-DNA_B07 </td> <td align="right"> 2151751 </td> <td align="right"> 2130147 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005243-DNA_E11 </td> <td align="right"> 2151642 </td> <td align="right"> 2130101 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005692-DNA_G03 </td> <td align="right"> 2198324 </td> <td align="right"> 2186301 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_D09 </td> <td align="right"> 2155898 </td> <td align="right"> 2134125 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005693-DNA_A01 </td> <td align="right"> 2196713 </td> <td align="right"> 2184674 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005243-DNA_E08 </td> <td align="right"> 2151013 </td> <td align="right"> 2129531 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005038-DNA_G05 </td> <td align="right"> 2154290 </td> <td align="right"> 2132563 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005692-DNA_D11 </td> <td align="right"> 2193881 </td> <td align="right"> 2181898 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005692-DNA_E09 </td> <td align="right"> 2195790 </td> <td align="right"> 2183423 </td> <td align="right"> 0.99 </td> </tr>
    </table>
 
 Get the sample preparation plate for each sample
@@ -1412,7 +986,7 @@ DrawHeatMap(ibsDataflowDataSubset)
 
 Let's take a look at the most similar genomes.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Sep 22 21:39:18 2015 -->
+<!-- Tue Sep 22 21:55:29 2015 -->
 <table border=1>
 <tr> <th> sample1 </th> <th> sample2 </th> <th> ibsScore </th>  </tr>
   <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>

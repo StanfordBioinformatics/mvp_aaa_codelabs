@@ -161,6 +161,7 @@ VAR_type
 ORDER BY
 reference_name,
 VAR_type
+Running query:   RUNNING  2.5sRunning query:   RUNNING  3.2sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.5sRunning query:   RUNNING  5.1sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.4sRunning query:   RUNNING  7.0sRunning query:   RUNNING  7.8sRunning query:   RUNNING  8.5sRunning query:   RUNNING  9.1sRunning query:   RUNNING  9.7sRunning query:   RUNNING 10.3sRunning query:   RUNNING 11.0sRunning query:   RUNNING 11.7sRunning query:   RUNNING 12.3sRunning query:   RUNNING 13.0sRunning query:   RUNNING 13.6sRunning query:   RUNNING 14.2sRunning query:   RUNNING 14.9s
 ```
 
 Setup
@@ -211,9 +212,9 @@ indels
 
 ```r
 # Need to redo queries for this
-genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,478)
+genomeCount = c(1,2,3,4,5,10,50,100,200,300,400,460)
 snvCount = c(3590360,4847512,5627244,6158953,6616457,
-              8014799,11841547,14387937,18693833,21567571,23638061,25890797)
+              8014799,11841547,14387937,18693833,21567571,23638061,25763436)
 saturationRate = data_frame(genomeCount, snvCount)
 saturationRate$snvCount = saturationRate$snvCount/1000000
 ```
@@ -238,7 +239,7 @@ saturation
 multiplot(snvs,indels, counts, saturation, cols=2)
 ```
 
-<img src="figure/variant-multiplot-publication-1.png" title="plot of chunk variant-multiplot-publication" alt="plot of chunk variant-multiplot-publication" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure3-1.png" title="plot of chunk Tsao-SupplementaryFigure3" alt="plot of chunk Tsao-SupplementaryFigure3" style="display: block; margin: auto;" />
 
 
 ## Callability
@@ -298,7 +299,8 @@ FROM
 )
 ORDER BY
 call.call_set_name,
-reference_name,Retrieving data:  3.7sRetrieving data: 10.4sRetrieving data: 13.7sRetrieving data: 17.1s
+reference_name,Running query:   RUNNING  2.6sRunning query:   RUNNING  3.2sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.5sRunning query:   RUNNING  5.1sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.4sRunning query:   RUNNING  7.0sRunning query:   RUNNING  7.6sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.5sRunning query:   RUNNING 10.1sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.4sRunning query:   RUNNING 12.0sRunning query:   RUNNING 12.6sRunning query:   RUNNING 13.3sRunning query:   RUNNING 13.9sRunning query:   RUNNING 14.5sRunning query:   RUNNING 15.1sRunning query:   RUNNING 15.8sRunning query:   RUNNING 16.4sRunning query:   RUNNING 17.0sRunning query:   RUNNING 17.6sRunning query:   RUNNING 18.3sRunning query:   RUNNING 18.9sRunning query:   RUNNING 19.5sRunning query:   RUNNING 20.2sRunning query:   RUNNING 20.8sRunning query:   RUNNING 21.4sRunning query:   RUNNING 22.1sRunning query:   RUNNING 22.7sRunning query:   RUNNING 23.3sRunning query:   RUNNING 23.9sRunning query:   RUNNING 24.6sRunning query:   RUNNING 25.2sRunning query:   RUNNING 25.8sRunning query:   RUNNING 26.4sRunning query:   RUNNING 27.0sRunning query:   RUNNING 27.7sRunning query:   RUNNING 28.3sRunning query:   RUNNING 28.9sRunning query:   RUNNING 29.6sRunning query:   RUNNING 30.2sRunning query:   RUNNING 30.8sRunning query:   RUNNING 31.4s
+Retrieving data:  6.1sRetrieving data:  9.0sRetrieving data: 11.0sRetrieving data: 13.0s
 ```
 
 Setup
@@ -314,8 +316,8 @@ faceted = melt(selection, id.vars=c("reference_name"),measure.vars=c("prop_w_poi
 faceted$color = faceted$variable
 faceted[faceted$variable=="remainder",]$variable <- 'pos_no_point_info'
 faceted$variable <- factor(faceted$variable)
-levels(faceted$variable) <- c("Proportion of positions called", "Number of missing positions")
-levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Chromosome length")
+levels(faceted$variable) <- c("Proportion of positions called", "Number of positions")
+levels(faceted$color) <- c("Proportion of positions called", "Number of missing positions", "Remainder of hg19 callable positions")
 ```
 
 
@@ -325,6 +327,7 @@ ggplot(faceted) +
   facet_grid(variable ~ ., scales="free_y") +
   scale_y_continuous(labels=comma, expand=c(0,0)) +
   plot_theme +
+  ggtitle("LP6005038-DNA_A01 callability") +
   xlab("Chromosome") +
   scale_fill_brewer(palette=1) +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
@@ -332,7 +335,7 @@ ggplot(faceted) +
     legend.title=element_blank())
 ```
 
-<img src="figure/callability-1.png" title="plot of chunk callability" alt="plot of chunk callability" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure4-1.png" title="plot of chunk Tsao-SupplementaryFigure4" alt="plot of chunk Tsao-SupplementaryFigure4" style="display: block; margin: auto;" />
 
 
 ## WGS Statistics
@@ -378,7 +381,7 @@ FROM
   )
   GROUP BY
   call.call_set_name
-)
+)Running query:   RUNNING  2.7sRunning query:   RUNNING  3.3sRunning query:   RUNNING  3.9sRunning query:   RUNNING  4.6sRunning query:   RUNNING  5.2sRunning query:   RUNNING  5.8sRunning query:   RUNNING  6.5sRunning query:   RUNNING  7.1sRunning query:   RUNNING  7.7sRunning query:   RUNNING  8.4sRunning query:   RUNNING  9.0sRunning query:   RUNNING  9.8sRunning query:   RUNNING 10.4sRunning query:   RUNNING 11.0sRunning query:   RUNNING 11.7sRunning query:   RUNNING 12.3sRunning query:   RUNNING 12.9sRunning query:   RUNNING 13.6sRunning query:   RUNNING 14.2sRunning query:   RUNNING 14.8sRunning query:   RUNNING 15.4sRunning query:   RUNNING 16.1s
 ```
 
 
@@ -445,7 +448,7 @@ het_RA_count,
 all_SNV_count,
 Het_Hom_ratio
 ORDER BY
-sample.id;
+sample.id;Running query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.6sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.1sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3sRunning query:   RUNNING 11.9sRunning query:   RUNNING 12.6sRunning query:   RUNNING 13.2sRunning query:   RUNNING 13.8sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.1sRunning query:   RUNNING 15.7sRunning query:   RUNNING 16.4sRunning query:   RUNNING 17.0sRunning query:   RUNNING 17.6sRunning query:   RUNNING 18.3sRunning query:   RUNNING 18.9sRunning query:   RUNNING 19.5sRunning query:   RUNNING 20.1sRunning query:   RUNNING 20.8sRunning query:   RUNNING 21.4sRunning query:   RUNNING 22.0sRunning query:   RUNNING 22.6sRunning query:   RUNNING 23.2sRunning query:   RUNNING 23.9sRunning query:   RUNNING 24.5sRunning query:   RUNNING 25.1sRunning query:   RUNNING 25.7sRunning query:   RUNNING 26.4sRunning query:   RUNNING 27.0sRunning query:   RUNNING 27.6sRunning query:   RUNNING 28.2sRunning query:   RUNNING 28.9sRunning query:   RUNNING 29.5sRunning query:   RUNNING 30.1sRunning query:   RUNNING 30.7sRunning query:   RUNNING 31.4s
 ```
 
 
@@ -504,7 +507,7 @@ sample_id,
 VAR_type
 ORDER BY
 sample_id,
-VAR_type
+VAR_typeRunning query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3sRunning query:   RUNNING 12.0sRunning query:   RUNNING 12.6sRunning query:   RUNNING 13.3s
 ```
 
 ```r
@@ -556,7 +559,7 @@ FROM
 GROUP EACH BY
 sample_id
 ORDER BY
-sample_id ASC;
+sample_id ASC;Running query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3s
 ```
 
 
@@ -580,7 +583,7 @@ privateVariants
 multiplot(titv, dbSNP, hethom, privateVariants, cols=2)
 ```
 
-<img src="figure/boxplots-multiplot-publication-1.png" title="plot of chunk boxplots-multiplot-publication" alt="plot of chunk boxplots-multiplot-publication" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure5-1.png" title="plot of chunk Tsao-SupplementaryFigure5" alt="plot of chunk Tsao-SupplementaryFigure5" style="display: block; margin: auto;" />
 
 
 ## Allele Frequency Distribution
@@ -651,7 +654,7 @@ reference_name,
 rarity
 ORDER BY
 reference_name,
-rarity
+rarityRunning query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.6sRunning query:   RUNNING 11.3sRunning query:   RUNNING 11.9sRunning query:   RUNNING 12.5sRunning query:   RUNNING 13.2sRunning query:   RUNNING 13.8sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.0sRunning query:   RUNNING 15.6sRunning query:   RUNNING 16.2sRunning query:   RUNNING 16.9sRunning query:   RUNNING 17.5sRunning query:   RUNNING 18.1sRunning query:   RUNNING 18.7sRunning query:   RUNNING 19.3sRunning query:   RUNNING 20.0sRunning query:   RUNNING 20.6sRunning query:   RUNNING 21.2sRunning query:   RUNNING 21.8sRunning query:   RUNNING 22.5sRunning query:   RUNNING 23.1s
 ```
 
 ```r
@@ -680,14 +683,36 @@ ggplot(rarity) +
         legend.title=element_blank())
 ```
 
-<img src="figure/variant-rarity-1.png" title="plot of chunk variant-rarity" alt="plot of chunk variant-rarity" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure6-1.png" title="plot of chunk Tsao-SupplementaryFigure6" alt="plot of chunk Tsao-SupplementaryFigure6" style="display: block; margin: auto;" />
 
 
 ## P53 Mutation Spectrum
 
 ```r
 require(NMF)
+```
+
+```
+## Loading required package: NMF
+## Loading required package: pkgmaker
+## Loading required package: registry
+## Loading required package: rngtools
+## Loading required package: cluster
+## NMF - BioConductor layer [NO: missing Biobase] | Shared memory capabilities [NO: bigmemory] | Cores 3/4
+##   To enable the Bioconductor layer, try: install.extras('
+## NMF
+## ') [with Bioconductor repository enabled]
+##   To enable shared memory capabilities, try: install.extras('
+## NMF
+## ')
+```
+
+```r
 require(RColorBrewer)
+```
+
+```
+## Loading required package: RColorBrewer
 ```
 
 
@@ -738,7 +763,7 @@ window_start,
 window_end,
 ORDER BY
 window ASC,
-call.call_set_name ASC;
+call.call_set_name ASC;Running query:   RUNNING  2.6sRunning query:   RUNNING  3.2sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.1sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3s
 ```
 
 Get Patient Info
@@ -794,16 +819,10 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(spectrumMatrix), Rowv=NA, Colv=NA, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
-```
-
-<img src="figure/mutation-spectrum-1.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
-
-```r
 aheatmap(t(spectrumMatrix), Rowv=NA, Colv=FALSE, color="Reds:50",labCol="",main="P53 mutation spectrum in 1kb windows", fontsize=14)
 ```
 
-<img src="figure/mutation-spectrum-2.png" title="plot of chunk mutation-spectrum" alt="plot of chunk mutation-spectrum" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure7-1.png" title="plot of chunk Tsao-SupplementaryFigure7" alt="plot of chunk Tsao-SupplementaryFigure7" style="display: block; margin: auto;" />
 
 
 ## Variant Distribution
@@ -868,7 +887,8 @@ ORDER BY
 Sample_id,
 region,
 Chromosome;
-Retrieving data:  3.2sRetrieving data:  4.8sRetrieving data:  6.2sRetrieving data:  7.7sRetrieving data: 10.3sRetrieving data: 11.8sRetrieving data: 13.4sRetrieving data: 15.2sRetrieving data: 17.8sRetrieving data: 19.3sRetrieving data: 20.6sRetrieving data: 22.5sRetrieving data: 24.3sRetrieving data: 26.2sRetrieving data: 27.9sRetrieving data: 29.9sRetrieving data: 31.4s
+Running query:   RUNNING  2.5sRunning query:   RUNNING  3.2sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3sRunning query:   RUNNING 12.0sRunning query:   RUNNING 12.6sRunning query:   RUNNING 13.2sRunning query:   RUNNING 13.8sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.1sRunning query:   RUNNING 15.7sRunning query:   RUNNING 16.3sRunning query:   RUNNING 17.0sRunning query:   RUNNING 17.6sRunning query:   RUNNING 18.2sRunning query:   RUNNING 18.9sRunning query:   RUNNING 19.5s
+Retrieving data:  2.9sRetrieving data:  4.1sRetrieving data:  5.5sRetrieving data:  6.8sRetrieving data:  8.2sRetrieving data:  9.4sRetrieving data: 10.6sRetrieving data: 11.6sRetrieving data: 12.7sRetrieving data: 13.9sRetrieving data: 15.1sRetrieving data: 16.3sRetrieving data: 17.5sRetrieving data: 18.7sRetrieving data: 19.9sRetrieving data: 21.0s
 ```
 
 ```r
@@ -980,7 +1000,7 @@ splicing
 multiplot(exonic,utr3, intergenic, intronic, utr5, splicing, cols=2)
 ```
 
-<img src="figure/regional-counts-1.png" title="plot of chunk regional-counts" alt="plot of chunk regional-counts" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure8-1.png" title="plot of chunk Tsao-SupplementaryFigure8" alt="plot of chunk Tsao-SupplementaryFigure8" style="display: block; margin: auto;" />
 
 
 ## Pathogenic Variants on ACMG Genes
@@ -1042,6 +1062,39 @@ Sample_id
 
 ```r
 acmgExpanded <- dcast(acmgVariants, Sample_id ~ Gene, value.var = "count", na.rm=TRUE)
+missing = subset(x, !(sample_id %in% acmgExpanded$Sample_id))
+```
+
+```
+## Error in subset(x, !(sample_id %in% acmgExpanded$Sample_id)): object 'x' not found
+```
+
+```r
+genes = names(acmgExpanded)[2:ncol(acmgExpanded)]
+missing[,genes] <- NA
+```
+
+```
+## Error in missing[, genes] <- NA: object of type 'special' is not subsettable
+```
+
+```r
+names(missing) <- names(acmgExpanded)
+```
+
+```
+## Error in names(missing) <- names(acmgExpanded): names() applied to a non-vector
+```
+
+```r
+acmgExpanded <- rbind(acmgExpanded, missing)
+```
+
+```
+## Error in rep(xi, length.out = nvar): attempt to replicate an object of type 'special'
+```
+
+```r
 sampleIds = data.frame(acmgExpanded$Sample_id)
 names(sampleIds) = "sample_id"
 annotations = merge(x = sampleIds, y = patientInfo, by = "sample_id", all.x = TRUE)
@@ -1068,11 +1121,10 @@ names(cohort) = "Cohort"
 
 
 ```r
-aheatmap(t(acmgMatrix), Rowv=FALSE, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
+aheatmap(t(acmgMatrix), Rowv=NA, Colv=FALSE, color="Reds:2",labCol="",main="Pathogenic variants within ACMG genes", fontsize=14)
 ```
 
 <img src="figure/acmg-variants-1.png" title="plot of chunk acmg-variants" alt="plot of chunk acmg-variants" style="display: block; margin: auto;" />
-
 
 
 ## Allele Frequency Distributions vs 1000 Genomes
@@ -1171,7 +1223,7 @@ ggplot(frequencies) +
   geom_bar(aes(frequency, normalized, fill=population, order=population), stat="identity") +
   xlab("Allele frequency") +
   ylab("Proportion of total count") +
-  ggtitle("Allele frequency overlap between\ndeeply sequenced genomes and the\nEuropean subpopulation in 1000 Genomes") +
+  ggtitle("Allele frequency overlap\nbetween genomes from this study and the\nEuropean subpopulation in 1000 Genomes") +
   plot_theme + 
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_brewer(palette=1, breaks=c("AAA","K1G","BOTH"),
@@ -1212,10 +1264,10 @@ levels(queryInfo$variable) <- c("5 Genomes", "460 Genomes")
 ```r
 queryInfo$variable <- factor(queryInfo$variable)
 ```
-cbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 
 ```r
-ggplot(queryInfo) +
+runTimeFacet = ggplot(queryInfo) +
   geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
   facet_grid(plot ~ ., scales="free_y") +
   plot_theme +
@@ -1225,9 +1277,48 @@ ggplot(queryInfo) +
   scale_fill_hue(l=40) +
   ggtitle("Query processing information in BigQuery") +
   scale_y_continuous(labels=comma, expand = c(0, 0))  
+runTimeFacet
 ```
 
 <img src="figure/run-time-1.png" title="plot of chunk run-time" alt="plot of chunk run-time" style="display: block; margin: auto;" />
+
+Same plot with the bottom plot on log scale
+
+Setup
+
+```r
+avgRunTime = queryInfo[queryInfo$plot == "Average Run Time (seconds)",]
+p1 = ggplot(avgRunTime) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+  legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  ylab("Average Run Time (sedonds)") +
+  ggtitle("Query processing information in BigQuery") +
+  scale_y_continuous(labels=comma, expand = c(0, 0)) +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank())
+
+
+dataProcessed = queryInfo[queryInfo$plot == "Data Processed (gigabytes)",]
+dataProcessed$value = dataProcessed$value * 1024
+p2 = ggplot(dataProcessed) +
+  geom_bar(aes(Query, value, fill=variable), stat="identity", position="dodge") +
+  ylab("Data processed (gigabytes)") +
+  plot_theme +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+    legend.title=element_blank()) +
+  scale_fill_hue(l=40) +
+  scale_y_continuous(expand = c(0, 0), trans='log', breaks=c(10.24,102.4,1024,10240,102400,409600), labels=c(0.01, 0.1, 1, 10, 100, 400)) 
+```
+
+
+```r
+multiplot(p1, p2)
+```
+
+<img src="figure/run-time-log-1.png" title="plot of chunk run-time-log" alt="plot of chunk run-time-log" style="display: block; margin: auto;" />
 
 ## Warfarin Dosage
 
@@ -1296,6 +1387,7 @@ SELECT
   GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
 FROM
   (FLATTEN((va_aaa_pilot_data.multi_sample_variants_full_qc),call.call_set_name))
+OMIT call IF call.call_set_name in ('LP6005038-DNA_C02', 'LP6005243-DNA_H03','LP6005243-DNA_A08')
 HAVING
   names in ('rs1057910', 'rs1799853', 'rs9923231')
 )
@@ -1307,7 +1399,7 @@ GROUP BY
 GROUP BY
   call.call_set_name))
 GROUP BY
-  dosage
+  dosageRunning query:   RUNNING  2.5sRunning query:   RUNNING  3.2sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.1sRunning query:   RUNNING  5.7sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3sRunning query:   RUNNING 11.9sRunning query:   RUNNING 12.5sRunning query:   RUNNING 13.2sRunning query:   RUNNING 13.8sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.1sRunning query:   RUNNING 15.7sRunning query:   RUNNING 16.3sRunning query:   RUNNING 16.9sRunning query:   RUNNING 17.6sRunning query:   RUNNING 18.2sRunning query:   RUNNING 18.8sRunning query:   RUNNING 19.4sRunning query:   RUNNING 20.0sRunning query:   RUNNING 20.7sRunning query:   RUNNING 21.3s
 ```
 
 
@@ -1315,13 +1407,269 @@ GROUP BY
 ggplot(warfarin) +
   geom_bar(aes('dosage',count, fill=dosage), width=1, stat="identity") +
   coord_polar(theta='y') +
+  geom_text(aes(x=1.25,y = count/3 + c(0, cumsum(count)[-length(count)]), 
+            label = count), size=5) +
   boxPlotTheme +
   ggtitle("Recommended daily warfarin dosage") +
+  guides(fill=guide_legend(title="Recommended\ndosage")) +
+  scale_fill_brewer(palette=1) +
   theme(axis.ticks=element_blank(),
             axis.text=element_blank(),
             axis.title=element_blank(),
             panel.border=element_blank(),
-            plot.title = element_text(vjust=-2)) 
+            plot.title = element_text(vjust=-2),
+            legend.title = element_blank()) 
 ```
 
-<img src="figure/warfarin-1.png" title="plot of chunk warfarin" alt="plot of chunk warfarin" style="display: block; margin: auto;" />
+<img src="figure/Tsao-SupplementaryFigure9-1.png" title="plot of chunk Tsao-SupplementaryFigure9" alt="plot of chunk Tsao-SupplementaryFigure9" style="display: block; margin: auto;" />
+
+## Variant Counts Per Genome
+
+```r
+noQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_no_qc")
+noqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=noQcTable)
+```
+
+```
+SELECT
+call.call_set_name AS sample.id,
+VAR_type,
+FLOAT(SUM(end - start)) AS Length,
+COUNT(VAR_type) AS Cnt
+FROM
+(
+  SELECT
+  call.call_set_name,
+  reference_name,
+  start,
+  end,
+  reference_bases,
+  IF(LENGTH(reference_bases)=1 AND LENGTH(alts)=1, "SNV", 
+     (IF(LENGTH(reference_bases)=1 AND alts IS NULL, "REF", "INDEL"))) AS VAR_type
+  #VAR_type
+  FROM
+  (
+    SELECT
+    call.call_set_name,
+    reference_name,
+    start,
+    end,
+    reference_bases,
+    GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
+    #_QCSELECT_
+    FROM 
+    [gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_no_qc]
+    OMIT call IF EVERY(call.genotype < 0)
+    #_QC_
+  )
+  GROUP EACH BY
+  call.call_set_name,
+  reference_name,
+  start,
+  reference_bases,
+  end,
+  VAR_type
+)
+GROUP EACH BY
+sample.id,
+VAR_type
+Running query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.6sRunning query:   RUNNING  6.2sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.1sRunning query:   RUNNING  8.7sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.6sRunning query:   RUNNING 11.2sRunning query:   RUNNING 11.9sRunning query:   RUNNING 12.5sRunning query:   RUNNING 13.1sRunning query:   RUNNING 13.7sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.0sRunning query:   RUNNING 15.6sRunning query:   RUNNING 16.2sRunning query:   RUNNING 16.9sRunning query:   RUNNING 17.5sRunning query:   RUNNING 18.1sRunning query:   RUNNING 18.7sRunning query:   RUNNING 19.4sRunning query:   RUNNING 20.0sRunning query:   RUNNING 20.6sRunning query:   RUNNING 21.3sRunning query:   RUNNING 21.9sRunning query:   RUNNING 22.5sRunning query:   RUNNING 23.2sRunning query:   RUNNING 23.8sRunning query:   RUNNING 24.4sRunning query:   RUNNING 25.0sRunning query:   RUNNING 25.7sRunning query:   RUNNING 26.3s
+```
+
+```r
+noqc[noqc$VAR_type=="REF",]$Cnt <- noqc[noqc$VAR_type=="REF",]$Length
+noqc$Group = "No QC"
+```
+
+
+
+```r
+seqQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_seq_qc")
+seqqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=seqQcTable)
+```
+
+```
+SELECT
+call.call_set_name AS sample.id,
+VAR_type,
+FLOAT(SUM(end - start)) AS Length,
+COUNT(VAR_type) AS Cnt
+FROM
+(
+  SELECT
+  call.call_set_name,
+  reference_name,
+  start,
+  end,
+  reference_bases,
+  IF(LENGTH(reference_bases)=1 AND LENGTH(alts)=1, "SNV", 
+     (IF(LENGTH(reference_bases)=1 AND alts IS NULL, "REF", "INDEL"))) AS VAR_type
+  #VAR_type
+  FROM
+  (
+    SELECT
+    call.call_set_name,
+    reference_name,
+    start,
+    end,
+    reference_bases,
+    GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
+    #_QCSELECT_
+    FROM 
+    [gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_seq_qc]
+    OMIT call IF EVERY(call.genotype < 0)
+    #_QC_
+  )
+  GROUP EACH BY
+  call.call_set_name,
+  reference_name,
+  start,
+  reference_bases,
+  end,
+  VAR_type
+)
+GROUP EACH BY
+sample.id,
+VAR_type
+Running query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.6sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.1sRunning query:   RUNNING  8.7sRunning query:   RUNNING  9.3sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.6sRunning query:   RUNNING 11.2sRunning query:   RUNNING 11.8sRunning query:   RUNNING 12.5sRunning query:   RUNNING 13.1sRunning query:   RUNNING 13.7sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.0sRunning query:   RUNNING 15.6sRunning query:   RUNNING 16.2sRunning query:   RUNNING 16.8sRunning query:   RUNNING 17.5sRunning query:   RUNNING 18.1sRunning query:   RUNNING 19.0sRunning query:   RUNNING 19.6sRunning query:   RUNNING 20.2sRunning query:   RUNNING 20.9s
+```
+
+```r
+seqqc[seqqc$VAR_type=="REF",]$Cnt <- seqqc[seqqc$VAR_type=="REF",]$Length
+seqqc$Group = "Seq QC"
+```
+
+
+```r
+fullQcTable = list("_THE_TABLE_"="gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_full_qc",
+                   "#_QC_"="OR SOME(call.QC IS NOT NULL) HAVING QC IS NULL",
+                   "#_QCSELECT_"="GROUP_CONCAT(QC) WITHIN RECORD AS qc")
+fullqc <- DisplayAndDispatchQuery("../sql/variant-counts.sql",
+                                              project=project,
+                                              replacements=fullQcTable)
+```
+
+```
+SELECT
+call.call_set_name AS sample.id,
+VAR_type,
+FLOAT(SUM(end - start)) AS Length,
+COUNT(VAR_type) AS Cnt
+FROM
+(
+  SELECT
+  call.call_set_name,
+  reference_name,
+  start,
+  end,
+  reference_bases,
+  IF(LENGTH(reference_bases)=1 AND LENGTH(alts)=1, "SNV", 
+     (IF(LENGTH(reference_bases)=1 AND alts IS NULL, "REF", "INDEL"))) AS VAR_type
+  #VAR_type
+  FROM
+  (
+    SELECT
+    call.call_set_name,
+    reference_name,
+    start,
+    end,
+    reference_bases,
+    GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
+    GROUP_CONCAT(QC) WITHIN RECORD AS qc
+    FROM 
+    [gbsc-gcp-project-mvp:va_aaa_pilot_data.genome_calls_full_qc]
+    OMIT call IF EVERY(call.genotype < 0)
+    OR SOME(call.QC IS NOT NULL) HAVING QC IS NULL
+  )
+  GROUP EACH BY
+  call.call_set_name,
+  reference_name,
+  start,
+  reference_bases,
+  end,
+  VAR_type
+)
+GROUP EACH BY
+sample.id,
+VAR_type
+Running query:   RUNNING  2.5sRunning query:   RUNNING  3.1sRunning query:   RUNNING  3.8sRunning query:   RUNNING  4.4sRunning query:   RUNNING  5.0sRunning query:   RUNNING  5.6sRunning query:   RUNNING  6.3sRunning query:   RUNNING  6.9sRunning query:   RUNNING  7.5sRunning query:   RUNNING  8.2sRunning query:   RUNNING  8.8sRunning query:   RUNNING  9.4sRunning query:   RUNNING 10.0sRunning query:   RUNNING 10.7sRunning query:   RUNNING 11.3sRunning query:   RUNNING 11.9sRunning query:   RUNNING 12.6sRunning query:   RUNNING 13.2sRunning query:   RUNNING 13.8sRunning query:   RUNNING 14.4sRunning query:   RUNNING 15.1sRunning query:   RUNNING 15.7sRunning query:   RUNNING 16.3sRunning query:   RUNNING 16.9sRunning query:   RUNNING 17.5sRunning query:   RUNNING 18.2sRunning query:   RUNNING 18.8sRunning query:   RUNNING 19.4sRunning query:   RUNNING 20.1sRunning query:   RUNNING 20.7sRunning query:   RUNNING 21.3sRunning query:   RUNNING 21.9sRunning query:   RUNNING 22.6sRunning query:   RUNNING 23.2sRunning query:   RUNNING 23.8sRunning query:   RUNNING 24.4sRunning query:   RUNNING 25.0sRunning query:   RUNNING 25.7sRunning query:   RUNNING 26.3sRunning query:   RUNNING 26.9sRunning query:   RUNNING 27.5sRunning query:   RUNNING 28.2sRunning query:   RUNNING 28.8sRunning query:   RUNNING 29.4sRunning query:   RUNNING 30.1sRunning query:   RUNNING 30.7sRunning query:   RUNNING 31.3s
+```
+
+```r
+fullqc[fullqc$VAR_type=="REF",]$Cnt <- fullqc[fullqc$VAR_type=="REF",]$Length
+fullqc$Group = "Full QC"
+```
+
+
+```r
+refs = rbind(noqc[noqc$VAR_type=="REF",],seqqc[seqqc$VAR_type=="REF",],fullqc[fullqc$VAR_type=="REF",])
+refs$Group = factor(refs$Group, levels = c("No QC", "Seq QC", "Full QC"))
+refs$Cnt = refs$Cnt/1000000000
+```
+
+
+```r
+refCounts = ggplot(refs) +
+  geom_boxplot(aes(Group, Cnt)) +
+  boxPlotTheme +
+  ylab("Count (billions)") + 
+  ggtitle("Reference calls per genome") +
+  xlab("QC level") +
+  theme(axis.title.x=element_blank())
+refCounts
+```
+
+<img src="figure/ref_counts-1.png" title="plot of chunk ref_counts" alt="plot of chunk ref_counts" style="display: block; margin: auto;" />
+
+
+```r
+snvs = rbind(noqc[noqc$VAR_type=="SNV",],seqqc[seqqc$VAR_type=="SNV",],fullqc[fullqc$VAR_type=="SNV",])
+snvs$Group = factor(snvs$Group, levels = c("No QC", "Seq QC", "Full QC"))
+snvs$Cnt = snvs$Cnt/1000000
+```
+
+
+```r
+snvCounts = ggplot(snvs) +
+  geom_boxplot(aes(Group, Cnt)) +
+  boxPlotTheme +
+  ylab("Count (millions)") +
+  ggtitle("SNVs per genome") +
+  xlab("QC level") +
+  theme(axis.title.x=element_blank())
+snvCounts
+```
+
+<img src="figure/snv_counts-1.png" title="plot of chunk snv_counts" alt="plot of chunk snv_counts" style="display: block; margin: auto;" />
+
+
+```r
+indels = rbind(noqc[noqc$VAR_type=="INDEL",],seqqc[seqqc$VAR_type=="INDEL",],fullqc[fullqc$VAR_type=="INDEL",])
+indels$Group = factor(indels$Group, levels = c("No QC", "Seq QC", "Full QC"))
+```
+
+
+```r
+indelCounts = ggplot(indels) +
+  geom_boxplot(aes(Group, Cnt)) +
+  scale_y_continuous(labels=comma) +
+  boxPlotTheme +
+  ggtitle("INDELs per genome") +
+  ylab("Count") +
+  theme(axis.title.x=element_blank())
+indelCounts
+```
+
+<img src="figure/indel_counts-1.png" title="plot of chunk indel_counts" alt="plot of chunk indel_counts" style="display: block; margin: auto;" />
+
+
+```r
+multiplot(refCounts,snvCounts,indelCounts)
+```
+
+<img src="figure/Tsao-SupplementaryFigure2-1.png" title="plot of chunk Tsao-SupplementaryFigure2" alt="plot of chunk Tsao-SupplementaryFigure2" style="display: block; margin: auto;" />
+
