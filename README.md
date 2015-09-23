@@ -1,5 +1,5 @@
 # mvp_aaa_codelabs
-This codelab goes over the procedures used to prepare and analyze a pilot set of genomes from the Million Veterans Program on Google Cloud.  
+This codelab goes over the procedures used to prepare and analyze a pilot set of genomes from the Million Veterans Program on Google Cloud.  The goal of this project is to develop a robust, scalable solution for performing large-scale genomic analysis.  We have taken analyses that are traditionally performed on an HPC and implemented them on Google Cloud so that they run on distributed file systems.  The result is a set of tools that run exceptionally fast when compared to standard genomic analysis tools and can be scaled to a large number of genomes.
 
 ### Part 1: [BigQuery Setup](./BigQuery-Setup.md)
 This part of the codelab goes over the necessary steps to create tables in BigQuery with genomic information.  
