@@ -5,7 +5,7 @@ SELECT
   missingness
 FROM (
 SELECT 
-  g.sample_id AS sample_id,
+  sample_id,
   ROUND(1 - ((hg19.count - g.all_calls_count)/hg19.count), 3) AS missingness
 FROM (
   SELECT
@@ -22,7 +22,7 @@ FROM (
         0)) AS alt_count,
     FROM (
     SELECT
-      call.call_set_name AS sample_id,
+      call.call_set_name,
       start,
       end,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype

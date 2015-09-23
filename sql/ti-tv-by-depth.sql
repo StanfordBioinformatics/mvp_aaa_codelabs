@@ -15,6 +15,8 @@ FROM (
 
     SELECT
       call.call_set_name,
+      reference_bases,
+      alternate_bases,
       CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
       COUNT(alternate_bases) WITHIN RECORD AS num_alts,
       call.DP

@@ -68,5 +68,3 @@ ON
 WHERE
   (gender = 'M' AND perct_het_alt_in_snvs > _MALE_CUTOFF_) OR
   (gender = 'F' AND perct_het_alt_in_snvs < _FEMALE_CUTOFF_) 
-ORDER BY
-  data.sample_id

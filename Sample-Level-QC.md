@@ -22,9 +22,21 @@
 
 
 
-In Part 3 of the codelab, we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+ggplot2 themes to use throughout this page.
 
-By default this codelab runs upon the Illumina Platinum Genomes Variants. Update the table and change the source of sample information here if you wish to run the queries against a different dataset.
+```r
+plot_theme = theme_minimal(base_size = 14, base_family = "Helvetica") + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid = element_blank())
+
+boxPlotTheme = theme_minimal(base_size=14, base_family = "Helvetica") +
+  theme(panel.grid = element_blank())
+```
+
+In Parts 2 & 3 of the codelab we describe the details of each quality control step implemented on our population of genomes.  In Part 2 we perform some quality control analyses that could help to identify any problematic genomes that should be removed from the cohort before proceeding with further analysis.  The appropriate cut off thresholds will depend upon the input dataset and/or other factors.
+
+To skip the details and jump to the implementation of the quality control methods skip to [Part 4: QC Implementation](./QC-Implementation.md).
+
 
 ```r
 tableReplacement <- list("_THE_TABLE_"="va_aaa_pilot_data.genome_calls_seq_qc",
@@ -44,6 +56,7 @@ sampleInfo <- select(sampleData, call_call_set_name=Catalog.ID, gender=Gender)
 * [Heterozygosity Rate](#heterozygosity-rate)
 * [Sex Inference](#sex-inference)
 * [Genotyping Concordance](#genotyping-concordance)
+* [Batch Effect](#batch-effect)
 * [Ethnicity Inference](#ethnicity-inference)
 * [Genome Similarity](#genome-similarity)
 
@@ -78,7 +91,7 @@ FROM (
         0)) AS alt_count,
     FROM (
     SELECT
-      call.call_set_name AS sample_id,
+      call.call_set_name,
       start,
       end,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
@@ -99,15 +112,15 @@ Number of rows returned by this query: 459.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:17:43 2015 -->
+<!-- Tue Sep 22 21:33:26 2015 -->
 <table border=1>
 <tr> <th> sample_id </th> <th> missingness </th>  </tr>
   <tr> <td> LP6005038-DNA_C02 </td> <td align="right"> 0.06 </td> </tr>
   <tr> <td> LP6005692-DNA_D09 </td> <td align="right"> 0.05 </td> </tr>
-  <tr> <td> LP6005243-DNA_H01 </td> <td align="right"> 0.05 </td> </tr>
   <tr> <td> LP6005038-DNA_D02 </td> <td align="right"> 0.05 </td> </tr>
-  <tr> <td> LP6005144-DNA_G01 </td> <td align="right"> 0.05 </td> </tr>
   <tr> <td> LP6005051-DNA_D07 </td> <td align="right"> 0.05 </td> </tr>
+  <tr> <td> LP6005243-DNA_D01 </td> <td align="right"> 0.05 </td> </tr>
+  <tr> <td> LP6005243-DNA_C01 </td> <td align="right"> 0.05 </td> </tr>
    </table>
 
 And visualizing the results:
@@ -118,13 +131,8 @@ ggplot(result) +
   xlab("Sample") +
   ylab("Missingness Rate") +
   ggtitle("Genome-Specific Missingness") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.ticks = element_blank(),
+  plot_theme +
+  theme(axis.ticks = element_blank(),
         axis.text.x = element_blank())
 ```
 
@@ -207,15 +215,15 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:17:46 2015 -->
+<!-- Tue Sep 22 21:33:30 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> private_variant_count </th>  </tr>
-  <tr> <td> LP6005144-DNA_C07 </td> <td align="right"> 26458 </td> </tr>
-  <tr> <td> LP6005051-DNA_H08 </td> <td align="right"> 24793 </td> </tr>
-  <tr> <td> LP6005038-DNA_H07 </td> <td align="right"> 28700 </td> </tr>
-  <tr> <td> LP6005144-DNA_E11 </td> <td align="right"> 41789 </td> </tr>
-  <tr> <td> LP6005051-DNA_A04 </td> <td align="right"> 50463 </td> </tr>
-  <tr> <td> LP6005038-DNA_E08 </td> <td align="right"> 29634 </td> </tr>
+  <tr> <td> LP6005038-DNA_C05 </td> <td align="right"> 67704 </td> </tr>
+  <tr> <td> LP6005692-DNA_G01 </td> <td align="right"> 26217 </td> </tr>
+  <tr> <td> LP6005144-DNA_D08 </td> <td align="right"> 23597 </td> </tr>
+  <tr> <td> LP6005692-DNA_F11 </td> <td align="right"> 23547 </td> </tr>
+  <tr> <td> LP6005051-DNA_E04 </td> <td align="right"> 47140 </td> </tr>
+  <tr> <td> LP6005144-DNA_G08 </td> <td align="right"> 26134 </td> </tr>
    </table>
 
 And visualizing the results:
@@ -227,14 +235,9 @@ ggplot(result) +
   ylab("Number of Singletons") +
   ggtitle("Count of Singletons Per Genome") +
   scale_y_continuous(labels=comma) +
-    theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.ticks = element_blank(),
-        axis.text.x=element_blank())
+  plot_theme +
+  theme(axis.ticks = element_blank(),
+        axis.text.x = element_blank())
 ```
 
 <img src="figure/singletons-1.png" title="plot of chunk singletons" alt="plot of chunk singletons" style="display: block; margin: auto;" />
@@ -303,15 +306,15 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:17:49 2015 -->
+<!-- Tue Sep 22 21:33:33 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HOM </th> <th> E_HOM </th> <th> N_SITES </th> <th> F </th>  </tr>
-  <tr> <td> LP6005051-DNA_H12 </td> <td align="right"> 24033716 </td> <td align="right"> 24053409.48 </td> <td align="right"> 26285511 </td> <td align="right"> -0.01 </td> </tr>
-  <tr> <td> LP6005692-DNA_D10 </td> <td align="right"> 23993486 </td> <td align="right"> 23918477.81 </td> <td align="right"> 26138922 </td> <td align="right"> 0.03 </td> </tr>
-  <tr> <td> LP6005693-DNA_G01 </td> <td align="right"> 24047141 </td> <td align="right"> 24046122.85 </td> <td align="right"> 26279052 </td> <td align="right"> 0.00 </td> </tr>
-  <tr> <td> LP6005038-DNA_H03 </td> <td align="right"> 24080371 </td> <td align="right"> 24016798.13 </td> <td align="right"> 26243766 </td> <td align="right"> 0.03 </td> </tr>
-  <tr> <td> LP6005144-DNA_G10 </td> <td align="right"> 24102590 </td> <td align="right"> 24062111.27 </td> <td align="right"> 26304048 </td> <td align="right"> 0.02 </td> </tr>
-  <tr> <td> LP6005144-DNA_H04 </td> <td align="right"> 24073008 </td> <td align="right"> 24006086.56 </td> <td align="right"> 26230425 </td> <td align="right"> 0.03 </td> </tr>
+  <tr> <td> LP6005051-DNA_E03 </td> <td align="right"> 24036439 </td> <td align="right"> 23978412.34 </td> <td align="right"> 26185742 </td> <td align="right"> 0.03 </td> </tr>
+  <tr> <td> LP6005243-DNA_E08 </td> <td align="right"> 24085065 </td> <td align="right"> 24081483.69 </td> <td align="right"> 26310910 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005692-DNA_F04 </td> <td align="right"> 24006207 </td> <td align="right"> 24002414.10 </td> <td align="right"> 26224203 </td> <td align="right"> 0.00 </td> </tr>
+  <tr> <td> LP6005038-DNA_A05 </td> <td align="right"> 23925478 </td> <td align="right"> 23955837.74 </td> <td align="right"> 26170707 </td> <td align="right"> -0.01 </td> </tr>
+  <tr> <td> LP6005144-DNA_A10 </td> <td align="right"> 24036795 </td> <td align="right"> 23965529.58 </td> <td align="right"> 26182425 </td> <td align="right"> 0.03 </td> </tr>
+  <tr> <td> LP6005144-DNA_C11 </td> <td align="right"> 23953076 </td> <td align="right"> 23958021.31 </td> <td align="right"> 26172270 </td> <td align="right"> -0.00 </td> </tr>
    </table>
 
 And visualizing the results:
@@ -328,13 +331,7 @@ ggplot(result) +
   xlab("Observed Homozygous Variants") +
   ylab("Expected Homozygous Variants") +
   ggtitle("Homozygosity") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.ticks = element_blank())  
+  plot_theme
 ```
 
 <img src="figure/inbreeding-1.png" title="plot of chunk inbreeding" alt="plot of chunk inbreeding" style="display: block; margin: auto;" />
@@ -342,7 +339,7 @@ ggplot(result) +
 
 ## Heterozygosity Rate 
 
-Heterozygosity rate is defined as the number of heterozygous calls in a genome.  Genomes with a heterozygosity rate more than 3 standard deviations away from the mean are removed from the cohort.  
+Heterozygosity rate is simply the the number of heterozygous calls in a genome.  Genomes with a heterozygosity rate more than 3 standard deviations away from the mean are removed from the cohort.  
 
 
 ```r
@@ -352,6 +349,8 @@ result <- DisplayAndDispatchQuery("./sql/heterozygous-calls-count.sql",
 ```
 
 ```
+  # Count the number of heterozygous calls for each genome in the multi sample variants table.
+  
   SELECT
     call.call_set_name,
     SUM(first_allele != second_allele) AS O_HET
@@ -381,15 +380,15 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:17:51 2015 -->
+<!-- Tue Sep 22 21:33:35 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> O_HET </th>  </tr>
-  <tr> <td> LP6005693-DNA_A02 </td> <td align="right"> 2149339 </td> </tr>
-  <tr> <td> LP6005692-DNA_E05 </td> <td align="right"> 2145968 </td> </tr>
-  <tr> <td> LP6005051-DNA_D11 </td> <td align="right"> 2155156 </td> </tr>
-  <tr> <td> LP6005243-DNA_E07 </td> <td align="right"> 2184648 </td> </tr>
-  <tr> <td> LP6005051-DNA_G11 </td> <td align="right"> 2221100 </td> </tr>
-  <tr> <td> LP6005144-DNA_C01 </td> <td align="right"> 2152075 </td> </tr>
+  <tr> <td> LP6005051-DNA_H06 </td> <td align="right"> 2142264 </td> </tr>
+  <tr> <td> LP6005144-DNA_A11 </td> <td align="right"> 2160295 </td> </tr>
+  <tr> <td> LP6005144-DNA_H05 </td> <td align="right"> 2130613 </td> </tr>
+  <tr> <td> LP6005038-DNA_E02 </td> <td align="right"> 2144217 </td> </tr>
+  <tr> <td> LP6005144-DNA_G11 </td> <td align="right"> 2113643 </td> </tr>
+  <tr> <td> LP6005692-DNA_D11 </td> <td align="right"> 2111111 </td> </tr>
    </table>
 
 And visualizing the results:
@@ -400,14 +399,10 @@ ggplot(result) +
   xlab("Sample") +
   ylab("Observed Heterozygous Call Counts") +
   ggtitle("Hetrozygosity Rates") +
-  theme(axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        legend.position = "none",
-        axis.ticks = element_blank(),
-        axis.text.x = element_blank())    
+  scale_y_continuous(labels=comma) +
+  plot_theme +
+  theme(axis.ticks = element_blank(),
+        axis.text.x = element_blank())
 ```
 
 <img src="figure/heterozygosity-1.png" title="plot of chunk heterozygosity" alt="plot of chunk heterozygosity" style="display: block; margin: auto;" />
@@ -416,7 +411,7 @@ ggplot(result) +
 
 ## Sex Inference
 
-Gender is inferred for each genome by calculating the heterozygosity rate on the X chromosome.  Genomes who's inferred sex is different from that of the reported sex are removed from the cohort.  Although it is possible for people to be genotypically male and phenotypically female, it is more likely that samples and phenotypic records were mislabeled.
+Gender is inferred for each genome by calculating the heterozygosity rate on the X chromosome.  Genomes who's inferred sex is different from that of the reported sex are removed from the cohort.  Although it is possible for people to be genotypically male and phenotypically female, it is more likely that samples or phenotypic records were mislabeled.
 
 
 ```r
@@ -476,7 +471,7 @@ Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:17:53 2015 -->
+<!-- Tue Sep 22 21:33:39 2015 -->
 <table border=1>
 <tr> <th> call_call_set_name </th> <th> perct_het_alt_in_snvs </th> <th> perct_hom_alt_in_snvs </th> <th> all_callable_sites </th> <th> hom_AA_count </th> <th> het_RA_count </th> <th> hom_RR_count </th> <th> all_snvs </th>  </tr>
   <tr> <td> LP6005038-DNA_A01 </td> <td align="right"> 0.03 </td> <td align="right"> 0.97 </td> <td align="right"> 872243 </td> <td align="right"> 71719 </td> <td align="right"> 2090 </td> <td align="right"> 798434 </td> <td align="right"> 73809 </td> </tr>
@@ -498,25 +493,21 @@ And visualize the results:
 
 ```r
 ggplot(joinedResult) +
-  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=5) +
+  geom_point(aes(x=call_call_set_name, y=perct_het_alt_in_snvs, color=gender), size=3) +
   xlab("Sample") +
   ylab("Heterozygosity Rate") +
   ggtitle("Heterozygosity Rate on the X Chromosome") +
   scale_colour_brewer(palette="Set1", name="Gender") +
-  theme(axis.line = element_line(colour = "black"),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text.x = element_blank()) 
+  plot_theme +
+  theme(axis.ticks = element_blank(),
+    axis.text.x = element_blank())
 ```
 
 <img src="figure/gender-1.png" title="plot of chunk gender" alt="plot of chunk gender" style="display: block; margin: auto;" />
 
 ## Genotyping Concordance
 
-We next want to look at the concordance between SNPs called from the sequencing data and those called through the use genotyping.  This allows us to identify samples that may have been mixed up in the laboratory.
+We next want to look at the concordance between SNPs called from the sequencing data and those called through the use genotyping.  This allows us to identify samples that may have been mixed up in the laboratory.  Samples with low concordance (>99%) should be removed from the cohort.
 
 
 ```r
@@ -526,6 +517,8 @@ concordanceResult <- DisplayAndDispatchQuery("./sql/genotyping-concordance.sql",
 ```
 
 ```
+# Calculate the concordance between sequencing data and genotyping data.
+
 SELECT
   sample_id,
   calls_in_common,
@@ -658,25 +651,451 @@ WHERE
   AND seq.end >= gen.end )
 GROUP BY 
   sample_id)
-Running query:   RUNNING  2.5s
-Running query:   RUNNING  3.1s
-Running query:   RUNNING  3.7s
-...
-Running query:   RUNNING 282.8s
+
+Running query:   RUNNING  2.2s
+Running query:   RUNNING  2.9s
+Running query:   RUNNING  3.5s
+Running query:   RUNNING  4.2s
+Running query:   RUNNING  4.9s
+Running query:   RUNNING  5.5s
+Running query:   RUNNING  6.2s
+Running query:   RUNNING  6.8s
+Running query:   RUNNING  7.5s
+Running query:   RUNNING  8.2s
+Running query:   RUNNING  8.9s
+Running query:   RUNNING  9.5s
+Running query:   RUNNING 10.2s
+Running query:   RUNNING 10.8s
+Running query:   RUNNING 11.5s
+Running query:   RUNNING 12.2s
+Running query:   RUNNING 12.8s
+Running query:   RUNNING 13.5s
+Running query:   RUNNING 14.2s
+Running query:   RUNNING 14.9s
+Running query:   RUNNING 15.5s
+Running query:   RUNNING 16.2s
+Running query:   RUNNING 16.8s
+Running query:   RUNNING 17.5s
+Running query:   RUNNING 18.1s
+Running query:   RUNNING 19.0s
+Running query:   RUNNING 19.7s
+Running query:   RUNNING 20.4s
+Running query:   RUNNING 21.0s
+Running query:   RUNNING 21.7s
+Running query:   RUNNING 22.3s
+Running query:   RUNNING 23.0s
+Running query:   RUNNING 23.6s
+Running query:   RUNNING 24.4s
+Running query:   RUNNING 25.0s
+Running query:   RUNNING 25.7s
+Running query:   RUNNING 26.4s
+Running query:   RUNNING 27.0s
+Running query:   RUNNING 27.7s
+Running query:   RUNNING 28.4s
+Running query:   RUNNING 29.0s
+Running query:   RUNNING 29.7s
+Running query:   RUNNING 30.4s
+Running query:   RUNNING 31.0s
+Running query:   RUNNING 31.7s
+Running query:   RUNNING 32.3s
+Running query:   RUNNING 33.0s
+Running query:   RUNNING 33.7s
+Running query:   RUNNING 34.4s
+Running query:   RUNNING 35.0s
+Running query:   RUNNING 35.6s
+Running query:   RUNNING 36.3s
+Running query:   RUNNING 36.9s
+Running query:   RUNNING 37.7s
+Running query:   RUNNING 38.3s
+Running query:   RUNNING 38.9s
+Running query:   RUNNING 39.6s
+Running query:   RUNNING 40.3s
+Running query:   RUNNING 40.9s
+Running query:   RUNNING 42.1s
+Running query:   RUNNING 42.7s
+Running query:   RUNNING 43.4s
+Running query:   RUNNING 44.0s
+Running query:   RUNNING 44.7s
+Running query:   RUNNING 45.3s
+Running query:   RUNNING 46.0s
+Running query:   RUNNING 46.7s
+Running query:   RUNNING 47.4s
+Running query:   RUNNING 48.3s
+Running query:   RUNNING 49.0s
+Running query:   RUNNING 49.7s
+Running query:   RUNNING 50.3s
+Running query:   RUNNING 50.9s
+Running query:   RUNNING 51.6s
+Running query:   RUNNING 52.2s
+Running query:   RUNNING 52.9s
+Running query:   RUNNING 53.5s
+Running query:   RUNNING 54.1s
+Running query:   RUNNING 54.8s
+Running query:   RUNNING 55.4s
+Running query:   RUNNING 56.1s
+Running query:   RUNNING 56.7s
+Running query:   RUNNING 57.4s
+Running query:   RUNNING 58.0s
+Running query:   RUNNING 58.7s
+Running query:   RUNNING 59.4s
+Running query:   RUNNING 60.0s
+Running query:   RUNNING 60.7s
+Running query:   RUNNING 61.3s
+Running query:   RUNNING 61.9s
+Running query:   RUNNING 62.6s
+Running query:   RUNNING 63.3s
+Running query:   RUNNING 63.9s
+Running query:   RUNNING 64.6s
+Running query:   RUNNING 65.2s
+Running query:   RUNNING 65.9s
+Running query:   RUNNING 66.7s
+Running query:   RUNNING 67.4s
+Running query:   RUNNING 68.0s
+Running query:   RUNNING 68.7s
+Running query:   RUNNING 69.5s
+Running query:   RUNNING 70.1s
+Running query:   RUNNING 70.8s
+Running query:   RUNNING 71.4s
+Running query:   RUNNING 72.1s
+Running query:   RUNNING 72.8s
+Running query:   RUNNING 73.4s
+Running query:   RUNNING 74.1s
+Running query:   RUNNING 74.8s
+Running query:   RUNNING 75.4s
+Running query:   RUNNING 76.1s
+Running query:   RUNNING 76.7s
+Running query:   RUNNING 77.4s
+Running query:   RUNNING 78.1s
+Running query:   RUNNING 78.8s
+Running query:   RUNNING 79.4s
+Running query:   RUNNING 80.0s
+Running query:   RUNNING 80.7s
+Running query:   RUNNING 81.4s
+Running query:   RUNNING 82.1s
+Running query:   RUNNING 82.7s
+Running query:   RUNNING 83.3s
+Running query:   RUNNING 84.1s
+Running query:   RUNNING 84.7s
+Running query:   RUNNING 85.4s
+Running query:   RUNNING 86.1s
+Running query:   RUNNING 86.8s
+Running query:   RUNNING 87.5s
+Running query:   RUNNING 88.1s
+Running query:   RUNNING 88.8s
+Running query:   RUNNING 89.4s
+Running query:   RUNNING 90.1s
+Running query:   RUNNING 90.8s
+Running query:   RUNNING 91.5s
+Running query:   RUNNING 92.2s
+Running query:   RUNNING 92.8s
+Running query:   RUNNING 93.5s
+Running query:   RUNNING 94.1s
+Running query:   RUNNING 94.8s
+Running query:   RUNNING 95.4s
+Running query:   RUNNING 96.1s
+Running query:   RUNNING 96.7s
+Running query:   RUNNING 97.4s
+Running query:   RUNNING 98.0s
+Running query:   RUNNING 99.0s
+Running query:   RUNNING 100.3s
+Running query:   RUNNING 101.0s
+Running query:   RUNNING 101.7s
+Running query:   RUNNING 102.3s
+Running query:   RUNNING 102.9s
+Running query:   RUNNING 103.6s
+Running query:   RUNNING 104.2s
+Running query:   RUNNING 104.9s
+Running query:   RUNNING 105.5s
+Running query:   RUNNING 106.2s
+Running query:   RUNNING 106.8s
+Running query:   RUNNING 107.5s
+Running query:   RUNNING 108.2s
+Running query:   RUNNING 108.8s
+Running query:   RUNNING 109.5s
+Running query:   RUNNING 110.2s
+Running query:   RUNNING 110.8s
+Running query:   RUNNING 111.5s
+Running query:   RUNNING 112.1s
+Running query:   RUNNING 112.8s
+Running query:   RUNNING 113.8s
+Running query:   RUNNING 114.6s
+Running query:   RUNNING 115.3s
+Running query:   RUNNING 116.1s
+Running query:   RUNNING 117.1s
+Running query:   RUNNING 117.9s
+Running query:   RUNNING 118.8s
+Running query:   RUNNING 119.6s
+Running query:   RUNNING 120.3s
+Running query:   RUNNING 121.0s
+Running query:   RUNNING 121.7s
+Running query:   RUNNING 122.4s
+Running query:   RUNNING 123.1s
+Running query:   RUNNING 124.1s
+Running query:   RUNNING 125.1s
+Running query:   RUNNING 126.1s
+Running query:   RUNNING 127.5s
+Running query:   RUNNING 128.2s
+Running query:   RUNNING 129.0s
+Running query:   RUNNING 129.8s
+Running query:   RUNNING 130.5s
+Running query:   RUNNING 131.3s
+Running query:   RUNNING 131.9s
+Running query:   RUNNING 132.6s
+Running query:   RUNNING 133.2s
+Running query:   RUNNING 133.9s
+Running query:   RUNNING 134.6s
+Running query:   RUNNING 135.3s
+Running query:   RUNNING 135.9s
+Running query:   RUNNING 136.9s
+Running query:   RUNNING 137.6s
+Running query:   RUNNING 138.4s
+Running query:   RUNNING 139.2s
+Running query:   RUNNING 139.9s
+Running query:   RUNNING 140.9s
+Running query:   RUNNING 141.5s
+Running query:   RUNNING 142.2s
+Running query:   RUNNING 142.9s
+Running query:   RUNNING 143.5s
+Running query:   RUNNING 144.2s
+Running query:   RUNNING 144.8s
+Running query:   RUNNING 145.6s
+Running query:   RUNNING 146.3s
+Running query:   RUNNING 147.0s
+Running query:   RUNNING 147.7s
+Running query:   RUNNING 148.5s
+Running query:   RUNNING 149.2s
+Running query:   RUNNING 150.1s
+Running query:   RUNNING 150.9s
+Running query:   RUNNING 151.7s
+Running query:   RUNNING 152.5s
+Running query:   RUNNING 153.3s
+Running query:   RUNNING 154.0s
+Running query:   RUNNING 154.6s
+Running query:   RUNNING 155.2s
+Running query:   RUNNING 155.9s
+Running query:   RUNNING 156.6s
+Running query:   RUNNING 157.2s
+Running query:   RUNNING 157.9s
+Running query:   RUNNING 158.6s
+Running query:   RUNNING 159.2s
+Running query:   RUNNING 159.9s
+Running query:   RUNNING 160.5s
+Running query:   RUNNING 161.2s
+Running query:   RUNNING 161.8s
+Running query:   RUNNING 162.5s
+Running query:   RUNNING 163.1s
+Running query:   RUNNING 163.8s
+Running query:   RUNNING 164.4s
+Running query:   RUNNING 165.1s
+Running query:   RUNNING 165.7s
+Running query:   RUNNING 166.4s
+Running query:   RUNNING 167.4s
+Running query:   RUNNING 168.2s
+Running query:   RUNNING 168.9s
+Running query:   RUNNING 169.7s
+Running query:   RUNNING 170.4s
+Running query:   RUNNING 171.1s
+Running query:   RUNNING 171.8s
+Running query:   RUNNING 172.4s
+Running query:   RUNNING 173.0s
+Running query:   RUNNING 173.9s
+Running query:   RUNNING 174.6s
+Running query:   RUNNING 175.4s
+Running query:   RUNNING 176.1s
+Running query:   RUNNING 176.8s
+Running query:   RUNNING 177.6s
+Running query:   RUNNING 178.2s
+Running query:   RUNNING 179.0s
+Running query:   RUNNING 179.7s
+Running query:   RUNNING 180.4s
+Running query:   RUNNING 181.1s
+Running query:   RUNNING 181.9s
+Running query:   RUNNING 182.5s
+Running query:   RUNNING 183.2s
+Running query:   RUNNING 183.9s
+Running query:   RUNNING 184.6s
+Running query:   RUNNING 185.3s
+Running query:   RUNNING 185.9s
+Running query:   RUNNING 186.6s
+Running query:   RUNNING 187.2s
+Running query:   RUNNING 188.0s
+Running query:   RUNNING 188.6s
+Running query:   RUNNING 189.3s
+Running query:   RUNNING 190.2s
+Running query:   RUNNING 191.0s
+Running query:   RUNNING 191.9s
+Running query:   RUNNING 192.7s
+Running query:   RUNNING 193.4s
+Running query:   RUNNING 194.2s
+Running query:   RUNNING 195.0s
+Running query:   RUNNING 195.7s
+Running query:   RUNNING 196.3s
+Running query:   RUNNING 197.0s
+Running query:   RUNNING 197.7s
+Running query:   RUNNING 198.3s
+Running query:   RUNNING 199.0s
+Running query:   RUNNING 199.7s
+Running query:   RUNNING 200.4s
+Running query:   RUNNING 201.1s
+Running query:   RUNNING 201.7s
+Running query:   RUNNING 202.4s
+Running query:   RUNNING 203.0s
+Running query:   RUNNING 203.7s
+Running query:   RUNNING 204.3s
+Running query:   RUNNING 205.0s
+Running query:   RUNNING 205.6s
+Running query:   RUNNING 206.3s
+Running query:   RUNNING 206.9s
+Running query:   RUNNING 207.6s
+Running query:   RUNNING 208.2s
+Running query:   RUNNING 208.9s
+Running query:   RUNNING 209.5s
+Running query:   RUNNING 210.2s
+Running query:   RUNNING 210.9s
+Running query:   RUNNING 211.6s
+Running query:   RUNNING 212.3s
+Running query:   RUNNING 213.0s
+Running query:   RUNNING 213.7s
+Running query:   RUNNING 214.8s
+Running query:   RUNNING 215.9s
+Running query:   RUNNING 216.7s
+Running query:   RUNNING 217.4s
+Running query:   RUNNING 218.1s
+Running query:   RUNNING 218.8s
+Running query:   RUNNING 219.4s
+Running query:   RUNNING 220.1s
+Running query:   RUNNING 220.9s
+Running query:   RUNNING 221.6s
+Running query:   RUNNING 222.3s
+Running query:   RUNNING 223.0s
+Running query:   RUNNING 223.8s
+Running query:   RUNNING 224.6s
+Running query:   RUNNING 225.2s
+Running query:   RUNNING 226.0s
+Running query:   RUNNING 226.8s
+Running query:   RUNNING 227.5s
+Running query:   RUNNING 228.2s
+Running query:   RUNNING 228.9s
+Running query:   RUNNING 229.5s
+Running query:   RUNNING 230.2s
+Running query:   RUNNING 230.9s
+Running query:   RUNNING 231.5s
+Running query:   RUNNING 232.1s
+Running query:   RUNNING 232.8s
+Running query:   RUNNING 233.5s
+Running query:   RUNNING 234.3s
+Running query:   RUNNING 234.9s
+Running query:   RUNNING 235.6s
+Running query:   RUNNING 236.2s
+Running query:   RUNNING 236.9s
+Running query:   RUNNING 237.6s
+Running query:   RUNNING 238.3s
+Running query:   RUNNING 238.9s
+Running query:   RUNNING 239.6s
+Running query:   RUNNING 240.3s
+Running query:   RUNNING 241.0s
+Running query:   RUNNING 241.7s
+Running query:   RUNNING 242.4s
+Running query:   RUNNING 243.1s
+Running query:   RUNNING 243.8s
+Running query:   RUNNING 244.5s
+Running query:   RUNNING 245.3s
+Running query:   RUNNING 245.9s
+Running query:   RUNNING 246.6s
+Running query:   RUNNING 247.4s
+Running query:   RUNNING 248.1s
+Running query:   RUNNING 248.9s
+Running query:   RUNNING 249.6s
+Running query:   RUNNING 250.4s
+Running query:   RUNNING 251.6s
+Running query:   RUNNING 252.4s
+Running query:   RUNNING 253.3s
+Running query:   RUNNING 254.0s
+Running query:   RUNNING 254.8s
+Running query:   RUNNING 255.6s
+Running query:   RUNNING 256.4s
+Running query:   RUNNING 257.1s
+Running query:   RUNNING 258.3s
+Running query:   RUNNING 259.0s
+Running query:   RUNNING 259.8s
+Running query:   RUNNING 260.4s
+Running query:   RUNNING 261.1s
+Running query:   RUNNING 261.9s
+Running query:   RUNNING 262.6s
+Running query:   RUNNING 263.3s
+Running query:   RUNNING 264.0s
+Running query:   RUNNING 265.0s
+Running query:   RUNNING 265.9s
+Running query:   RUNNING 266.9s
+Running query:   RUNNING 267.7s
+Running query:   RUNNING 268.5s
+Running query:   RUNNING 269.3s
+Running query:   RUNNING 270.0s
+Running query:   RUNNING 270.8s
+Running query:   RUNNING 271.5s
+Running query:   RUNNING 272.2s
+Running query:   RUNNING 272.9s
+Running query:   RUNNING 273.7s
+Running query:   RUNNING 274.5s
+Running query:   RUNNING 275.3s
+Running query:   RUNNING 276.1s
+Running query:   RUNNING 278.2s
+Running query:   RUNNING 280.3s
+Running query:   RUNNING 281.5s
+Running query:   RUNNING 282.2s
+Running query:   RUNNING 283.3s
+Running query:   RUNNING 284.0s
+Running query:   RUNNING 284.7s
+Running query:   RUNNING 285.8s
+Running query:   RUNNING 286.6s
+Running query:   RUNNING 287.3s
+Running query:   RUNNING 288.0s
+Running query:   RUNNING 288.7s
+Running query:   RUNNING 289.4s
+Running query:   RUNNING 290.5s
+Running query:   RUNNING 291.2s
+Running query:   RUNNING 291.9s
+Running query:   RUNNING 292.6s
+Running query:   RUNNING 293.3s
+Running query:   RUNNING 294.0s
+Running query:   RUNNING 294.8s
+Running query:   RUNNING 295.4s
+Running query:   RUNNING 296.2s
+Running query:   RUNNING 296.9s
+Running query:   RUNNING 297.8s
+Running query:   RUNNING 298.9s
+Running query:   RUNNING 299.7s
+Running query:   RUNNING 300.5s
+Running query:   RUNNING 301.3s
+Running query:   RUNNING 302.1s
+Running query:   RUNNING 302.9s
+Running query:   RUNNING 303.6s
+Running query:   RUNNING 304.4s
+Running query:   RUNNING 305.2s
+Running query:   RUNNING 306.0s
+Running query:   RUNNING 307.1s
+Running query:   RUNNING 308.2s
+Running query:   RUNNING 309.0s
+Running query:   RUNNING 310.1s
+Running query:   RUNNING 311.2s
+Running query:   RUNNING 312.0s
+Running query:   RUNNING 312.8s
+Running query:   RUNNING 313.7s
+Running query:   RUNNING 314.5s
 ```
 Number of rows returned by this query: 460.
 
 Displaying the first few results:
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:22:39 2015 -->
+<!-- Tue Sep 22 21:38:58 2015 -->
 <table border=1>
 <tr> <th> sample_id </th> <th> calls_in_common </th> <th> identical_calls </th> <th> concordance </th>  </tr>
-  <tr> <td> LP6005144-DNA_B05 </td> <td align="right"> 2153692 </td> <td align="right"> 2132375 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005144-DNA_G09 </td> <td align="right"> 2153661 </td> <td align="right"> 2132007 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005243-DNA_D06 </td> <td align="right"> 2153920 </td> <td align="right"> 2132606 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005051-DNA_D07 </td> <td align="right"> 2151662 </td> <td align="right"> 2130020 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005038-DNA_H02 </td> <td align="right"> 2151002 </td> <td align="right"> 2129648 </td> <td align="right"> 0.99 </td> </tr>
-  <tr> <td> LP6005144-DNA_B03 </td> <td align="right"> 2155129 </td> <td align="right"> 2133437 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005692-DNA_D05 </td> <td align="right"> 2196434 </td> <td align="right"> 2183554 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005051-DNA_H01 </td> <td align="right"> 2155194 </td> <td align="right"> 2133607 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005693-DNA_D01 </td> <td align="right"> 2197900 </td> <td align="right"> 2185663 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005144-DNA_B07 </td> <td align="right"> 2151751 </td> <td align="right"> 2130147 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005243-DNA_E11 </td> <td align="right"> 2151642 </td> <td align="right"> 2130101 </td> <td align="right"> 0.99 </td> </tr>
+  <tr> <td> LP6005692-DNA_G03 </td> <td align="right"> 2198324 </td> <td align="right"> 2186301 </td> <td align="right"> 0.99 </td> </tr>
    </table>
 
 Get the sample preparation plate for each sample
@@ -690,32 +1109,242 @@ Visualizing the results:
 
 ```r
 ggplot(concordanceResult) +
-  geom_point(aes(x=sample_id, y=concordance, color=plate), size=4) +
+  geom_point(aes(x=sample_id, y=concordance, color=plate), size=3) +
   xlab("Sample") +
   ylab("Concordance") +
   ggtitle("Concordance with Genotyping Data") +
   scale_colour_brewer(name="Sample Prep Plate", palette="Set1") +
-  theme(axis.text.x=element_blank(),
-        axis.line = element_line(colour = "black"),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        panel.background = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text.x = element_blank()) 
+  plot_theme +
+  theme(axis.ticks = element_blank(),
+        axis.text.x = element_blank())
 ```
 
 <img src="figure/concordance-1.png" title="plot of chunk concordance" alt="plot of chunk concordance" style="display: block; margin: auto;" />
 
+
+## Batch Effect
+
+We next want to determine if there are any batch effects that were introduced during sequencing.  Since the genomes in our study were sequenced over time it is important to check if we can identify sequencing batches by variant data alone.  We can check for batch effects by running principal component analysis on all of the variants from our dataset.  If any of the batches are outliers in this part of the analysis we may want to remove them from the cohort.
+
+Note: This analysis is run on a Google Compute Engine rather than in BigQuery.  For full instructions on how to run PCA see the [Google Genomics Cookbook](https://googlegenomics.readthedocs.org/en/latest/use_cases/compute_principal_coordinate_analysis/1-way-pca.html?highlight=pca).
+
+Create cluster with Apache Spark installed
+```
+./bdutil -e extensions/spark/spark_env.sh deploy
+```
+
+Copy client_secrets to head node
+```
+gcloud compute copy-files client_secrets.json hadoop-m:~/
+```
+
+SSH into the head node
+```
+gcloud compute ssh hadoop-m
+```
+
+Install SBT
+```
+echo "deb http://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+sudo apt-get update
+sudo apt-get install sbt
+```
+
+Install git and clone spark-examples repository.
+```
+sudo apt-get install git
+git clone https://github.com/googlegenomics/spark-examples.git
+```
+
+Compile the jar
+```
+cd spark-examples
+sbt assembly
+cp target/scala-2.10/googlegenomics-spark-examples-assembly-*.jar ~/
+cd ~/
+```
+
+Running the job.  
+
+Variant set definitions:
+2442214609072563359: Full variant set for AAA dataset.
+
+```
+spark-submit \
+  --class com.google.cloud.genomics.spark.examples.VariantsPcaDriver \
+  --conf spark.shuffle.spill=true \
+  --master spark://hadoop-m:7077 \
+  /home/gmcinnes/spark-examples/target/scala-2.10/googlegenomics-spark-examples-assembly-1.0.jar \
+  --client-secrets /home/gmcinnes/client_secrets.json \
+  --variant-set-id 2442214609072563359 \
+  --all-references \
+  --num-reduce-partitions 15 \
+  --output-path gs://gbsc-gcp-project-mvp-va_aaa_hadoop/spark/output/aaa-batch-effect-pca.tsv
+```
+
+
+
+Next, we need to download the files that were output from the job to our local machine.
+
+```
+gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/spark/output/aaa-batch-effect-pca.tsv* > aaa-batch-effect-pca.tsv
+```
+
+Now let's visualize the results.
+
+
+```r
+pcaFile = './data/aaa-batch-effect-pca.tsv'
+pcaResult = read.table(pcaFile)
+names(pcaResult) = c('sample_id','pc1', 'pc2', 'extra')
+plate = substr(pcaResult$sample_id, 1, 9)
+pcaResult = cbind(pcaResult, plate)
+```
+
+
+```r
+ggplot(pcaResult, aes(pc1, pc2, color=plate)) + 
+  geom_point(size=4, alpha=0.5) +
+  ggtitle("Batch Effect PCA") +
+  xlab("Principal component 1") + 
+  ylab("Principal component 2") +
+  scale_colour_brewer(name="Library Prep Plate", palette="Set1") +
+  plot_theme +
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        legend.position = c(0.85,0.75))
+```
+
+<img src="figure/pca-batch-effect-publication-1.png" title="plot of chunk pca-batch-effect-publication" alt="plot of chunk pca-batch-effect-publication" style="display: block; margin: auto;" />
+
+
 ## Ethnicity Inference
 
-TODO
+Another application of principle component analysis is inferring ethnicity.  We can do so by performing PCA with our data merged with data from the 1,000 Genomes Project.  When we do this we expect to see that genomes from the 1,000 Genome Project and genomes from our dataset will cluster by ethnicity.  Since almost all of the genomes from our dataset are of European descent the European subpopulations from 1,000 Genomes and our genomes should cluster together.  Any genomes that cluster with an unexpected ethnic group should be removed from the cohort.
+
+Full instructions for how to compute principal component analysis on the intersection of two datasets using Google Cloud can be found [here](http://googlegenomics.readthedocs.org/en/latest/use_cases/compute_principal_coordinate_analysis/2-way-pca.html).
+
+#### Step by step instructions for running 2-way PCA
+
+These instructions are identical to the Batch Effect step except that we run 2-way PCA instead of 1-way PCA.
+
+Create cluster with Apache Spark installed
+```
+./bdutil -e extensions/spark/spark_env.sh deploy
+```
+
+Copy client_secrets to head node
+```
+gcloud compute copy-files client_secrets.json hadoop-m:~/
+```
+
+SSH into the head node
+```
+gcloud compute ssh hadoop-m
+```
+
+Install SBT
+```
+echo "deb http://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+sudo apt-get update
+sudo apt-get install sbt
+```
+
+Install git and clone spark-examples repository.
+```
+sudo apt-get install git
+git clone https://github.com/googlegenomics/spark-examples.git
+```
+
+Compile the jar
+```
+cd spark-examples
+sbt assembly
+cp target/scala-2.10/googlegenomics-spark-examples-assembly-*.jar ~/
+cd ~/
+```
+
+#### Run the job
+
+Variant set definitions:
+18444522614861607145: SNPs from the AAA dataset to use for ethnicity inference.  
+12511568612726359419: 1000 genomes variant set.
+
+```
+spark-submit   \
+  --class com.google.cloud.genomics.spark.examples.VariantsPcaDriver \
+  --conf spark.shuffle.spill=true \
+  --master spark://hadoop-m:7077 \
+  /home/gmcinnes/spark-examples/target/scala-2.10/googlegenomics-spark-examples-assembly-1.0.jar \
+  --client-secrets /home/gmcinnes/client_secrets.json \
+  --variant-set-id 18444522614861607145 12511568612726359419 \
+  --all-references \
+  --num-reduce-partitions 15 \
+  --output-path gs://gbsc-gcp-project-mvp-va_aaa_hadoop/spark/output/aaa-vs-1kg-pca.txt
+```
+
+Next, we need to download the files that were output from the job to our local machine.
+
+```
+gsutil cat gs://gbsc-gcp-project-mvp-va_aaa_hadoop/spark/output/aaa-vs-1kg-pca.txt* > aaa-vs-1kg-pca.tsv
+```
+
+Now let's visualize the results.
+
+
+```r
+pca = read.table('./data/aaa-vs-1kg-pca.tsv')
+names(pca) <- c("sample_id","pc1","pc2")
+```
+
+
+```r
+populations = read.csv('./data/1kg_info.csv')
+pca = join(pca, populations, by='sample_id')
+```
+
+
+```r
+ggplot(pca) +
+  geom_point(aes(pc1,pc2, color=Population)) +
+  ggtitle("Ethnicity inference") +
+  scale_colour_brewer(name="1KG super population", palette="Set1") +
+  xlab("Principal component 1") +
+  ylab("Principal component 2") +
+  plot_theme + 
+  theme(axis.ticks=element_blank(),
+        axis.text=element_blank(),
+        legend.position = c(0.85, 0.7))
+```
+
+<img src="figure/ethnicity-inference-1.png" title="plot of chunk ethnicity-inference" alt="plot of chunk ethnicity-inference" style="display: block; margin: auto;" />
 
 ## Genome Similarity
 
-Perform a simplistic similarity check on each pair of genomes to identify any mislabled or cross-contaminated samples.
+The final step in the Sample QC portion of our workflow is a check for unexpected relatedness among our genomes.  To do this we perfrom an analysis called Identity By State (IBS).  This analysis checks the similarity between all positions in every genome against every other genome.  Any unexpected similarity among our genomes may be the result of unknown family relationships or the result of cross-sample contamination.  Any samples with unexpected relatedness should be removed from the cohort.
+
+Full instructions for setting up and running this job can be found in the [Google Genomics Cookbook](http://googlegenomics.readthedocs.org/en/latest/use_cases/compute_identity_by_state/).
 
 Note that this `n^2` analysis is a cluster compute job instead of a BigQuery query.
+
+
+#### Run the job
+```
+java -cp target/google-genomics-dataflow*.jar \
+  com.google.cloud.genomics.dataflow.pipelines.IdentityByState \
+  --runner=BlockingDataflowPipelineRunner \
+  --project=gbsc-gcp-project-mvp \
+  --stagingLocation=gs://gbsc-gcp-project-mvp-va_aaa_jobs/dataflow/all-genomes-staging \
+  --output=gs://gbsc-gcp-project-mvp-va_aaa_hadoop/dataflow/output/all-genomes-ibs.tsv \
+  --numWorkers=40 \
+  --genomicsSecretsFile=client_secrets.json \
+  --datasetId=2442214609072563359 \
+  --hasNonVariantSegments=true \
+  —allReferences=true
+```
+
+
 
 
 
@@ -781,18 +1410,9 @@ DrawHeatMap(ibsDataflowDataSubset)
 
 <img src="figure/ibs-1-1.png" title="plot of chunk ibs-1" alt="plot of chunk ibs-1" style="display: block; margin: auto;" />
 
-Now let's look at all the genomes
-
-
-```r
-DrawHeatMap(ibsDataflowDataSample)
-```
-
-<img src="figure/ibs-full-1.png" title="plot of chunk ibs-full" alt="plot of chunk ibs-full" style="display: block; margin: auto;" />
-
 Let's take a look at the most similar genomes.
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Tue Jun 23 13:22:46 2015 -->
+<!-- Tue Sep 22 21:39:18 2015 -->
 <table border=1>
 <tr> <th> sample1 </th> <th> sample2 </th> <th> ibsScore </th>  </tr>
   <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
@@ -801,108 +1421,6 @@ Let's take a look at the most similar genomes.
   <tr> <td> LP6005692-DNA_H12 </td> <td> LP6005693-DNA_C03 </td> <td align="right"> 0.08 </td> </tr>
   <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
   <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005692-DNA_F12 </td> <td> LP6005693-DNA_B03 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005051-DNA_D09 </td> <td> LP6005692-DNA_D05 </td> <td align="right"> 0.06 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005692-DNA_H12 </td> <td> LP6005693-DNA_D03 </td> <td align="right"> 0.08 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005051-DNA_E02 </td> <td> LP6005243-DNA_E10 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005051-DNA_C11 </td> <td> LP6005243-DNA_F11 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_C03 </td> <td> LP6005693-DNA_D03 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005692-DNA_B02 </td> <td> LP6005693-DNA_H01 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_H12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_A12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005692-DNA_G12 </td> <td> LP6005693-DNA_B03 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_C03 </td> <td> LP6005692-DNA_H12 </td> <td align="right"> 0.08 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_B03 </td> <td> LP6005692-DNA_F12 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005692-DNA_D05 </td> <td> LP6005051-DNA_D09 </td> <td align="right"> 0.06 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_D03 </td> <td> LP6005692-DNA_H12 </td> <td align="right"> 0.08 </td> </tr>
-  <tr> <td> LP6005243-DNA_B12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_H11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_C12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_D12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_B12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E10 </td> <td> LP6005051-DNA_E02 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_G12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F11 </td> <td> LP6005051-DNA_C11 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_D03 </td> <td> LP6005693-DNA_C03 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H11 </td> <td> LP6005243-DNA_F12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_H01 </td> <td> LP6005692-DNA_B02 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_E12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_H12 </td> <td> LP6005243-DNA_G11 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_E12 </td> <td> LP6005243-DNA_A12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005693-DNA_B03 </td> <td> LP6005692-DNA_G12 </td> <td align="right"> 0.07 </td> </tr>
-  <tr> <td> LP6005243-DNA_F12 </td> <td> LP6005243-DNA_D12 </td> <td align="right"> 0.10 </td> </tr>
-  <tr> <td> LP6005243-DNA_G11 </td> <td> LP6005243-DNA_C12 </td> <td align="right"> 0.10 </td> </tr>
    </table>
 
 

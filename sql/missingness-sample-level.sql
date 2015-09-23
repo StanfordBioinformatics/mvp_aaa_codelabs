@@ -17,7 +17,7 @@ FROM (
         0)) AS alt_count,
     FROM (
     SELECT
-      call.call_set_name AS sample_id,
+      call.call_set_name,
       start,
       end,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
