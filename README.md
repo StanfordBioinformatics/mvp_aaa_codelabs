@@ -13,8 +13,6 @@ This section explains and demonstrates the methods used to perfrom quality contr
 ###  Part 4: [QC Implementation](./QC-Implementation.md)
 This part of the codelab demonstrates execution of the QC pipeline, removing low quality samples, and flagging low quality variants.
 
-### Part 5: [Analysis](./Analysis.md)
-This section demonstrates some basic analyses that can be performed using BigQuery including a running basic GWAS and uploading annotation tables.
 
 The overall workflow discussed here is visualized in the workflow below.
 
