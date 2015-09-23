@@ -1,5 +1,5 @@
 # mvp_aaa_codelabs
-This codelab goes over the procedures used to prepare and analyze genomes from the Million Veterans Project on Google Cloud.  
+This codelab goes over the procedures used to prepare and analyze a pilot set of genomes from the Million Veterans Program on Google Cloud.  
 
 ### Part 1: [BigQuery Setup](./BigQuery-Setup.md)
 This part of the codelab goes over the necessary steps to create tables in BigQuery with genomic information.  
