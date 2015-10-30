@@ -40,8 +40,8 @@ def main(file, sample_list=None, one_based=False):
             print_line(list, genotypes, samples)
 
 def clean_alts(alts):
-    alts.replace('|',',')
-    return alts
+    new = alts.replace('|',',')
+    return new
 
 def clean_name(name):
     ids = name.split("|")
