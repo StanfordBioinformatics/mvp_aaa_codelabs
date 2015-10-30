@@ -33,10 +33,15 @@ def main(file, sample_list=None, one_based=False):
                 samples = make_sample_dict(calls)
                 print_header(samples)
             genotypes = get_genotypes(calls, samples)
+            list[ALT] = clean_alts(list[ALT])
             list[ID] = clean_name(list[ID])
             if one_based is True:
                 list[POS] = convert_to_one_based(list[POS])
             print_line(list, genotypes, samples)
+
+def clean_alts(alts):
+    alts.replace('|',',')
+    return alts
 
 def clean_name(name):
     ids = name.split("|")
