@@ -1,11 +1,14 @@
 # Determine the level of missingness for each sample when compared to the hg19 reference genome
-SELECT 
-  g.sample_id AS sample_id,
-  ROUND(((hg19.count - g.all_calls_count)/hg19.count), 3) AS missingness
+SELECT
+  sample_id,
+  ROUND(1 - ((build_length - all_calls_count)/build_length), 3) AS missingness,
 FROM (
   SELECT
     call.call_set_name AS sample_id,
     ref_count + alt_count AS all_calls_count,
+    ref_count,
+    alt_count,
+    3049315783 AS build_length,
   FROM (
     SELECT
       call.call_set_name,
@@ -20,16 +23,16 @@ FROM (
       call.call_set_name,
       start,
       end,
+      reference_bases,
+      GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
     FROM
-      [_THE_TABLE_])
-    OMIT call IF call.call_set_name = 'LP6005243-DNA_A08'
+      [gbsc-gcp-project-mvp:va_aaa_pilot_data.aaa_20160709_genome_calls_no_qc]
+    WHERE
+      reference_bases IN ('A', 'C', 'T', 'G')
+    HAVING
+      alts IN ('A', 'C', 'T', 'G', '<NON_REF>'))
     GROUP BY
-      call.call_set_name)) AS g
-  CROSS JOIN (
-    SELECT 
-      COUNT(Chr) AS count
-    FROM 
-      [google.com:biggene:test.hg19]) AS hg19
+      call.call_set_name)) 
 ORDER BY
   missingness DESC

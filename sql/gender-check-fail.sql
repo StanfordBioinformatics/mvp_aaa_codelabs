@@ -46,7 +46,7 @@ FROM
     FROM
       [_THE_TABLE_]
     WHERE
-      reference_name = 'chrX'
+      reference_name = 'X'
       AND start NOT BETWEEN 59999 AND 2699519
       AND start NOT BETWEEN 154931042 AND 155260559
     HAVING

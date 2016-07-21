@@ -16,23 +16,23 @@ SELECT
 FROM(FLATTEN((
   [_THE_EXPANDED_TABLE_]), call.call_set_name))
 WHERE
-  reference_name IN ('chrX', 'chrY')
+  reference_name IN ('X', 'Y')
 OMIT
   call IF (2 > COUNT(call.genotype))
   OR EVERY(call.genotype <= 0)
   OR EVERY(call.genotype = 1)
   # Pseudoautosomal Region 1
-  OR (reference_name = 'chrX'
+  OR (reference_name = 'X'
     AND start > 60001
     AND end < 2699520)
-  OR (reference_name = 'chrY'
+  OR (reference_name = 'Y'
     AND start > 10001
     AND end < 2649520)
   # Pseudoautosomal Region 2
-  OR (reference_name = 'chrX'
+  OR (reference_name = 'X'
     AND start > 155260560
     AND end < 155270560)
-  OR (reference_name = 'chrY' 
+  OR (reference_name = 'Y' 
     AND start > 59363566
     AND end < 59373566)) AS seq
 JOIN (
