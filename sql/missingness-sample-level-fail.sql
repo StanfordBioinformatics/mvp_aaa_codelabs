@@ -33,7 +33,7 @@ FROM (
       GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alts,
       GROUP_CONCAT(STRING(call.genotype)) WITHIN call AS genotype
     FROM
-      [gbsc-gcp-project-mvp:va_aaa_pilot_data.aaa_20160709_genome_calls_no_qc]
+      [_THE_TABLE_]
     WHERE
       reference_bases IN ('A', 'C', 'T', 'G')
     HAVING
