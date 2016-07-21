@@ -50,6 +50,8 @@ JOIN (
         INTEGER(FLOOR(start / 100000)) AS window,
         CONCAT(reference_bases, CONCAT(STRING('->'), alternate_bases)) AS mutation,
         COUNT(alternate_bases) WITHIN RECORD AS num_alts,
+        alternate_bases,
+        reference_bases,
         FROM
         [_THE_EXPANDED_TABLE_]
         # Optionally add clause here to limit the query to a particular
