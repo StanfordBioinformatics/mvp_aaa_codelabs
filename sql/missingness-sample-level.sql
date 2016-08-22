@@ -8,7 +8,7 @@ FROM (
     ref_count + alt_count AS all_calls_count,
     ref_count,
     alt_count,
-    3049315783 AS build_length,
+    3088269832 AS build_length,
   FROM (
     SELECT
       call.call_set_name,

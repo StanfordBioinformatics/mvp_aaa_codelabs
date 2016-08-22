@@ -1,6 +1,3 @@
-# A template for a simplistic GWAS query upon 1,000 Genomes phase 1 variants
-# within BRCA1.  The template allows customization of the list of sample ids
-# in the case group.  http://homes.cs.washington.edu/~suinlee/genome560/lecture7.pdf
 SELECT
 reference_name,
 start,

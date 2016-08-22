@@ -568,7 +568,7 @@ runTimeFacet = ggplot(queryInfo) +
   axis.title.y=element_blank(),
   legend.title=element_blank()) +
   scale_fill_hue(l=40) +
-  ggtitle("Query processing information in BigQuery") +
+  ggtitle("Query processing information in Dremel") +
   scale_y_continuous(labels=comma, expand = c(0, 0))  
 runTimeFacet
 ```
@@ -585,7 +585,7 @@ p1 = ggplot(avgRunTime) +
   legend.title=element_blank()) +
   scale_fill_hue(l=40) +
   ylab("Average Run Time\n(seconds)\n") +
-  ggtitle("Query processing information in BigQuery") +
+  ggtitle("Query processing information in Dremel") +
   scale_y_continuous(labels=comma, expand = c(0, 0)) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank())
