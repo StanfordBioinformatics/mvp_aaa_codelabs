@@ -1,5 +1,6 @@
 # The following query computes the Hardy-Weinberg equilibrium for variants.
 SELECT
+  variant_id,
   reference_name,
   start,
   reference_bases,
@@ -26,6 +27,7 @@ SELECT
 
 FROM (
     SELECT
+      variant_id,
       reference_name,
       start,
       reference_bases,
@@ -62,6 +64,7 @@ FROM (
 
   FROM (
     SELECT
+      variant_id,
       reference_name,
       start,
       reference_bases,
@@ -72,12 +75,13 @@ FROM (
       HOM_REF + HET + HOM_ALT AS SAMPLE_COUNT,
     FROM (
       SELECT
-        reference_name,
+        variant_id,
+	reference_name,
         start,
         END,
         reference_bases,
-        GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
-        COUNT(alternate_bases) WITHIN RECORD AS num_alts,
+        GROUP_CONCAT(alt.alternate_bases) WITHIN alt AS alternate_bases,
+        COUNT(alt.alternate_bases) WITHIN RECORD AS num_alts,
         SUM(EVERY(0 = call.genotype)) WITHIN call AS HOM_REF,
         SUM(EVERY(1 = call.genotype)) WITHIN call AS HOM_ALT,
         SUM(SOME(0 = call.genotype)

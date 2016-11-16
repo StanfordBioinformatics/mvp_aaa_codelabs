@@ -15,7 +15,7 @@ FROM (
     [_THE_EXPANDED_TABLE_]) as seq
 JOIN (
   SELECT 
-    reference_name,
+    LTRIM(reference_name, 'chr') AS reference_name,
     start - 1 AS start,
     end,
     Artifact_Type

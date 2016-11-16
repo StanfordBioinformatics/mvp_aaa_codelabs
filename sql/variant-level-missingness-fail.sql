@@ -22,13 +22,16 @@ FROM (
     start,
     end,
     reference_bases,
-    GROUP_CONCAT(alternate_bases) WITHIN RECORD AS alternate_bases,
+    GROUP_CONCAT(alt.alternate_bases) WITHIN alt AS alternate_bases,
     SUM(call.genotype >= 0) WITHIN RECORD AS called_allele_count,
     FROM
     [_THE_EXPANDED_TABLE_]
     # Optionally add clause here to limit the query to a particular
     # region of the genome.
     #_WHERE_
+    HAVING
+      LENGTH(reference_bases) = 1 AND
+      LENGTH(alternate_bases) = 1
   ) AS g
   CROSS JOIN (
     SELECT

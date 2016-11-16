@@ -1,5 +1,5 @@
 # Compute the average and standard deviation of heterzygous call counts for 
-# all genomes.  This query requires that _MAIN_QUERY_ be substituted with
+# all genomes.  This query requires that the FROM statement be substituted with
 # the contents of heterozygous-call-counts.sql
 
 SELECT

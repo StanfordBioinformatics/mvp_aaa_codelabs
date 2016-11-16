@@ -42,5 +42,5 @@ FROM (
       call.call_set_name)))
 WHERE
   missingness < _CUTOFF_
-ORDER BY
-  g.sample_id
+#ORDER BY
+#  g.sample_id
