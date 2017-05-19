@@ -15,7 +15,7 @@
       COUNT(alternate_bases) WITHIN RECORD AS num_alts
     FROM
       [_THE_EXPANDED_TABLE_]
-    OMIT call IF SOME(call.genotype < 0) OR (2 > COUNT(call.genotype)) 
+    #OMIT call IF SOME(call.genotype < 0) OR (2 > COUNT(call.genotype)) 
     HAVING
       num_alts = 1
       AND reference_bases IN ('A','C','G','T')

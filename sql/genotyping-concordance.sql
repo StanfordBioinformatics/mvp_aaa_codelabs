@@ -29,7 +29,7 @@ FROM (
       FROM js(
         (SELECT
           call.call_set_name,
-          reference_name,
+          CONCAT("chr", reference_name) AS reference_name,
           start,
           end,
           call.genotype,
@@ -39,8 +39,8 @@ FROM (
         FROM
           [_THE_TABLE_]
          #_WHERE_
-        OMIT 
-          call IF EVERY (call.genotype < 0)
+        #OMIT 
+        #  call IF EVERY (call.genotype < 0)
         HAVING 
           num_alts <= 1
           AND reference_bases IN ('A','C','G','T')

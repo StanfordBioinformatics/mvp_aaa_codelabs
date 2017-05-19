@@ -40,7 +40,7 @@ FROM (
           # Optionally add a clause here to limit the query to a particular
           # region of the genome.
           #_WHERE_
-          OMIT call IF EVERY(call.genotype = -1)
+          #OMIT call IF EVERY(call.genotype = -1)
         ), alternate_bases)
         )
     OMIT RECORD IF alternate_bases IS NULL

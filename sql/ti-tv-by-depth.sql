@@ -33,8 +33,8 @@ FROM (
       # region of the genome.
       #_WHERE_  
       )
-    WHERE
-      call.DP is not null
+    #WHERE
+    #  call.DP is not null
     HAVING
       # Skip 1/2 genotypes _and non-SNP variants
       num_alts = 1
