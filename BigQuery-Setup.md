@@ -118,7 +118,9 @@ java -jar genomics-tools-client-java-v1beta2.jar exportvariants \
 ```
 
 ### Multi Sample Variants Table
-For some of the queries we want to run it is much easier to have the call for each sample listed explicitly rather than grouped into reference matching blocks.  To accomplish this we create a table resembling a multi sample VCF with the call for every sample listed at every position where at least one sample had a variant.  To create this table we run a [Cloud Dataflow job](https://github.com/StanfordBioinformatics/codelabs/tree/master/Java/PlatinumGenomes-variant-transformation) to transform our genomic call table into a multi sample variant table.
+For some of the queries we want to run it is much easier to have the call for each sample listed explicitly rather than grouped into reference matching blocks.  To accomplish this we create a table resembling a multi sample VCF with the call for every sample listed at every position where at least one sample had a variant.  To create this table we run a [Cloud Dataflow job](https://github.com/StanfordBioinformatics/codelabs/tree/master/Java/PlatinumGenomes-variant-transformation) to transform our genomic call table into a multi sample variant table. For cohorts of size ~2,000 or larger we recommend
+[a more recent version of this pipeline](https://github.com/googlegenomics/codelabs/tree/master/Java/PlatinumGenomes-variant-transformation)
+that can be configured to emit a schema optimized for large cohorts.
 
 *NOTE:* The code needs to be compiled before running.  Follow the setup instructions for the variant transformation.
 

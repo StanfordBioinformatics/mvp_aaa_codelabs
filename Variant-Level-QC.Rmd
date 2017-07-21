@@ -14,7 +14,10 @@
 <!-- See the License for the specific language governing permissions and -->
 <!-- limitations under the License. -->
 
-*This codelab was made in collaboration with [Google Genomics](https://github.com/googlegenomics)*
+*This codelab was made in collaboration with [Google Genomics](https://github.com/googlegenomics).
+New [Standard SQL](https://cloud.google.com/bigquery/docs/reference/standard-sql/)
+versions of many of these queries can be found
+[here](https://github.com/googlegenomics/codelabs/tree/master/R/PlatinumGenomes-QC/sql).*
 
 # Part 3: Variant-Level QC
 
