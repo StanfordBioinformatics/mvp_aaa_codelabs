@@ -18,103 +18,82 @@
 
 # Part 1: Data Preprocessing and BigQuery Setup
 
-This document details the methods used to prepare genomic data for analysis on Google Cloud
+This document details the methods used to prepare genomic data for analysis on Google Cloud.  Here we are working with variant data stored in gVCFs.  gVCFs, unlike standard VCFs, contain reference calls for the entire genome.  Our gVCFs have consequtive reference calls with similar quality grouped into reference blocks.  If the gVCF has individual reference calls on each line, you may want to group together into reference blocks.  You can do this by running [this script](https://github.com/StanfordBioinformatics/googva/blob/master/gvcf-mapper-cl.py) on Google Cloud.  VCFs also work fine with the Google Genomics tools.
 
 ## Upload data 
-First, we uploaded all the vcfs from our local compute cluster to Google Cloud Storage.  A [bash script](./bin/gc_upoad.sh) was used to to execute the upload for each sample.  
+First, we uploaded all the vcfs from our local compute cluster to Google Cloud Storage.  A tool called [gsutil](https://cloud.google.com/storage/docs/gsutil) allows up to interact with Google Cloud.  We'll use this to upload our data.
+
+You will need to first create an account with Google Cloud to use Google Storage.  The path `gs://path/to/google/storage` represents a directory within a bucket in Google Storage.
 
 ```r
-./gc_upload.sh sample_list
+gsutil cp /path/to/local/data gs://path/to/google/storage
 ```
 
-See [here](https://cloud.google.com/storage/docs/gsutil) for more information on gsutil.
-
-## Sequence level filtering and gvcf conversion
-Our variant data for this project is in gVCF format with every genomic position listed.  We want to compress all sequenctial reference calls into reference matching blocks in order to save time and compute cost when querying the data in BigQuery later.  To do this we use a [MapReduce script](https://github.com/StanfordBioinformatics/googva/blob/master/gvcf-mapper.py) running on Hadoop streaming.  This script also flags low quality reference calls and variants.  Flagged reference calls and variants are assigned a genotype of -1/-1 and sequential low quality calls are grouped in to low quality blocks.
-
-Variants are requried to have `PASS` in the FILTER column.  Variants with any other descriptors are flagged.
-
-Referece calls are flagged based on the following metrics:
-
-  * QUAL >= 30
-  * MQ >= 30
-  * MQ0 < 4
-  
-First, we need to set up a compute cluster on Google Cloud.  For information on using bdutil see [here](https://cloud.google.com/hadoop/bdutil). For this job we'll use 100 worker nodes, so we set `NUM_WORKERS` in bdutil_env.sh to 100.
-```r
-./bdutil deploy
-```
-
-And copy the files we'll need.
-```r
-gcloud compute copy-files /Users/gmcinnes/src/googva/gvcf-mapper.py hadoop-m:~/
-gcloud compute copy-files /Users/gmcinnes/src/googva/CustomMultiOutputFormat.java hadoop-m:~/
-```
-
-Now we can ssh into the cluster and set things up from there.
-```r
-gcloud compute ssh hadoop-m
-
-sudo apt-get install -y openjdk-7-jdk screen less vim
-
-javac -cp $(hadoop classpath) -d . CustomMultiOutputFormat.java
-
-jar cvf custom.jar com/custom/CustomMultiOutputFormat.class com/custom/CustomMultiOutputFormat\$LineRecordWriter.class 
-
-sudo su
-
-cd /home/hadoop/hadoop-install
-
-screen
-
-./bin/hadoop jar contrib/streaming/hadoop-streaming-1.2.1.jar \
-  -libjars /home/gmcinnes/custom.jar \
-  -outputformat com.custom.CustomMultiOutputFormat \
-  -input  gs://gbsc-gcp-project-mvp-va_aaa/data/LP*/*/vcfs/* \
-  -mapper /home/gmcinnes/gvcf-mapper.py \
-  -file /home/gmcinnes/gvcf-mapper.py  \
-  -reducer org.apache.hadoop.mapred.lib.IdentityReducer \
-  -output gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/reduced-gvcfs-460-genomes
-```
 
 ## Import into genomics variant set
-Next, we import all the vcfs into a genomics [variant set](https://cloud.google.com/genomics/v1beta2/managing-variants).  This makes out data accessible through the genomics API.
+Once our data is in Google Cloud, we import all the vcfs into a genomics [variant set](https://cloud.google.com/genomics/v1/managing-variants).  This makes out data accessible through the Google Genomics API.
 
-First we need to create a new variant set.
-```r
-java -jar genomics-tools-client-java-v1beta2.jar createdataset \
-  --project_number 963911152157 \
-  --name AAA_460_Genomes
-```
-```
-The new dataset was created: {
-  "id" : "12721125545898647337",
-  "name" : "AAA_460_Genomes",
-  "projectNumber" : "963911152157"
-}
-```
+Google Genomics provides a toolset to interact with genomic data with [gcloud](https://cloud.google.com/sdk/gcloud/) (gcloud is installed automatically when you install gsutil).
 
-We need to save the id of the new dataset (12721125545898647337) for use in future steps.
-
-We then import the vcfs into the new dataset.
+To get started with the genomics tools simply run the following command.  You will be prompted to install the alpha commands.
 
 ```r
-java -jar genomics-tools-client-java-v1beta2.jar importvariants \
-  --variant_set_id 12721125545898647337 \
-  --vcf_file gs://gbsc-gcp-project-mvp-va_aaa_hadoop/out/reduced-gvcfs-460-genomes/LP*/*
+gcloud alpha genomics
 ```
+
+Now we can use the genomics tools provided within gcloud.
+
+First we need to create a new dataset.
+```r
+gcloud alpha genomics datasets create --name my_dataset
+```
+
+gcloud will output something like the following.  We'll need to save the id for later use.
+```
+Created dataset my_dataset, id: 12406857362375913404
+```
+
+Next we'll create a variant set within the dataset.  This is where we'll put our data in the next step.
+
+```r
+gcloud alpha genomics variantsets create --dataset-id 12406857362375913404
+```
+This outputs the following.  Now we'll need to save the variant set id.
+```
+Created variant set id: 14165412073904006532 "", belonging to dataset id: 12406857362375913404
+Created [14165412073904006532].
+```
+
+Now we have created a space into which we can copy our variant data.  Copying our VCFs into a variant set formats it in an object oriented manner that can be accessed rapidly by the Genomics API.  
+
+
+Now we can import our gVCFs into the variant set.  Again we use gcloud.
+
+```r
+gcloud alpha genomics variants import --variantset-id 14165412073904006532 --source-uris gs://path/to/google/storage*.vcf 
+```
+
+This function submits a job to Google Cloud.  The job id is output.
+```
+done: false
+name: operations/CJ3k0-yGHBCmrYC8BRi1ou-Z5OTE4PEB
+```
+
+If the VCFs are very large the import job can take a while.  You can use the following command to monitor the job.
+
+```r
+gcloud alpha genomics operations describe operations/CJ3k0-yGHBCmrYC8BRi1ou-Z5OTE4PEB
+```
+
+When that command returns `done:true` the import has completed.
 
 ## Export to BigQuery
 
 ### Genome Call Table
-Now that we have our data stored in a variant set we can create a BigQuery table where we can query our data.  We name the table genome_calls_no_qc to indicate that this table has not yet undergone quality control.  We will go over this in the next step.
+Now that we have our data stored in a variant set we can create a BigQuery table where we can query our data.
 
 ```r
-java -jar genomics-tools-client-java-v1beta2.jar exportvariants \
-  --variant_set_id 12721125545898647337 \
-  --project_number 963911152157 \
-  --bigquery_dataset va_aaa_genomic_data \ 
-  --bigquery_table genome_calls_seq_qc
+gcloud alpha genomics variantsets export 14165412073904006532 my_genome_calls_table --bigquery-dataset my_bq_dataset
 ```
 
 ### Multi Sample Variants Table
@@ -127,13 +106,12 @@ that can be configured to emit a schema optimized for large cohorts.
 ```r
 java -cp target/non-variant-segment-transformer-*.jar   \
   com.google.cloud.genomics.examples.TransformNonVariantSegmentData   \
-  --project=gbsc-gcp-project-mvp   \
-  --stagingLocation=gs://gbsc-gcp-project-mvp-va_aaa_hadoop/dataflow/staging   \
-  --genomicsSecretsFile=/Users/gmcinnes/bin/google_genomics/client_secrets.json   \
-  --datasetId=12721125545898647337   \
+  --project=my-project-name   \
+  --stagingLocation=gs://my_bucket/dataflow/staging   \
+  --datasetId=14165412073904006532   \
   --allReferences   \
   --hasNonVariantSegments    \
-  --outputTable=gbsc-gcp-project-mvp:va_aaa_pilot_data.multi_sample_variants_seq_qc \
+  --outputTable=gbsc-gcp-project-mvp:my_bq_dataset.my_multisample_variants_table \
   --numWorkers=200 \
   --runner=DataflowPipelineRunner
 ```
